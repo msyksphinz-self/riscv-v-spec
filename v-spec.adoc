@@ -310,7 +310,7 @@ The `vtype` register has five fields,
 `vill`, `vma`, `vta`, `vsew[2:0]`, and `vlmul[2:0]`.
 ////
 
-`vtype`レジスタには、 `vill`、 `vma` 、 `vta` 、 `vsew[2:0]` 、 `vlmul[2:0]` の5つのフィールドがあります。
+`vtype` レジスタには、 `vill` 、 `vma` 、 `vta` 、 `vsew[2:0]` 、 `vlmul[2:0]` の5つのフィールドがあります。
 
 include::vtype-format.adoc[]
 
@@ -326,8 +326,8 @@ bit to hold `vill`.
 NOTE: ELEN=32 をサポートする小さな実装では、`vtype` には 7 ビットの状態しか必要ありません:
 `ma` と `ta` に 2 ビット、`vsew[1:0]` に 2 ビット、
 `vlmul[2:0]` に 3 ビットです。
-`vill`で表される不正な値は、`vsew[1:0]`の不正な64ビットの組み合わせを使って内部的にエンコードすることができ、
-`vill`を保持するための追加のストレージビットを必要としません。
+`vill` で表される不正な値は、`vsew[1:0]` の不正な64ビットの組み合わせを使って内部的にエンコードすることができ、
+`vill `を保持するための追加のストレージビットを必要としません。
 
 ////
 NOTE: Further standard and custom vector extensions will extend these
@@ -357,7 +357,7 @@ The value in `vsew` sets the dynamic _selected_ _element_ _width_
 VLEN/SEW elements.
 ////
 
-`vsew`の値は、動的な_選択要素幅_ (SEW)を設定します。
+`vsew` の値は、動的な _選択要素幅_ (SEW)を設定します。
 デフォルトでは、ベクトルレジスターは、
 VLEN/SEW要素に分割されているとみなされます。
 
