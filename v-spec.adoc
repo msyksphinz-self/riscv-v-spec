@@ -99,7 +99,7 @@ Standard vector extensions (Section <<sec-vector-extensions>>) and
 architecture profiles may set further constraints on _ELEN_ and _VLEN_.
 ////
 
-標準的なベクトル拡張(<<sec-vector-extensions>> セクション)とアーキテクチャプロファイルは、_ELEN_と_VLEN_にさらなる制約を設定することができます。
+標準的なベクトル拡張(<<sec-vector-extensions>> セクション)とアーキテクチャプロファイルは、 _ELEN_ と_VLEN_ にさらなる制約を設定することができます。
 
 ////
 NOTE: The upper limit on VLEN allows software to know that indices
