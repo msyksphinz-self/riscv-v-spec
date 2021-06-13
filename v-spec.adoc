@@ -1,4 +1,5 @@
-= RISC-V "V" Vector Extension
+// = RISC-V "V" Vector Extension
+= RISC-V "V" ベクトル拡張
 Version 1.0-rc2-draft
 :doctype: article
 :encoding: utf-8
@@ -23,19 +24,30 @@ Alex Solomatnikov, Steve Wallach, Andrew Waterman, Jim Wilson.
 
 :sectnums!:
 
-== Changes from v1.0-rc1
+// == Changes from v1.0-rc1
+== v1.0-rc1からの変更点
 
-=== No changes to date.
+// === No changes to date.
+=== 現在まで変更なし。
 
 :sectnums:
 
-== Introduction
+// == Introduction
+== イントロダクション
 
+////
 This document is a draft of the second release candidate for version
 1.0 of the RISC-V vector extension for public review.
+////
 
-*This is not the frozen version of 1.0 for public review*.
 
+このドキュメントは、RISC-Vベクトル拡張のバージョン1.0の第2リリース候補のドラフトであり、
+パブリックレビューのためのものです。
+
+// *This is not the frozen version of 1.0 for public review*.
+*これはパブリックレビュー用の1.0の凍結版ではありません。*
+
+////
 NOTE: When finally approved and the release candidate tag is removed,
 version 1.0 is intended to be sent out for public review as part of
 the RISC-V International ratification process.  Version 1.0 is also
@@ -44,48 +56,106 @@ simulators, and initial implementations, including in upstream
 software projects, and is not expected to have major functionality
 changes except if serious issues are discovered during ratification.
 Once ratified, the spec will be given version 2.0.
+////
 
+注：最終的に承認され、リリース候補のタグが外されたバージョン1.0は、
+RISC-Vインターナショナルの批准プロセスの一環として、パブリックレビューのために送り出されることを意図しています。
+また、バージョン1.0は、上流のソフトウェアプロジェクトを含め、ツールチェーン、機能シミュレータ、
+初期実装の開発を開始するのに十分な安定性があると考えられており、
+批准中に重大な問題が発見された場合を除き、
+大きな機能変更はないと予想されています。批准されると、仕様書のバージョンは2.0になります。
+
+////
 This draft spec includes the complete set of currently defined vector
 instructions.  Section <<sec-vector-extensions>> lists the standard
 vector extensions and which instructions and element widths are
 supported by each extension.
+////
 
-== Implementation-defined Constant Parameters
+本仕様書ドラフトには、現在定義されているベクトル命令の全セットが含まれています。
+<<sec-vector-extensions>>  セクションには、標準的なベクトル拡張機能と、
+それぞれの拡張機能でサポートされる命令および要素幅が記載されています。
 
-Each hart supporting a vector extension defines two parameters:
+// == Implementation-defined Constant Parameters
 
+== 実装により定義される定数パラメータ
+
+// Each hart supporting a vector extension defines two parameters:
+
+ベクトル拡張をサポートする各hartには、2つのパラメータが定義されています。
+
+////
 . The maximum size of a vector element that any operation can produce or consume in bits, _ELEN_ {ge} 8, which
 must be a power of 2.
 . The number of bits in a single vector register, _VLEN_, which must
 be a power of 2 and must be no greater than 2^16^.
+////
 
+. 任意の演算で生成または消費できるベクター要素の最大サイズ(ビット) _ELEN_ {ge} 8 で、これは2の累乗でなければなりません。
+. 1つのベクトルレジスターのビット数 _VLEN_ 、これは2の累乗でなければならず、2の累乗であり、2^16^以上であってはなりません。
+
+////
 Standard vector extensions (Section <<sec-vector-extensions>>) and
 architecture profiles may set further constraints on _ELEN_ and _VLEN_.
+////
 
+標準的なベクトル拡張(<<sec-vector-extensions>> セクション)とアーキテクチャプロファイルは、_ELEN_と_VLEN_にさらなる制約を設定することができます。
+
+////
 NOTE: The upper limit on VLEN allows software to know that indices
 will fit into 16 bits (largest VLMAX of 65,536 occurs for LMUL=8 and
 SEW=8 with VLEN=65,536).  Any future extension beyond 64Kib per vector
 register will require new configuration instructions such that
 software using the old configuration instructions does not see greater
 vector lengths.
+////
 
+Note: VLENの上限により、ソフトウェアはインデックスが16ビットに収まることを前提に組み立てることができます
+(LMUL=8およびSEW=8でVLEN=65,536の場合、最大のVLMAXは65,536になります)。
+将来的にクトルレジスタあたり64Kib以上に拡張する場合は、
+新しいコンフィグレーション命令が必要になりますが、
+従来のコンフィグレーション命令を使用しているソフトウェアでは、
+ベクトルの長さが大きくなることはありません。
+
+////
 The ISA supports writing binary code that under certain constraints
 will execute portably on harts with different values for the VLEN
 parameter, provided both support the required element types.
+////
 
+ISAは、特定の制約の下で、VLENパラメータの値が異なるhart上でバイナリコードが実行されるポータブルな記述をサポートしていますが、
+両方のhartが必要な要素型をサポートしていることが条件となります。
+
+////
 NOTE: Code can be written that will expose differences in
 implementation parameters.
+////
 
+NOTE: 実装パラメータの違いを露呈するようなコードを書くことも可能です。
+
+////
 NOTE: In general, thread contexts with active vector state cannot be
 migrated during execution between harts that have any difference in
 VLEN or ELEN parameters.
+////
 
-== Vector Extension Programmer's Model
+NOTE: 一般的に、ベクトルのステートがアクティブであるスレッドコンテキストは、
+VLENまたはELENパラメータに違いのあるhart間で実行中にコンテキストを移動するとはできません。
 
+// == Vector Extension Programmer's Model
+
+== ベクトル拡張のプログラミングモデル
+
+////
 The vector extension adds 32 vector registers, and seven unprivileged
 CSRs (`vstart`, `vxsat`, `vxrm`, `vcsr`, `vtype`, `vl`, `vlenb`) to a
 base scalar RISC-V ISA.
+////
 
+ベクトル拡張はRISC-VのベーススカラISAに対して、
+32本のベクトルレジスタに加えて7つの非特権CSR(`vstart`, `vxsat`, `vxrm`, `vcsr`, `vl`, `vlenb`)
+
+////
 .New vector CSRs
 [cols="2,2,2,10"]
 [%autowidth]
@@ -100,81 +170,198 @@ base scalar RISC-V ISA.
 | 0xC21 | URO | vtype  | Vector data type register
 | 0xC22 | URO | vlenb  | VLEN/8 (vector register length in bytes)
 |===
+////
 
-=== Vector Registers
+.新しいベクトルCSR
+[cols="2,2,2,10"]
+[%autowidth]
+|===
+| アドレス | 特権 | 名前   | 説明
 
+| 0x008 | URW | vstart | ベクトル操作開始位置
+| 0x009 | URW | vxsat  | 固定小数点飽和フラグ
+| 0x00A | URW | vxrm   | 固定小数点丸めモード
+| 0x00F | URW | vcsr   | ベクトル制御・ステータスレジスタ
+| 0xC20 | URO | vl     | ベクトル長
+| 0xC21 | URO | vtype  | ベクトルデータ型レジスタ
+| 0xC22 | URO | vlenb  | VLEN/8 (バイト単位でのベクトルレジスタ長)
+|===
+
+
+// === Vector Registers
+
+=== ベクトルレジスタ
+
+////
 The vector extension adds 32 architectural vector registers,
 `v0`-`v31` to the base scalar RISC-V ISA.
+////
 
-Each vector register has a fixed VLEN bits of state.
+ベクトル拡張により、RISC-VベーススカラISAに対して
+32本のアーキテクチャベクトルレジスタ`v0`-`v31`が追加される。
 
+// Each vector register has a fixed VLEN bits of state.
+
+各ベクトルレジスタのサイズは固定長でVLENビットである。
+
+////
 NOTE: Zfinx ("F in X") is a new ISA option under consideration where
 floating-point instructions take their arguments from the integer
 register file.  The 1.0 vector extension is also compatible with Zfinx.
+////
 
-=== Vector Context Status in `mstatus`
+NOTE: Zfinx ("F in X") は現在議論が行われている、浮動小数点命令を
+整数レジスタファイル上で実行する新しいISAオプションです。
+Vector 1.0拡張はZfinxに対して互換性があります。
 
+// === Vector Context Status in `mstatus`
+
+=== `mstatus` 内のベクトルコンテキストステータス
+
+////
 A vector context status field, `VS`, is added to `mstatus[10:9]` and shadowed
 in `sstatus[10:9]`.  It is defined analogously to the floating-point context
 status field, `FS`.
+////
 
+ベクトルコンテキストステータスフィールド `VS` は、
+`mstatus[10:9]` に追加され、
+`sstatus[10:9]` でシャドウイングされます。
+これは、浮動小数点コンテキストステータスフィールドである `FS` と同様に定義されます。
+
+////
 Attempts to execute any vector instruction, or to access the vector
 CSRs, raise an illegal-instruction exception when the `VS` field is
 set to Off.
+////
 
+`VS` フィールドがOFFに設定されている場合は、
+ベクトル命令を実行しようとしたり、ベクトルCSRにアクセスしようとすると、
+不正命令例外が発生します。
+
+////
 When the `VS` field is set to Initial or Clean, executing any
 instruction that changes vector state, including the vector CSRs, will
 change `VS` to Dirty.
 Implementations may also change the `VS` field from Initial or Clean to Dirty
 at any time, even when there is no change in vector state.
+////
 
+`VS` フィールドがInitialまたはCleanに設定されている場合、
+ベクトルCSRを含むベクトルの状態を変更する命令を実行すると、`VS` がDirtyに変更されます。
+また、実装では、ベクトルの状態が変化していなくても、
+いつでも`VS` フィールドをInitialまたはCleanからDirtyに変更することができます。
+
+////
 NOTE: Accurate setting of the `VS` field is an optimization.  Software
 will typically use VS to reduce context swap overhead.
+////
 
+NOTE: `VS` フィールドの正確な設定は最適化に繋がります。
+ソフトウェアは通常、コンテキストスワップのオーバーヘッドを減らすためにVSを使用します。
+
+////
 Implementations may have a writable `misa.v` field.  Analogous to the
 way in which the floating-point unit is handled, the `mstatus.vs`
 field may exist even if `misa.v` is clear.
+////
 
+実装では、書き込み可能な `misa.v` フィールドを持つことができます。
+浮動小数点演算ユニットの処理方法と同様に、
+`misa.v` がクリアされていても `mstatus.vs` フィールドが存在する場合があります。
+
+
+////
 NOTE: Allowing `mstatus.vs` to exist when `misa.v` is clear, enables
 vector emulation and simplifies handling of `mstatus.vs` in systems
 with writable `misa.v`.
+////
 
-=== Vector type register, `vtype`
+NOTE: `misa.v` がクリアされているときに `mstatus.vs` フィールドへのアクセスを許可すると、
+ベクトル操作のエミュレーションが可能になり、書き込み可能な `misa.v` を持つシステムでの `mstatus.vs` の処理が簡単になります。
 
+// === Vector type register, `vtype`
+
+=== ベクトル型レジスタ `vtype`
+
+////
 The read-only XLEN-wide _vector_ _type_ CSR, `vtype` provides the
 default type used to interpret the contents of the vector register
 file, and can only be updated by `vset{i}vl{i}` instructions. The vector
 type also determines the organization of elements in each vector
 register, and how multiple vector registers are grouped.
+////
 
+読み取り専用のXLEN幅を持つ _ベクトル_ _型_ CSR (`vtype`)は、
+ベクトルレジスタファイルの内容を解釈するために使用されるデフォルトの型を提供し、
+`vset{i}vl{i}` 命令によってのみ更新することができます。
+ベクトル型は、各ベクトルレジスタの要素の構成や、複数のベクトルレジスタをどのようにグループ化するかを決定します。
+
+////
 NOTE: Allowing updates only via the `vset{i}vl{i}` instructions
 simplifies maintenance of the `vtype` register state.
+////
 
+NOTE: `vset{i}vl{i}` 命令による更新のみを許可することで、
+`vtype` レジスタの状態の維持が容易になります。
+
+////
 The `vtype` register has five fields,
 `vill`, `vma`, `vta`, `vsew[2:0]`, and `vlmul[2:0]`.
+////
+
+`vtype`レジスタには、 `vill`、 `vma` 、 `vta` 、 `vsew[2:0]` 、 `vlmul[2:0]` の5つのフィールドがあります。
 
 include::vtype-format.adoc[]
 
+////
 NOTE: A small implementation supporting ELEN=32 requires only seven
 bits of state in `vtype`: two bits for `ma` and `ta`, two bits for
 `vsew[1:0]` and three bits for `vlmul[2:0]`.  The illegal value
 represented by `vill` can be internally encoded using the illegal 64-bit
 combination in `vsew[1:0]` without requiring an additional storage
 bit to hold `vill`.
+////
 
+NOTE: ELEN=32 をサポートする小さな実装では、`vtype` には 7 ビットの状態しか必要ありません:
+`ma` と `ta` に 2 ビット、`vsew[1:0]` に 2 ビット、
+`vlmul[2:0]` に 3 ビットです。
+`vill`で表される不正な値は、`vsew[1:0]`の不正な64ビットの組み合わせを使って内部的にエンコードすることができ、
+`vill`を保持するための追加のストレージビットを必要としません。
+
+////
 NOTE: Further standard and custom vector extensions will extend these
 fields to support a greater variety of data types.
+////
 
+NOTE: 標準ベクトルやカスタムベクトル拡張により、これらのフィールドが拡張され、
+より多様なデータ型がサポートされるようになります。
+
+////
 NOTE: It is anticipated that an extended 64-bit instruction encoding
 would allow these fields to be specified statically in the instruction
 encoding.
+////
 
-==== Vector selected element width `vsew[2:0]`
+NOTE: 64ビット命令エンコーディングの拡張により、
+これらのフィールドを命令エンコーディング内で静的に指定できるようになることが予想されます。
 
+
+// ==== Vector selected element width `vsew[2:0]`
+
+==== ベクトル選択要素幅 `vsew[2:0]`
+
+////
 The value in `vsew` sets the dynamic _selected_ _element_ _width_
 (SEW).  By default, a vector register is viewed as being divided into
 VLEN/SEW elements.
+////
 
+`vsew`の値は、動的な_選択要素幅_ (SEW)を設定します。
+デフォルトでは、ベクトルレジスターは、
+VLEN/SEW要素に分割されているとみなされます。
+
+////
 .vsew[2:0] (selected element width) encoding
 [cols="1,1,1,1,>13"]
 [%autowidth]
@@ -190,11 +377,35 @@ VLEN/SEW elements.
 | 1 | 1 | 0 |  512 | _Reserved_
 | 1 | 1 | 1 | 1024 | _Reserved_
 |===
+////
 
+.vsew[2:0] (選択要素幅) エンコーディング
+[cols="1,1,1,1,>13"]
+[%autowidth]
+|===
+3+| vsew[2:0] | SEW |
+
+| 0 | 0 | 0 |    8 |
+| 0 | 0 | 1 |   16 |
+| 0 | 1 | 0 |   32 |
+| 0 | 1 | 1 |   64 |
+| 1 | 0 | 0 |  128 | _要素_
+| 1 | 0 | 1 |  256 | _要素_
+| 1 | 1 | 0 |  512 | _要素_
+| 1 | 1 | 1 | 1024 | _要素_
+|===
+
+////
 NOTE: While it is anticipated the larger `vsew[2:0]` encodings
 (`100`-`111`) will be used to encode larger SEW as shown in table, the
 encodings are formally _reserved_ at this point.
+////
 
+NOTE: 表に示されているように、より大きなSEWをエンコードするために、
+より大きな`vsew[2:0]`エンコーディング (`100`～`111`) が使用されることが予想されますが、
+このエンコーディングは、現時点では正式には_予約_です。
+
+////
 .Example VLEN = 128 bits
 [cols=">,>"]
 [%autowidth]
@@ -206,10 +417,29 @@ encodings are formally _reserved_ at this point.
 | 16 |  8
 |  8 | 16
 |===
+////
 
+.例: VLEN = 128 ビット
+[cols=">,>"]
+[%autowidth]
+|===
+| SEW | ベクトルレジスタあたりの要素数
+
+| 64 |  2
+| 32 |  4
+| 16 |  8
+|  8 | 16
+|===
+
+////
 The supported element width may vary with LMUL, but profiles may
 mandate the minimum SEW that must be supported with LMUL=1.
+////
 
+サポートされる要素の幅はLMULによって異なりますが、
+プロファイルはLMUL=1でサポートされなければならない最小のSEWを義務付けている場合があります。
+
+////
 NOTE: Some implementations may support larger SEWs only when bits from
 multiple vector registers are combined.  Software that relies on large
 SEW should attempt to use the largest LMUL, and hence the fewest
@@ -218,6 +448,16 @@ which the code will run. The `vill` bit in `vtype` should be checked
 after setting `vtype` to see if the configuration is supported, and an
 alternate code path should be provided if it is not. Alternatively, a
 profile can mandate the minimum SEW at each LMUL setting.
+////
+
+NOTE: 一部の実装では、複数のベクトルレジスターのビットを組み合わせた場合にのみ、
+大きなSEWをサポートする場合があります。
+大きなSEWに依存しているソフトウェアは、コードを実行できる実装の数を増やすために、
+最大のLMULを使用し、したがって最小のベクトルレジスターグループを使用するようにしてください。
+また、`vtype` を設定した後に、`vtype` の `vill` ビットをチェックして、
+その構成がサポートされているかどうかを確認し、
+サポートされていない場合には、代替のコードパスを提供する必要があります。
+また、プロファイルでは、各LMULの設定で最小のSEWを義務付けることもできます。
 
 ==== Vector Register Grouping (`vlmul[2:0]`)
 
@@ -1074,7 +1314,7 @@ Other vector registers can be used to hold working mask values, and
 mask vector logical operations are provided to perform predicate
 calculations. [[sec-mask-vector-logical]]
 
-As specified in Section <<sec-agnostic>>, mask destination values are 
+As specified in Section <<sec-agnostic>>, mask destination values are
 always treated as tail-agnostic, regardless of the setting of `vta`.
 
 [[sec-vector-mask-encoding]]
@@ -1113,8 +1353,8 @@ complement masking. The `.t` suffix on the masking operand also helps
 to visually encode the use of a mask.
 
 NOTE: The `.mask` suffix is not part of the assembly syntax.
-We only append it in contexts where a mask vector is subscripted, 
-e.g., `v0.mask[i]`. 
+We only append it in contexts where a mask vector is subscripted,
+e.g., `v0.mask[i]`.
 
 [[sec-inactive-defs]]
 === Prestart, Active, Inactive, Body, and Tail Element Definitions
@@ -1340,7 +1580,7 @@ loops uses the largest vector length of all iterations, even in the case
 of `AVL < 2*VLMAX`.
 This allows software to avoid needing to explicitly calculate a running
 maximum of vector lengths observed during a stripmined loop.
-Requirement 2 also allows an implementation to set vl to VLMAX for `VLMAX < AVL < 2*VLMAX` 
+Requirement 2 also allows an implementation to set vl to VLMAX for `VLMAX < AVL < 2*VLMAX`
 --
 
 [[example-stripmine-sew]]
@@ -1580,11 +1820,11 @@ unsupported EEW widths are reserved.
 | Standard scalar FP   | x |   0 | 0 | 1 |   16| FLEN | -  | FLH/FSH             |
 | Standard scalar FP   | x |   0 | 1 | 0 |   32| FLEN | -  | FLW/FSW             |
 | Standard scalar FP   | x |   0 | 1 | 1 |   64| FLEN | -  | FLD/FSD             |
-| Standard scalar FP   | x |   1 | 0 | 0 |  128| FLEN | -  | FLQ/FSQ             |    
+| Standard scalar FP   | x |   1 | 0 | 0 |  128| FLEN | -  | FLQ/FSQ             |
 | Vector 8b element    | 0 |   0 | 0 | 0 |    8|    8 | -  | VLxE8/VSxE8         |
 | Vector 16b element   | 0 |   1 | 0 | 1 |   16|   16 | -  | VLxE16/VSxE16       |
 | Vector 32b element   | 0 |   1 | 1 | 0 |   32|   32 | -  | VLxE32/VSxE32       |
-| Vector 64b element   | 0 |   1 | 1 | 1 |   64|   64 | -  | VLxE64/VSxE64       |     
+| Vector 64b element   | 0 |   1 | 1 | 1 |   64|   64 | -  | VLxE64/VSxE64       |
 | Vector 128b element  | 1 |   0 | 0 | 0 |  128|  128 | -  | VLxE128/VSxE128     | _Reserved_
 | Vector 256b element  | 1 |   1 | 0 | 1 |  256|  256 | -  | VLxE256/VSxE256     | _Reserved_
 | Vector 512b element  | 1 |   1 | 1 | 0 |  512|  512 | -  | VLxE512/VSxE512     | _Reserved_
@@ -2130,7 +2370,7 @@ an ABI.
    vl1re16.v   v3, (a0)  # Load v3 with VLEN/16 halfwords held at address in a0
    vl1re32.v   v3, (a0)  # Load v3 with VLEN/32 words held at address in a0
    vl1re64.v   v3, (a0)  # Load v3 with VLEN/64 doublewords held at address in a0
-   # vl1re128.v  v3, (a0) 
+   # vl1re128.v  v3, (a0)
    # vl1re256.v  v3, (a0)
    # vl1re512.v  v3, (a0)
    # vl1re1024.v v3, (a0)
@@ -2676,7 +2916,7 @@ vsra.vx vd, vs2, rs1, vm   # vector-scalar
 vsra.vi vd, vs2, uimm, vm   # vector-immediate
 ----
 
- 
+
 === Vector Narrowing Integer Right Shift Instructions
 
 The narrowing right shifts extract a smaller field from a wider
@@ -3099,10 +3339,10 @@ elide this instruction, and treat as a NOP.
 The preceding set of integer arithmetic instructions is extended to support
 fixed-point arithmetic.
 
-A fixed-point number is a two's-complement signed or unsigned integer 
+A fixed-point number is a two's-complement signed or unsigned integer
 interpreted as the numerator in a fraction with an implicit denominator.
-The fixed-point instructions are intended to be applied to the numerators; 
-it is the responsibility of software to manage the denominators. 
+The fixed-point instructions are intended to be applied to the numerators;
+it is the responsibility of software to manage the denominators.
 An N-bit element can hold two's-complement signed integers in the
 range -2^N-1^...+2^N-1^-1, and unsigned integers in the range 0
 ... +2^N^-1.  The fixed-point instructions help preserve precision in
@@ -3205,7 +3445,7 @@ simply truncation (`rdn`).
 
 These instructions shift the input value right, and round off the
 shifted out bits according to `vxrm`.  The scaling right shifts have
-both zero-extending (`vssrl`) and sign-extending (`vssra`) forms. 
+both zero-extending (`vssrl`) and sign-extending (`vssra`) forms.
 The low lg2(SEW) bits of the vector or scalar shift-amount value are used;
 shift-amount immediates are zero-extended.
 
@@ -4764,7 +5004,7 @@ readily synthesized using iota and a masked vrgather:
       1 0 0 1 1 1 0 1     # mask vector of 8 elements
       p q r s t u v w     # destination register before vdecompress
 
-      e q r d c b v a     # result of vdecompress 
+      e q r d c b v a     # result of vdecompress
 ----
 
 ----
@@ -4951,7 +5191,7 @@ supported.
 |===
 | Extension | Minimum VLEN | Supported EEW |  FP32 | FP64
 
-| Zve32x    | 32    | 8, 16, 32     |   N   |  N 
+| Zve32x    | 32    | 8, 16, 32     |   N   |  N
 | Zve32f    | 32    | 8, 16, 32     |   Y   |  N
 | Zve64x    | 64    | 8, 16, 32, 64 |   N   |  N
 | Zve64f    | 64    | 8, 16, 32, 64 |   Y   |  N
@@ -5016,7 +5256,7 @@ conversions between FP32 and FP64). Vector single-width floating-point
 reductions (<<sec-vector-float-reduce>>) for EEW=32 and EEW=64 are
 supported as well as widening reductions from FP32 to FP64.
 
-=== V: Vector Extension for Application Processor 
+=== V: Vector Extension for Application Processor
 
 The single-letter V extension is intended for use in application
 processor profiles.
@@ -5074,4 +5314,3 @@ include::inst-table.adoc[]
 include::vector-examples.adoc[]
 
 include::calling-convention.adoc[]
-
