@@ -58,8 +58,8 @@ changes except if serious issues are discovered during ratification.
 Once ratified, the spec will be given version 2.0.
 ////
 
-注：最終的に承認され、リリース候補のタグが外されたバージョン1.0は、
-RISC-Vインターナショナルの批准プロセスの一環として、パブリックレビューのために送り出されることを意図しています。
+NOTE: 最終的に承認され、リリース候補のタグが外されたバージョン1.0は、RISC-Vインターナショナルの批准プロセスの一環として、
+パブリックレビューのために送り出されることを意図しています。
 また、バージョン1.0は、上流のソフトウェアプロジェクトを含め、ツールチェーン、機能シミュレータ、
 初期実装の開発を開始するのに十分な安定性があると考えられており、
 批准中に重大な問題が発見された場合を除き、
@@ -110,7 +110,7 @@ software using the old configuration instructions does not see greater
 vector lengths.
 ////
 
-Note: VLENの上限により、ソフトウェアはインデックスが16ビットに収まることを前提に組み立てることができます
+NOTE: VLENの上限により、ソフトウェアはインデックスが16ビットに収まることを前提に組み立てることができます
 (LMUL=8およびSEW=8でVLEN=65,536の場合、最大のVLMAXは65,536になります)。
 将来的にクトルレジスタあたり64Kib以上に拡張する場合は、
 新しいコンフィグレーション命令が必要になりますが、
@@ -153,7 +153,7 @@ base scalar RISC-V ISA.
 ////
 
 ベクトル拡張はRISC-VのベーススカラISAに対して、
-32本のベクトルレジスタに加えて7つの非特権CSR(`vstart`, `vxsat`, `vxrm`, `vcsr`, `vl`, `vlenb`)
+32本のベクトルレジスタと7つの非特権CSR(`vstart`, `vxsat`, `vxrm`, `vcsr`, `vl`, `vlenb`)が追加されます。
 
 ////
 .New vector CSRs
@@ -198,11 +198,11 @@ The vector extension adds 32 architectural vector registers,
 ////
 
 ベクトル拡張により、RISC-VベーススカラISAに対して
-32本のアーキテクチャベクトルレジスタ`v0`-`v31`が追加される。
+32本のアーキテクチャベクトルレジスタ`v0`-`v31`が追加されます。
 
 // Each vector register has a fixed VLEN bits of state.
 
-各ベクトルレジスタのサイズは固定長でVLENビットである。
+各ベクトルレジスタのサイズは固定長でVLENビットです。
 
 ////
 NOTE: Zfinx ("F in X") is a new ISA option under consideration where
@@ -459,8 +459,11 @@ NOTE: 一部の実装では、複数のベクトルレジスターのビット�
 サポートされていない場合には、代替のコードパスを提供する必要があります。
 また、プロファイルでは、各LMULの設定で最小のSEWを義務付けることもできます。
 
-==== Vector Register Grouping (`vlmul[2:0]`)
+// ==== Vector Register Grouping (`vlmul[2:0]`)
 
+==== ベクトルレジスタのグループ化(`vlmul[2:0]`)
+
+////
 Multiple vector registers can be grouped together, so that a single
 vector instruction can operate on multiple vector registers.  The term
 _vector_ _register_ _group_ is used herein to refer to one or more
@@ -469,11 +472,24 @@ Vector register groups allow double-width or larger elements to be
 operated on with the same vector length as selected-width elements.
 Vector register groups also provide greater execution efficiency for
 longer application vectors.
+////
 
+複数のベクトルレジスタをグループ化することで、1つのベクトル命令で複数のベクトルレジスタを操作することができます。
+本仕様書では、ベクトル命令の単一オペランドとして使用される1つまたは複数のベクトルレジスタを指すために _ベクトルレジスタグループ_ という用語を使用しています。
+ベクトルレジスタグループは、2倍以上の幅の要素を、選択された幅の要素と同じベクトル長で操作することを可能にします。
+また、ベクトルレジスタグループは、長いアプリケーションベクターの実行効率を高めます。
+
+////
 The vector length multiplier, _LMUL_, when greater than 1, represents
 the default number of vector registers that are combined to form a
 vector register group.  Implementations must support LMUL integer values of 1,2,4,8.
+////
 
+ベクトル長 の倍数 _LMUL_ が1より大きい場合は、ベクトルレジスタグループ形成するために
+結合されるベクトルレジスタのデフォルト数を表します。
+実装では、LMULは整数値1,2,4,8をサポートする必要があります。
+
+////
 LMUL can also be a fractional value, reducing the number of bits used
 in a vector register.  LMUL can have fractional values 1/2, 1/4, 1/8.
 Fractional LMUL is used to increase the number of usable architectural
@@ -481,16 +497,37 @@ registers when operating on mixed-width values, by not requiring that
 larger-width vectors occupy multiple vector registers. Instead, wider
 values can occupy a single vector register and narrower values can
 occupy a fraction of a vector register.
+////
 
+LMUL は、ベクトルレジスタで使用されるビット数を減らすために、小数値を取ることもできます。
+LMUL は、1/2、1/4、1/8 の分数値を持つことができます。
+小数点以下のLMULは、幅の広いベクトルが複数のベクトルレジスタを使用する必要がないため、
+幅の異なる値を操作する際に使用可能なアーキテクチャーレジスタの数を増やすために使用されます。
+その代わり、幅の広い値は1つのベクトルレジスタを占有し、
+幅の狭い値はベクトルレジスタの端数を占有することができます。
+
+////
 Implementations must support fractional LMUL settings for LMUL {ge}
 SEW~LMUL1MIN~/SEW~LMUL1MAX~, where SEW~LMUL1MIN~ is the narrowest
 supported SEW value at LMUL=1 and SEW~LMUL1MAX~ is the widest
 supported SEW value at LMUL=1.  An attempt to set an unsupported SEW
 and LMUL configuration sets the `vill` bit in `vtype`.
+////
 
+実装では、LMUL {ge}  SEW~LMUL1MIN~/SEW~LMUL1MAX~ の小数の LMUL 設定をサポートする必要があります。
+SEW~LMUL1MIN~ はLMUL=1でサポートされる最も狭いSEW値で、
+SEW~LMUL1MAX~ はLMUL=1でサポートされる最も広いSEW値です。
+サポートされていないSEWとLMULの設定を行おうとすると、`vtype`の`vill`ビットが設定されます。
+
+////
 For a given supported fractional LMUL setting, implementations must support
 SEW settings between SEW~LMUL1MIN~ and LMUL * SEW~LMUL1MAX~, inclusive.
+////
 
+サポートされている小数のLMUL設定に対して、
+実装はSEW~LMUL1MIN~ とLMUL * SEW~LMUL1MAX~ の間のSEW設定をサポートしなければなりません。
+
+////
 NOTE: Requiring LMUL {ge} SEW~LMUL1MIN~/SEW~LMUL1MAX~ allows software
 operating on mixed-width elements to only use a single vector register
 to hold the wider elements, with fractional
@@ -499,32 +536,71 @@ SEW~LMUL1MIN~/SEW~LMUL1MAX~, there is no guarantee an implementation
 would have enough bits in the fractional vector register to store at
 least one element, as VLEN=SEW~LMUL1MAX~ is a valid implementation
 choice.
+////
 
+NOTE: LMUL {ge} SEW~LMUL1MIN~/SEW~LMUL1MAX~ を必要とすることで、
+幅の広い要素を保持するために1つのベクトルレジスタのみを使用し、幅の狭い要素を保持するために小数のLMULを使用することができます。
+LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ の場合、VLEN=SEW~LMUL1MAX~ が有効な実装選択であるため、
+少なくとも1つの要素を格納するのに十分なビットが小数ベクトル・レジスタにあるという保証はありません。
+
+////
 NOTE: The constraint is written using SEW~LMUL1MAX~ and not ELEN
 because some systems might only support larger SEW values for LMUL>1.
 Note that in these cases, the constraint ensures that no more than a
 single vector register is needed to hold the widest-supported element
 that can be held in a single vector register, when code is also
 performing operations on narrower widths.
+////
 
+NOTE: システムによっては、LMUL>1 に対してより大きなSEW値しかサポートしない場合があるため、
+この制約はELENではなくSEW~LMUL1MAX~ を使用して記述されています。
+このような場合には、コードがより狭い幅の演算も実行しているときに、単一のベクトルレジスタに保持できる最も広くサポートされた要素を保持するために、
+単一のベクトルレジスタ以上のものが必要とされないように、制約が保証されることに注意してください。
+
+////
 The use of `vtype` encodings with LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ is
 __reserved__, but implementations can set `vill` if they do not
 support these configurations.
+////
 
+LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ での`vtype` エンコーディングの使用は__予約__ですが、
+実装はこれらの構成をサポートしていない場合、`vill`を設定することができます。
+
+////
 NOTE: Requiring all implementations to set `vill` in this case would
 prohibit future use of this case in an extension, so to allow for
 a future definition of LMUL<SEW~LMUL1MIN~/SEW~LMUL1MAX~ behavior, we consider
 the use of this case to be __reserved__.
+////
 
+NOTE: このケースですべての実装に `vill` を設定することを要求すると、
+将来的に拡張機能でこのケースを使用することができなくなるため、
+LMUL<SEW~LMUL1MIN~/SEW~LMUL1MAX~ の動作を将来的に定義できるように、
+このケースの使用は __予約__ であると考えます。
+
+////
 NOTE: It is recommended that assemblers provide a warning (not an
 error) if a `vsetvli` instruction attempts to write an LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~.
+////
 
+注: アセンブラは、`vsetvli` 命令が LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ を書こうとした場合、
+エラーではなく警告を出すことを推奨します。
+
+////
 LMUL is set by the signed `vlmul` field in `vtype` (LMUL =
 2^`vlmul[2:0]`^).
+////
 
+LMULは、`vtype` の符号付き`vlmul`フィールドで設定されます (LMUL = 2^`vlmul[2:0]`^)。
+
+////
 The derived value VLMAX = LMUL*VLEN/SEW represents the maximum number
 of elements that can be operated on with a single vector instruction
 given the current SEW and LMUL settings as shown in the table below.
+////
+
+VLMAX = LMUL*VLEN/SEW の導出値は、以下の表に示すように、
+現在のSEWとLMULの設定があれば、1つのベクト命令で操作できる要素の最大数を表します。
 
 [cols="1,1,1,2,2,5,5"]
 [%autowidth]
@@ -541,21 +617,42 @@ given the current SEW and LMUL settings as shown in the table below.
 | 0 | 1 | 1 |   8  |      4  | 8*VLEN/SEW | `v` __n__, ..., `v` __n__+7
 |===
 
+////
 When LMUL=2, the vector register group contains vector register `v`
 __n__ and vector register `v` __n__+1, providing twice the vector
 length in bits.  Instructions specifying an LMUL=2 vector register group
 with an odd-numbered vector register are reserved.
+////
 
+LMUL=2の場合、ベクトレジスタグループには、ベクトレジスタ`v` __n__とベクトレジスタ`v` __n__+1が含まれ、
+ビット単位で2倍のベクト長になります。
+LMUL=2のベクトレジスターグループで、奇数番号のベクトレジスターを指定する命令は予約されています。
+
+////
 When LMUL=4, the vector register group contains four vector registers,
 and instructions specifying an LMUL=4 vector register group using vector
 register numbers that are not multiples of four are reserved.
+////
 
+LMUL=4 の場合、ベクトレジスターグループには 4 個のベクトレジスターが含まれ、
+4 の倍数ではないベクトレジスター番号を使用して
+LMUL=4 のベクトレジスターグループを指定する命令は予約されます。
+
+////
 When LMUL=8, the vector register group contains eight vector
 registers, and instructions specifying an LMUL=8 vector register group
 using register numbers that are not multiples of eight are reserved.
+////
 
+LMUL=8 の場合、ベクトレジスターグループには 8 個のベクトレジスターが含まれ、
+8 の倍数ではないレジスター番号を使用して LMUL=8 ベクトレジスターグループを指定する命令は予約されています。
+
+////
 Mask registers are always contained in a single vector register,
 regardless of LMUL.
+////
+
+マスクレジスタは、LMULにかかわらず、常に1つのベクトレジスタとして取り扱われます。
 
 [[sec-agnostic]]
 ==== Vector Tail Agnostic and Vector Mask Agnostic `vta` and `vma`
