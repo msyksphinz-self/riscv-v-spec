@@ -92,7 +92,7 @@ be a power of 2 and must be no greater than 2^16^.
 ////
 
 . 任意の演算で生成または消費できるベクター要素の最大サイズ(ビット) _ELEN_ {ge} 8 で、これは2の累乗でなければなりません。
-. 1つのベクトルレジスターのビット数 _VLEN_ 、これは2の累乗でなければならず、2の累乗であり、2^16^以上であってはなりません。
+. 1つのベクトルレジスタのビット数 _VLEN_ 、これは2の累乗でなければならず、2の累乗であり、2^16^以上であってはなりません。
 
 ////
 Standard vector extensions (Section <<sec-vector-extensions>>) and
@@ -358,7 +358,7 @@ VLEN/SEW elements.
 ////
 
 `vsew` の値は、動的な _選択要素幅_ (SEW)を設定します。
-デフォルトでは、ベクトルレジスターは、
+デフォルトでは、ベクトルレジスタは、
 VLEN/SEW要素に分割されているとみなされます。
 
 ////
@@ -450,10 +450,10 @@ alternate code path should be provided if it is not. Alternatively, a
 profile can mandate the minimum SEW at each LMUL setting.
 ////
 
-NOTE: 一部の実装では、複数のベクトルレジスターのビットを組み合わせた場合にのみ、
+NOTE: 一部の実装では、複数のベクトルレジスタのビットを組み合わせた場合にのみ、
 大きなSEWをサポートする場合があります。
 大きなSEWに依存しているソフトウェアは、コードを実行できる実装の数を増やすために、
-最大のLMULを使用し、したがって最小のベクトルレジスターグループを使用するようにしてください。
+最大のLMULを使用し、したがって最小のベクトルレジスタグループを使用するようにしてください。
 また、`vtype` を設定した後に、`vtype` の `vill` ビットをチェックして、
 その構成がサポートされているかどうかを確認し、
 サポートされていない場合には、代替のコードパスを提供する必要があります。
@@ -626,7 +626,7 @@ with an odd-numbered vector register are reserved.
 
 LMUL=2の場合、ベクトレジスタグループには、ベクトレジスタ`v` __n__とベクトレジスタ`v` __n__+1が含まれ、
 ビット単位で2倍のベクト長になります。
-LMUL=2のベクトレジスターグループで、奇数番号のベクトレジスターを指定する命令は予約されています。
+LMUL=2のベクトレジスタグループで、奇数番号のベクトレジスタを指定する命令は予約されています。
 
 ////
 When LMUL=4, the vector register group contains four vector registers,
@@ -634,9 +634,9 @@ and instructions specifying an LMUL=4 vector register group using vector
 register numbers that are not multiples of four are reserved.
 ////
 
-LMUL=4 の場合、ベクトレジスターグループには 4 個のベクトレジスターが含まれ、
-4 の倍数ではないベクトレジスター番号を使用して
-LMUL=4 のベクトレジスターグループを指定する命令は予約されます。
+LMUL=4 の場合、ベクトレジスタグループには 4 個のベクトレジスタが含まれ、
+4 の倍数ではないベクトレジスタ番号を使用して
+LMUL=4 のベクトレジスタグループを指定する命令は予約されます。
 
 ////
 When LMUL=8, the vector register group contains eight vector
@@ -644,8 +644,8 @@ registers, and instructions specifying an LMUL=8 vector register group
 using register numbers that are not multiples of eight are reserved.
 ////
 
-LMUL=8 の場合、ベクトレジスターグループには 8 個のベクトレジスターが含まれ、
-8 の倍数ではないレジスター番号を使用して LMUL=8 ベクトレジスターグループを指定する命令は予約されています。
+LMUL=8 の場合、ベクトレジスタグループには 8 個のベクトレジスタが含まれ、
+8 の倍数ではないレジスタ番号を使用して LMUL=8 ベクトレジスタグループを指定する命令は予約されています。
 
 ////
 Mask registers are always contained in a single vector register,
@@ -707,7 +707,7 @@ held.   Mask destination values are always treated as tail-agnostic,
 regardless of the setting of `vta`.
 ////
 
-セットがundisturbedに設定されている場合、ベクトルレジスターグループ内の対応するセットの書き込み要素は、
+セットがundisturbedに設定されている場合、ベクトルレジスタグループ内の対応するセットの書き込み要素は、
 以前に保持していた値を保持します。
 マスクの書き込み値は、`vta` の設定にかかわらず、
 常にTail Agnosticとして扱われます。
