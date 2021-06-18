@@ -833,7 +833,7 @@ The assembly syntax adds two flags to the `vsetvli` instruction:
  vsetvli t0, a0, e32, m4, tu, mu   # Tail undisturbed, mask undisturbed
 ----
 
-///
+////
 NOTE: To maintain backward compatibility in the short term and reduce
 software churn in the move to 0.9, when these flags are not specified
 on a `vsetvli`, they should default to
