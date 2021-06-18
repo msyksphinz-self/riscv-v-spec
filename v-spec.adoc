@@ -655,16 +655,28 @@ regardless of LMUL.
 マスクレジスタは、LMULにかかわらず、常に1つのベクトレジスタとして取り扱われます。
 
 [[sec-agnostic]]
-==== Vector Tail Agnostic and Vector Mask Agnostic `vta` and `vma`
+// ==== Vector Tail Agnostic and Vector Mask Agnostic `vta` and `vma`
 
+==== Tail Agnostic とVector Mask Agnostic `vta` と `vma`
+
+////
 These two bits modify the behavior of destination tail elements and
 destination inactive masked-off elements respectively during the
 execution of vector instructions.  The tail and inactive sets contain
 element positions that are not receiving new results during a vector
 operation, as defined in Section <<sec-inactive-defs>>.
+////
 
-All systems must support all four options:
+これらの2つのビットは、ベクトル命令の実行中に、書き込みレジスタのTail要素および
+書き込みレジスタの非アクティブなマスクオフされた要素の動作をそれぞれ変更します。
+Tailセットと非アクティブセットには、<<sec-inactive-defs>> 項で定義されているように、
+ベクトル演算中に新しい結果を受け取らない要素の位置を含んでいます。
 
+// All systems must support all four options:
+
+すべてのシステムは、4つのオプションすべてをサポートしなければなりません。
+
+////
 [cols="1,1,3,3"]
 [%autowidth]
 |===
@@ -675,12 +687,32 @@ All systems must support all four options:
 |   1   |   0   | agnostic      | undisturbed
 |   1   |   1   | agnostic      | agnostic
 |===
+////
 
+[cols="1,1,3,3"]
+[%autowidth]
+|===
+| `vta` | `vma` | Tail要素 | 非アクティブ要素
+
+|   0   |   0   | undisturbed   | undisturbed
+|   0   |   1   | undisturbed   | agnostic
+|   1   |   0   | agnostic      | undisturbed
+|   1   |   1   | agnostic      | agnostic
+|===
+
+////
 When a set is marked undisturbed, the corresponding set of destination
 elements in a vector register group retain the value they previously
 held.   Mask destination values are always treated as tail-agnostic,
 regardless of the setting of `vta`.
+////
 
+セットがundisturbedに設定されている場合、ベクトルレジスターグループ内の対応するセットの書き込み要素は、
+以前に保持していた値を保持します。
+マスクの書き込み値は、`vta` の設定にかかわらず、
+常にTail Agnosticとして扱われます。
+
+////
 When a set is marked agnostic, the corresponding set of destination
 elements in any vector destination operand can either retain the value
 they previously held, or are overwritten with 1s.  Within a single vector
@@ -691,7 +723,16 @@ when the instruction is executed with the same inputs.  In addition,
 except for mask load instructions, any element in the tail of a mask
 result can also be written with the value the mask-producing operation
 would have calculated with `vl`=VLMAX.
+////
 
+セットがAgnosticとしてマークされている場合、任意のベクトル書き込みオペランドの書き込み要素の対応するセットは、
+以前保持していた値を保持するか、1で上書きされるかのいずれかになります。
+1つのベクトル命令の中で、各書き込み要素は、任意の組み合わせで、1を残したり、1で上書きしたりすることができ、
+同じ入力で命令を実行したときに、1を残したり、1で上書きしたりするパターンは、常に決定している必要はありません。
+また、マスクロード命令を除き、マスク結果の末尾にある任意の要素には、
+マスク生成演算が `vl`=VLMAX で計算したであろう値を書き込むこともできます。
+
+////
 NOTE: The agnostic policy was added to accommodate machines with vector
 register renaming, and/or that have deeply temporal vector registers.
 With an undisturbed policy, all elements would have to be read from
@@ -699,7 +740,15 @@ the old physical destination vector register to be copied into the new
 physical destination vector register.  This causes an inefficiency
 when these inactive or tail values are not required for subsequent
 calculations.
+////
 
+NOTE: Agnosticポリシーは、ベクトルレジスタをリネームするマシンや、
+深い一時的なベクトルレジスタを持つマシンに対応するために追加されました。
+Agnosticなポリシーでは、新しい物理書き込みベクトルレジスタにコピーするために、
+すべての要素を古い物理書き込みベクトルレジスタから読み込まなければなりません。
+これは、これらの非アクティブまたはTail値が後続の計算に必要でない場合、効率が悪くなります。
+
+////
 NOTE: Mask tails are always treated as agnostic to reduce complexity
 of managing mask data, which can be written at bit granularity.  There
 appears to be little software need to support tail-undisturbed for
@@ -708,20 +757,43 @@ back the result of the instruction avoids the need for logic to mask
 out the tail, except mask loads cannot write memory values to
 destination mask tails as this would imply accessing memory past
 software intent.
+////
 
+NOTE: マスクテールは、ビット単位で記述可能なマスクデータの管理の複雑さを軽減するために、常にAgnosticに扱われます。
+マスクレジスタ値のTail Undisturbedをサポートするソフトウェアの必要性はほとんどないと思われます。
+マスクを生成する命令が命令の結果を書き戻すことを許可すると、Tailをマスクアウトするロジックの必要性がなくなります。
+ただし、マスクロードは、ソフトウェアの意図を超えてメモリにアクセスすることになるため、
+宛先のマスクテールにメモリ値を書き込むことはできません。
+
+////
 NOTE: The value of all 1s instead of all 0s was chosen for the
 overwrite value to discourage software developers from depending on
 the value written.
+////
 
+NOTE: 上書き値として、All-0ではなくAll-1を選択したのは、
+ソフトウェア開発者が書き込まれた値に依存しないようにするためです。
+
+////
 NOTE: A simple in-order implementation can ignore the settings and
 simply execute all vector instructions using the undisturbed
 policy. The `vta` and `vma` state bits must still be provided in
 `vtype` for compatibility and to support thread migration.
+////
 
+NOTE: シンプルなインオーダー実装であれば、この設定を無視して、単純にundisturbedポリシーですべてのベクター命令を実行することができます。
+互換性とスレッドの移行をサポートするために、`vta` と `vma` のステートビットは `vtype` で提供されなければなりません。
+
+////
 NOTE: An out-of-order implementation can choose to implement
 tail-agnostic + mask-agnostic using tail-agnostic + mask-undisturbed
 to reduce implementation complexity.
+////
 
+NOTE: アウトオブオーダーの実装では、実装の複雑さを軽減するために、
+tail-agnostic + mask-agnostic を tail-agnostic + mask-undisturbed を使って実装することを選択できます。
+
+////
 NOTE: The definition of agnostic result policy is left loose to
 accommodate migrating application threads between harts on a small
 in-order core (which probably leaves agnostic regions undisturbed) and
@@ -733,8 +805,21 @@ mixing of policies also enables implementations that might change
 policies for different granules of a vector register, for example,
 using undisturbed within a granule that is actively operated on but
 renaming to all 1s for granules in the tail.
+////
 
+注：agnosticポリシーの定義は、小さなインオーダコア上のhart(おそらくagnostic領域は邪魔されずに残る)と、
+レジスタリネーミングのある大きなアウトオブオーダコア上のhart(おそらくagnostic要素を1で上書きする)の間でアプリケーションスレッドを移行することに対応するため、
+緩く残されています。
+途中で再起動する必要があるかもしれないので、1つのベクトル命令の中で、Agnosticなポリシーを任意に混在させることができます。
+このようなポリシーの混在を許容することで、
+例えば、アクティブに操作されている要素内ではundisturbedを使用し、テールの要素ではすべて1にリネームするなど、
+ベクターレジスタの異なる要素に対してポリシーを変更するような実装も可能になります。
+
+////
 The assembly syntax adds two flags to the `vsetvli` instruction:
+////
+
+アセンブリ構文では、 `vsetvli` 命令に2つのフラグが追加されています。
 
 ----
  ta   # Tail agnostic
@@ -748,6 +833,7 @@ The assembly syntax adds two flags to the `vsetvli` instruction:
  vsetvli t0, a0, e32, m4, tu, mu   # Tail undisturbed, mask undisturbed
 ----
 
+///
 NOTE: To maintain backward compatibility in the short term and reduce
 software churn in the move to 0.9, when these flags are not specified
 on a `vsetvli`, they should default to
@@ -758,6 +844,16 @@ tail-agnostic/mask-agnostic, so software has to specify when it cares
 about the non-participating elements, but given the historical meaning
 of the instruction prior to introduction of these flags, it is safest
 to always require them in future assembly code.
+////
+
+NOTE: 短期的には後方互換性を維持し、0.9 への移行時にはソフトウェアの変更を減らすために、これらのフラグが `vsetvli` に指定されていない場合は、
+デフォルトで mask-undisturbed/tail-undisturbed とすべきです。
+しかし、これらのフラグを持たない `vsetvli` の使用は非推奨とし、
+フラグ設定の指定が必須となるようにします。
+どちらかというと、デフォルトはtail-agnostic/mask-agnosticにすべきなので、
+ソフトウェアは非アクティブ要素を気にするタイミングを指定する必要がありますが、
+これらのフラグが導入される前の命令の歴史的な意味を考えると、
+将来のアセンブリコードでは常にフラグを要求するのが最も安全です。
 
 ==== Vector Type Illegal `vill`
 
