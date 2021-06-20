@@ -583,7 +583,7 @@ NOTE: It is recommended that assemblers provide a warning (not an
 error) if a `vsetvli` instruction attempts to write an LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~.
 ////
 
-注: アセンブラは、`vsetvli` 命令が LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ を書こうとした場合、
+NOTE: アセンブラは、`vsetvli` 命令が LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ を書こうとした場合、
 エラーではなく警告を出すことを推奨します。
 
 ////
@@ -855,110 +855,243 @@ NOTE: 短期的には後方互換性を維持し、0.9 への移行時にはソ�
 これらのフラグが導入される前の命令の歴史的な意味を考えると、
 将来のアセンブリコードでは常にフラグを要求するのが最も安全です。
 
-==== Vector Type Illegal `vill`
+// ==== Vector Type Illegal `vill`
 
+==== 不正ベクトル型 `vill`
+
+////
 The `vill` bit is used to encode that a previous `vset{i}vl{i}`
 instruction attempted to write an unsupported value to `vtype`.
+////
 
+`vill` ビットは、過去の `vset{i}vl{i}` 命令がサポートされていない値を `vtype` に書き込もうとしたことをエンコードするために使用されます。
+
+////
 NOTE: The `vill` bit is held in bit XLEN-1 of the CSR to support
 checking for illegal values with a branch on the sign bit.
+////
 
+NOTE: `vill` ビットはCSRのXLEN-1ビットに配置され、
+符号を検査する分岐命令で不正な値をチェックできます。
+
+////
 If the `vill` bit is set, then any attempt to execute a vector instruction
 that depends upon `vtype` will raise an illegal-instruction exception.
+////
 
+`vill` ビットがセットされている場合、`vtype` に依存するベクトル命令を実行しようとすると、
+不正命令例外が発生します。
+
+////
 NOTE: `vset{i}vl{i}` and whole-register loads, stores, and moves do not depend
 upon `vtype`.
+////
 
+NOTE: `vset{i}vl{i}` とwhole-registerロード、ストア命令、データ移動命令は `vtype` に依存しません。
+
+////
 When the `vill` bit is set, the other XLEN-1 bits in `vtype` shall be
 zero.
+////
 
-=== Vector Length Register `vl`
+`vill` ビットがセットされているときは、
+`vtype` の他のXLEN-1ビットはゼロでなければなりません。
 
+// === Vector Length Register `vl`
+=== ベクトル長レジスタ `vl`
+
+////
 The _XLEN_-bit-wide read-only `vl` CSR can only be updated by the
 `vset{i}vl{i}` instructions, and the _fault-only-first_ vector load
 instruction variants.
+////
 
+_XLEN_ ビット幅の読み込み専用 `vl` CSRは、`vset{i}vl{i}` 命令と、
+_fault-only-first_ ベクトルロード命令によってのみ更新することができます。
+
+////
 The `vl` register holds an unsigned integer specifying the number of
 elements to be updated with results from a vector instruction, as
 further detailed in Section <<sec-inactive-defs>>.
+////
 
+`vl` レジスタは、セクション <<sec-inactive-defs>> で詳しく説明されているように、
+ベクトル命令の結果で更新される要素数を指定する符号なし整数を保持します。
+
+////
 NOTE: The number of bits implemented in `vl` depends on the
 implementation's maximum vector length of the smallest supported
 type. The smallest vector implementation with VLEN=32 and supporting
 SEW=8 would need at least six bits in `vl` to hold the values 0-32
 (VLEN=32, with LMUL=8 and SEW=8, yields VLMAX=32).
+////
 
-=== Vector Byte Length `vlenb`
+NOTE: `vl` に実装されているビット数は、サポートされている最小のタイプの実装の最大ベクトル長に依存します。
+VLEN=32 で SEW=8 をサポートする最小のベクトル実装では、0～32 の値を保持するために、
+`vl` に少なくとも 6 ビットが必要になります (VLEN=32 で LMUL=8 と SEW=8 を使用すると、VLMAX=32 になります)。
 
+// === Vector Byte Length `vlenb`
+
+=== ベクトルバイト長 `vlenb`
+
+////
 The _XLEN_-bit-wide read-only CSR `vlenb` holds the value VLEN/8,
 i.e., the vector register length in bytes.
+////
 
+_XLEN_ ビット幅の読み取り専用CSR `vlenb` は、値VLEN/8、すなわち、
+バイト単位でのベクトルレジスタの長さを保持します。
+
+////
 NOTE: The value in `vlenb` is a design-time constant in any
 implementation.
+////
 
+NOTE: `vlenb` の値は、どのような実装でも設計時の定数となります。
+
+////
 NOTE: Without this CSR, several instructions are needed to calculate
 VLEN in bytes, and the code has to disturb current `vl` and `vtype`
 settings which require them to be saved and restored.
+////
 
-=== Vector Start Index CSR `vstart`
+NOTE: このCSRがないと、バイト単位のVLENを計算するためにいくつかの命令が必要になり、
+コードは現在の `vl` と`vtype` の設定を乱す必要があり、
+それらを保存したり復元したりする必要があります。
 
+// === Vector Start Index CSR `vstart`
+
+=== ベクトルスタートインデックスCSR `vstart`
+
+////
 The `vstart` read-write CSR specifies the index of the first element
 to be executed by a vector instruction, as described in Section
 <<sec-inactive-defs>>.
+////
 
+読み書き可能なCSRである `vstart` は、 <<sec-inactive-defs>> 項で説明したように、
+ベクトル命令で実行される最初の要素のインデックスを指定します。
+
+////
 Normally, `vstart` is only written by hardware on a trap on a vector
 instruction, with the `vstart` value representing the element on which
 the trap was taken (either a synchronous exception or an asynchronous
 interrupt), and at which execution should resume after a resumable
 trap is handled.
+////
 
+通常、`vstart`はベクトル命令の例外発生時にハードウェアによってのみ書き込まれ、
+`vstart` の値は例外発生した要素 (同期例外または非同期割り込み) を表し、
+再開可能な例外が処理された後に実行が再開されるべき要素を表します。
+
+////
 All vector instructions are defined to begin execution with the
 element number given in the `vstart` CSR, leaving earlier elements in
 the destination vector undisturbed, and to reset the `vstart` CSR to
 zero at the end of execution.
+////
 
+すべてのベクトル命令は、 `vstart` CSR で指定された要素インデックスから実行を開始し、
+書き込みベクトル内の以前の要素には影響を与えず、実行終了時には `vstart` CSR をゼロにリセットするように定義されています。
+
+////
 NOTE: All vector instructions, including `vset{i}vl{i}`, reset the `vstart`
 CSR to zero.
+////
 
+NOTE: `vset{i}vl{i}` を含むすべてのベクトル命令は、`vstart` CSR をゼロにリセットします。
+
+////
 `vstart` is not modified by vector instructions that raise illegal-instruction
 exceptions.
+////
 
+`vstart`  は、不正命令例外を発生させるベクトル命令によって変更されません。
+
+////
 The `vstart` CSR is defined to have only enough writable bits to hold
 the largest element index (one less than the maximum VLMAX).
+////
 
+`vstart` CSR は、最大の要素インデックスを保持するのに十分な書き込み可能なビットのみを持つように定義されます (最大 VLMAX より 1 つ少ない)。
+
+////
 NOTE: The maximum vector length is obtained with the largest LMUL
 setting (8) and the smallest SEW setting (8), so VLMAX_max = 8*VLEN/8
 = VLEN.  For example, for VLEN=256, `vstart` would have 8 bits to
 represent indices from 0 through 255.
+////
 
+NOTE: 最大のベクトル長は、最大のLMUL設定(8)と最小のSEW設定(8)で得られるため、VLMAX_max = 8*VLEN/8 = VLENとなります。
+例えば、VLEN=256の場合、`vstart` は、0から255までのインデックスを表す8ビットを持つことになります。
+
+////
 The use of `vstart` values greater than the largest element index for
 the current SEW setting is reserved.
+////
 
+現在のSEW設定の最大要素インデックスよりも大きい `vstart` 値の使用は予約されています。
+
+////
 NOTE: It is recommended that implementations trap if `vstart` is out
 of bounds.  It is not required to trap, as a possible future use of
 upper `vstart` bits is to store imprecise trap information.
+////
 
+NOTE: `vstart` が範囲外の場合には、実装で例外を発生させることが推奨されています。
+上位の `vstart` ビットの将来的な使用法として、
+不正確な例外情報を保存することが考えられるため、
+例外を発生させることは必須ではありません。
+
+
+////
 The `vstart` CSR is writable by unprivileged code, but non-zero
 `vstart` values may cause vector instructions to run substantially
 slower on some implementations, so `vstart` should not be used by
 application programmers.  A few vector instructions cannot be
 executed with a non-zero `vstart` value and will raise an illegal
 instruction exception as defined below.
+////
 
+`vstart` CSR は非特権コードによって書き込み可能ですが、
+非ゼロの `vstart` 値はいくつかの実装でベクトル命令の実行速度を大幅に低下させる可能性があるため、
+`vstart` はアプリケーション・プログラマーが使用すべきではありません。
+いくつかのベクトル命令は、非ゼロの `vstart` 値では実行できず、
+以下に定義するような不正な命令例外を発生させます。
+
+////
 NOTE: Making `vstart` visible to unprivileged code supports user-level
 threading libraries.
+////
 
+NOTE: `vstart` を非特権コードから見えるようにすることは、
+ユーザレベルのスレッディングライブラリをサポートします。
+
+////
 Implementations are permitted to raise illegal instruction exceptions when
 attempting to execute a vector instruction with a value of `vstart` that the
 implementation can never produce when executing that same instruction with
 the same `vtype` setting.
+////
 
+実装は、同じ `vtype` 設定で同じ命令を実行した場合でも、
+実装が決して生成できない `vstart` の値を持つベクトル命令を実行しようとした場合、
+不正命令例外を発生させることが許可されています。
+
+////
 NOTE: For example, some implementations will never take interrupts during
 execution of a vector arithmetic instruction, instead waiting until the
 instruction completes to take the interrupt.  Such implementations are
 permitted to raise an illegal instruction exception when attempting to execute
 a vector arithmetic instruction when `vstart` is nonzero.
+////
 
+NOTE: 例えば、ある実装では、ベクトル演算命令の実行中には決して割り込みを受け取らず、
+命令が完了するまで待って割り込みを受け取ります。
+そのような実装では、 `vstart` が0でないときにベクトル演算命令を実行しようとすると、
+不正な命令例外を発生させることができます。
+
+////
 NOTE: When migrating a software thread between two harts with
 different microarchitectures, the `vstart` value might not be
 supported by the new hart microarchitecture.  The runtime on the
@@ -966,6 +1099,12 @@ receiving hart might then have to emulate instruction execution to a
 supported vstart element position.  Alternatively, migration events
 can be constrained to only occur at mutually supported `vstart`
 locations.
+////
+
+NOTE: マイクロアーキテクチャの異なる 2 つの hart 間でソフトウェア・スレッドを移行する場合、
+`vstart` 値は新しい hart のマイクロアーキテクチャーではサポートされていない可能性があります。
+その場合、受信側の hart のランタイムは、サポートされている vstart 要素の位置への命令実行をエミュレートしなければならないかもしれません。
+あるいは、移行イベントは、相互にサポートされる `vstart` 位置でのみ発生するように制約することもできます。
 
 === Vector Fixed-Point Rounding Mode Register `vxrm`
 
