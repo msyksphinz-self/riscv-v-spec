@@ -980,7 +980,7 @@ interrupt), and at which execution should resume after a resumable
 trap is handled.
 ////
 
-通常、`vstart`はベクトル命令の例外発生時にハードウェアによってのみ書き込まれ、
+通常、`vstart` はベクトル命令の例外発生時にハードウェアによってのみ書き込まれ、
 `vstart` の値は例外発生した要素 (同期例外または非同期割り込み) を表し、
 再開可能な例外が処理された後に実行が再開されるべき要素を表します。
 
