@@ -1106,18 +1106,32 @@ NOTE: マイクロアーキテクチャの異なる 2 つの hart 間でソフ�
 その場合、受信側の hart のランタイムは、サポートされている vstart 要素の位置への命令実行をエミュレートしなければならないかもしれません。
 あるいは、移行イベントは、相互にサポートされる `vstart` 位置でのみ発生するように制約することもできます。
 
-=== Vector Fixed-Point Rounding Mode Register `vxrm`
+// === Vector Fixed-Point Rounding Mode Register `vxrm`
 
+=== ベクトル固定小数点丸めモードレジスタ `vxrm`
+
+////
 The vector fixed-point rounding-mode register holds a two-bit
 read-write rounding-mode field.  The vector fixed-point rounding-mode
 is given a separate CSR address to allow independent access, but is
 also reflected as a field in `vcsr`.
+////
 
+ベクトル固定小数点丸めモード・レジスタは、2ビットの読み書き可能な丸め込みモード・フィールドを保持します。
+ベクトル固定小数点丸め込みモードは、独立してアクセスできるように、
+別のCSRアドレスが与えられていますが、 `vcsr` のフィールドとしても反映されています。
+
+////
 The fixed-point rounding algorithm is specified as follows.
 Suppose the pre-rounding result is `v`, and `d` bits of that result are to be
 rounded off.
 Then the rounded result is `(v >> d) + r`, where `r` depends on the rounding
 mode as specified in the following table.
+////
+
+固定小数点丸めのアルゴリズムは以下のように規定されています。
+丸め前の結果を `v` とし、その結果の `d` ビットを丸めるとします。
+このとき、丸められた結果は `(v >> d) + r` となり、 `r`  は次の表にあるように丸めモードに依存します。
 
 .vxrm encoding
 [cols="1,1,4,10,5"]
@@ -1131,30 +1145,57 @@ mode as specified in the following table.
 | 1 | 1 | rod | round-to-odd (OR bits into LSB, aka "jam")  | `!v[d] & v[d-1:0]{ne}0`
 |===
 
-The rounding functions:
+// The rounding functions:
+
+以下の命令の説明では、丸め関数を表すために以下の操作が使用されています。
 ----
 roundoff_unsigned(v, d) = (unsigned(v) >> d) + r
 roundoff_signed(v, d) = (signed(v) >> d) + r
 ----
-are used to represent this operation in the instruction descriptions below.
+// are used to represent this operation in the instruction descriptions below.
 
-`vxrm[XLEN-1:2]` should be written as zeros.
+// `vxrm[XLEN-1:2]` should be written as zeros.
 
+`vxrm[XLEN-1:2]` はゼロが書き込まれるべきです。
+
+////
 NOTE: A new rounding mode can be set while saving the original
 rounding mode using a single `csrwi` instruction.
+////
 
-=== Vector Fixed-Point Saturation Flag `vxsat`
+NOTE: `csrwi` 1命令を使って、元の丸め込みモードを保存しながら、
+新しい丸め込みモードを設定することができます。
 
+// === Vector Fixed-Point Saturation Flag `vxsat`
+
+=== ベクトル固定小数点飽和フラグ `vxsat`
+
+////
 The `vxsat` CSR holds a single read-write bit that indicates if a
 fixed-point instruction has had to saturate an output value to fit
 into a destination format.
+////
 
+`vxsat` CSRは読み書き可能な1ビットを保持しており、
+固定小数点命令が出力値を出力先のフォーマットに収めるために飽和させる必要があったかどうかを示します。
+
+
+////
 The `vxsat` bit is mirrored in `vcsr`.
+////
 
-=== Vector Control and Status Register `vcsr`
+`vxsat` ビットは `vcsr` のミラーです。
 
+// === Vector Control and Status Register `vcsr`
+
+=== Vector 制御・ステータスレジスタ `vcsr`
+
+////
 The `vxrm` and `vxsat` separate CSRs can also be accessed via fields
 in the vector control and status CSR, `vcsr`.
+////
+
+`vxrm` と`vxsat` CSRは、ベクトル制御・ステータスCSRである`vcsr`のフィールドを介してアクセスすることもできます。
 
 .vcsr layout
 [cols=">2,4,10"]
@@ -1167,22 +1208,47 @@ in the vector control and status CSR, `vcsr`.
 |    0 | vxsat     | Fixed-point accrued saturation flag
 |===
 
-=== State of Vector Extension at Reset
+// === State of Vector Extension at Reset
 
+=== リセット時のベクトル拡張の状態
+
+////
 The vector extension must have a consistent state at reset.  In
 particular, `vtype` and `vl` must have values that can be read and
 then restored with a single `vsetvl` instruction.
+////
 
+ベクトル拡張は、リセット時に一貫した状態を持っている必要があります。
+特に、`vtype` と `vl` は、1つの `vsetvl` 命令で読み取ってから復元できる値を持っていなければなりません。
+
+////
 NOTE: It is recommended that at reset, `vtype.vill` is set, the
 remaining bits in `vtype` are zero, and `vl` is set to zero.
+////
 
+NOTE: リセット時には、`vtype.vill` が設定され、`vtype` の残りのビットはゼロになり、`vl` はゼロになることが推奨されます。
+
+////
 The `vstart`, `vxrm`, `vxsat` CSRs can have arbitrary values at reset.
+////
 
+`vstart`, `vxrm`, `vxsat` CSR は、リセット時に任意の値を持つことができます。
+
+////
 NOTE: Any use of the vector unit will require an initial `vset{i}vl{i}`,
 which will reset `vstart`.  The `vxrm` and `vxsat` fields should be
 reset explicitly in software before use.
+////
 
+NOTE: ベクトルユニットを使用する場合は、初期化のための `vset{i}vl{i}` が必要で、
+これにより `vstart` がリセットされます。
+`vxrm` と `vxsat` フィールドは、使用前にソフトウェアで明示的にリセットする必要があります。
+
+////
 The vector registers can have arbitrary values at reset.
+////
+
+ベクトルレジスタはリセット時に任意の値を持つことができます。
 
 == Mapping of Vector Elements to Vector Register State
 
