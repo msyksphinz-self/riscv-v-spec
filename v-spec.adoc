@@ -1340,7 +1340,7 @@ least-significant byte of the stored element.
 
 // === Mapping for LMUL < 1
 
-LMUL < 1の場合のマッピング
+=== LMUL < 1の場合のマッピング
 
 ////
 When LMUL < 1, only the first LMUL*VLEN/SEW elements in the vector
