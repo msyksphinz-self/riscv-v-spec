@@ -1348,7 +1348,7 @@ register are used.  The remaining space in the vector register is
 treated as part of the tail, and hence must obey the vta setting.
 ////
 
-LMUL < 1 の場合、ベクターレジスターの最初の LMUL*VLEN/SEW 要素のみが使用される。
+LMUL < 1 の場合、ベクトルレジスタの最初の LMUL*VLEN/SEW 要素のみが使用される。
 ベクトルレジスタ内の残りのスペースはテールの一部として扱われるため、
 vtaの設定に従わなければなりません。
 
@@ -1521,8 +1521,8 @@ reduce instruction fetch and dispatch overheads in cases where fewer
 vector register groups are needed.
 ////
 
-LMULの設定を大きくすると、単純にベクターの長さを長くして命令のフェッチとディスパッチのオーバーヘッドを減らすことができ、
-ベクターレジスターグループの数が少なくて済む場合にも使用できます。
+LMULの設定を大きくすると、単純にベクトルの長さを長くして命令のフェッチとディスパッチのオーバーヘッドを減らすことができ、
+ベクトルレジスタグループの数が少なくて済む場合にも使用できます。
 
 ////
 NOTE: The SEW/LMUL values of 2048 and greater are shown in the table
@@ -1545,9 +1545,9 @@ single array of bytes, with the lowest-numbered register in the group
 holding the lowest-addressed bytes from the memory layout.
 ////
 
-より大きなSEWをサポートするためにベクターレジスターがグループ化され、ELEN > VLENとなった場合、
-グループ内のベクターレジスターは連結されて1つのバイト配列となり、
-グループ内で最も番号の低いレジスターが、メモリレイアウトから最も低いアドレスのバイトを保持します。
+より大きなSEWをサポートするためにベクトルレジスタがグループ化され、ELEN > VLENとなった場合、
+グループ内のベクトルレジスタは連結されて1つのバイト配列となり、
+グループ内で最も番号の低いレジスタが、メモリレイアウトから最も低いアドレスのバイトを保持します。
 
 ----
  LMUL > 1 ELEN>VLEN, examples
