@@ -1601,7 +1601,7 @@ value (MLEN).  In the 0.9 design, MLEN=1.
 NOTE: 初期のデザイン(0.9以前)では、マスク値あたりのビット数(MLEN)が変化していました。
 0.9デザインでは、MLEN=1です。
 
-/// ==== Mask Element Locations
+// ==== Mask Element Locations
 ==== マスク要素の場所
 
 ////
