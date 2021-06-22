@@ -1250,31 +1250,55 @@ The vector registers can have arbitrary values at reset.
 
 ベクトルレジスタはリセット時に任意の値を持つことができます。
 
-== Mapping of Vector Elements to Vector Register State
+// == Mapping of Vector Elements to Vector Register State
 
+== ベクトルレジスタ状態へのベクトル要素のマッピング
+
+////
 The following diagrams illustrate how different width elements are
 packed into the bytes of a vector register depending on the current
 SEW and LMUL settings, as well as implementation VLEN.  Elements are
 packed into each vector register with the least-significant byte in
 the lowest-numbered bits.
+////
 
-=== Mapping for LMUL = 1
+以下の図は、現在のSEWおよびLMULの設定と、実装のVLENに応じて、
+異なる幅の要素がどのようにベクトルレジスタのバイトに詰め込まれるかを示しています。
+要素は、最下位バイトが最下位ビットになるように各ベクトルレジスタに詰め込まれます。
 
+// === Mapping for LMUL = 1
+
+=== LMUL = 1 時のマッピング
+
+////
 When LMUL=1, elements are simply packed in order from the
 least-significant to most-significant bits of the vector register.
+////
 
+LMUL=1の場合、要素はベクトルレジスタの最下位ビットから最上位ビットの順に単純にパックされます。
+
+////
 NOTE: To increase readability, vector register layouts are drawn with
 bytes ordered from right to left with increasing byte address.  Bits
 within an element are numbered in a little-endian format with
 increasing bit index from right to left corresponding to increasing
 magnitude.
+////
+
+NOTE: 読みやすさを向上させるために、ベクトルレジスタのレイアウトは、
+バイトアドレスが右から左に向かって増加するように並べられています。
+要素内のビットはリトルエンディアン形式で番号付けされており、
+右から左へのビットインデックスの増加は大きさの増加に対応します。
 
 ----
-LMUL=1 examples.
+// LMUL=1 examples.
+LMUL=1の例
 
 The element index is given in hexadecimal and is shown placed at the
 least-significant byte of the stored element.
 
+要素のインデックスは16進数で与えられ、
+格納された要素の最下位バイトに配置されて表示されます。
 
  VLEN=32b
 
@@ -1314,14 +1338,23 @@ least-significant byte of the stored element.
  SEW=128b                                1                               0
 ----
 
-=== Mapping for LMUL < 1
+// === Mapping for LMUL < 1
 
+LMUL < 1の場合のマッピング
+
+////
 When LMUL < 1, only the first LMUL*VLEN/SEW elements in the vector
 register are used.  The remaining space in the vector register is
 treated as part of the tail, and hence must obey the vta setting.
+////
+
+LMUL < 1 の場合、ベクターレジスターの最初の LMUL*VLEN/SEW 要素のみが使用される。
+ベクトルレジスタ内の残りのスペースはテールの一部として扱われるため、
+vtaの設定に従わなければなりません。
 
 ----
- Example, VLEN=128b, LMUL=1/4
+ // Example, VLEN=128b, LMUL=1/4
+ VLEN=128b, LMUL=1/4の例
 
  Byte        F E D C B A 9 8 7 6 5 4 3 2 1 0
 
@@ -1330,16 +1363,26 @@ treated as part of the tail, and hence must obey the vta setting.
  SEW=32b           -       -       -       0
 ----
 
-=== Mapping for LMUL > 1
+// === Mapping for LMUL > 1
 
+=== LMUL > 1 のマッピング
+
+////
 When vector registers are grouped, the elements of the vector register
 group are striped across the constituent vector registers.  The
 elements are packed contiguously in element order in each vector
 register in the group, moving to the next highest-numbered vector
 register in the group once each vector register is filled.
+////
+
+ベクトルレジスタがグループ化されると、ベクトルレジスタグループの要素は、構成するベクトルレジスタ間でストライプされます。
+要素は、グループ内の各ベクトルレジスタに要素順に連続して詰められ、
+各ベクトルレジスタが満たされると、グループ内の次の最高番号(訳注:ここが上手く訳せない)のベクトルレジスタに移動します。
 
 ----
- LMUL > 1 examples
+// LMUL > 1 examples
+
+LMUL > 1の例
 
  VLEN=32b, SEW=8b, LMUL=2
 
@@ -1398,19 +1441,33 @@ register in the group once each vector register is filled.
  v4*n+3              F       E       D       C
 ----
 
-=== Mapping across Mixed-Width Operations
+// === Mapping across Mixed-Width Operations
 
+=== 混合幅演算でのマッピングについて
+
+////
 The vector ISA is designed to support mixed-width operations without
 requiring explicit additional rearrangement instructions.  The
 recommended software strategy when operating on vectors of different
 precision values is to modify `vtype` dynamically to keep SEW/LMUL
 constant (and hence VLMAX constant).
+////
 
+ベクトルISAは、明示的な追加再配置命令を必要とせずに、混合幅の演算をサポートするように設計されています。
+異なる精度のベクトルを操作する場合、推奨されるソフトウェア戦略は、`vtype` を動的に変更して、
+SEW/LMULを一定に保つことです(したがって、VLMAXも一定になります)。
+
+////
 The following example shows four different packed element widths (8b,
 16b, 32b, 64b) in a VLEN=128b implementation.  The vector register
 grouping factor (LMUL) is increased by the relative element size such
 that each group can hold the same number of vector elements (VLMAX=8
 in this example) to simplify stripmining code.
+////
+
+次の例では、VLEN=128bの実装において、4つの異なるパックエレメント幅(8b、16b、32b、64b)を示しています。
+ベクトルレジスタのグループ化係数(LMUL)は、各グループが同じ数のベクトル要素(この例ではVLMAX=8)を保持できるように、
+相対的な要素サイズによって増加し、ストリップマイニングコードを簡素化します。
 
 ----
 Example VLEN=128b, with SEW/LMUL=16
@@ -1429,6 +1486,7 @@ v4*n+2                  5               4
 v4*n+3                  7               6
 ----
 
+////
 The following table shows each possible constant SEW/LMUL operating
 point for loops with mixed-width operations.  Each column represents a
 constant SEW/LMUL operating point.  Entries in table are the LMUL
@@ -1436,6 +1494,12 @@ values that yield that column's SEW/LMUL value for the datawidth on
 that row.  In each column, an LMUL setting for a datawidth indicates
 that it can be aligned with the other datawidths in the same column
 that also have an LMUL setting, such that all have the same VLMAX.
+////
+
+次の表は、幅が混在しているループで考えられる一定のSEW/LMULの動作点を示しています。
+各列は一定のSEW/LMUL動作点を表しています。
+表のエントリは、その行のデータ幅に対して、その列のSEW/LMUL値をもたらすLMUL値です。
+各列のデータ幅のLMUL設定は、同じ列のLMUL設定を持つ他のデータ幅と、すべてが同じVLMAXになるように整列できることを示しています。
 
 |===
 | SEW/LMUL | 1 |  2 |  4 |  8 | 16  | 32  |  64  | 128 |  256 | 512 | 1024 |2048 |4096 |8192
@@ -1451,22 +1515,39 @@ that also have an LMUL setting, such that all have the same VLMAX.
 
 |===
 
-
+////
 Larger LMUL settings can also used to simply increase vector length to
 reduce instruction fetch and dispatch overheads in cases where fewer
 vector register groups are needed.
+////
 
+LMULの設定を大きくすると、単純にベクターの長さを長くして命令のフェッチとディスパッチのオーバーヘッドを減らすことができ、
+ベクターレジスターグループの数が少なくて済む場合にも使用できます。
+
+////
 NOTE: The SEW/LMUL values of 2048 and greater are shown in the table
 for completeness but they do not add a useful operating point as they
 use less than the full register capacity and do not enable more
 architectural registers.
+////
 
-=== Mapping for LMUL > 1 and ELEN > VLEN
+NOTE: SEW/LMULの値が2048以上の場合、完全性を保つために表に示していますが、これらの値はレジスタ容量をフルに使用しておらず、
+より多くのアーキテクチャレジスタを有効にしていないため、有用な動作ポイントを追加していません。
 
+// === Mapping for LMUL > 1 and ELEN > VLEN
+
+=== LMUL > 1 かつ ELEN > VLEN のマッピング
+
+////
 If vector registers are grouped to support larger SEW, with ELEN >
 VLEN, the vector registers in the group are concatenated to form a
 single array of bytes, with the lowest-numbered register in the group
 holding the lowest-addressed bytes from the memory layout.
+////
+
+より大きなSEWをサポートするためにベクターレジスターがグループ化され、ELEN > VLENとなった場合、
+グループ内のベクターレジスターは連結されて1つのバイト配列となり、
+グループ内で最も番号の低いレジスターが、メモリレイアウトから最も低いアドレスのバイトを保持します。
 
 ----
  LMUL > 1 ELEN>VLEN, examples
@@ -1499,19 +1580,37 @@ holding the lowest-addressed bytes from the memory layout.
 ----
 
 [[sec-mask-register-layout]]
-=== Mask Register Layout
+// === Mask Register Layout
 
+=== マスクレジスタのレイアウト
+
+////
 A vector mask occupies only one vector register regardless of SEW and
 LMUL.  Each element is allocated a single mask bit in a mask vector
 register.
+////
 
+ベクトルマスクは、SEWやLMULに関係なく、1つのベクトルレジスタのみを占有します。
+各要素には、マスクベクタレジスタに1つのマスクビットが割り当てられます。
+
+////
 NOTE: Earlier designs (pre-0.9) had a varying number of bits per mask
 value (MLEN).  In the 0.9 design, MLEN=1.
+////
 
-==== Mask Element Locations
+NOTE: 初期のデザイン(0.9以前)では、マスク値あたりのビット数(MLEN)が変化していました。
+0.9デザインでは、MLEN=1です。
 
+/// ==== Mask Element Locations
+==== マスク要素の場所
+
+////
 The mask bit for element _i_ is located in bit _i_ of the mask
 register, independent of SEW or LMUL.
+////
+
+要素 _i_ のマスクビットは、SEWやLMULとは関係なく、マスクレジスタのビット _i_ に配置されます。
+
 
 ----
  VLEN=32b
