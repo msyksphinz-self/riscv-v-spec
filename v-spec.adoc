@@ -1777,7 +1777,7 @@ default, for most operands of most instructions, EEW=SEW and
 EMUL=LMUL.
 ////
 
-各ベクトルオペランドは、ベクタレジスタグループ内のすべての要素のサイズと位置を決定するために使用される _effective_ _element_ _width_ (EEW) と _effective_ _LMUL (EMUL)を持っています。
+各ベクトルオペランドは、ベクタレジスタグループ内のすべての要素のサイズと位置を決定するために使用される _effective_ _element_ _width_ (EEW) と _effective_ _LMUL_ (EMUL)を持っています。
 デフォルトでは、ほとんどの命令のほとんどのオペランドで、EEW=SEW、EMUL=LMULとなります。
 
 ////
