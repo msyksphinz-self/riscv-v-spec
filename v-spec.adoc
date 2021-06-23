@@ -1680,17 +1680,29 @@ register, independent of SEW or LMUL.
                 [31][30][29][28]
 ----
 
-== Vector Instruction Formats
+// == Vector Instruction Formats
 
+== ベクトル命令フォーマット
+
+////
 The instructions in the vector extension fit under two existing major
 opcodes (LOAD-FP and STORE-FP) and one new major opcode (OP-V).
+////
 
+ベクトル拡張の命令は、既存の2つのメジャーオペコード(LOAD-FP、STORE-FP)と1つの新しいメジャーオペコード(OP-V)に当てはまります。
+
+////
 Vector loads and stores are encoded within the scalar floating-point
 load and store major opcodes (LOAD-FP/STORE-FP).  The vector load and
 store encodings repurpose a portion of the standard scalar
 floating-point load/store 12-bit immediate field to provide further
 vector instruction encoding, with bit 25 holding the standard vector
 mask bit (see <<sec-vector-mask-encoding>>).
+////
+
+ベクトルのロードとストアは、スカラー浮動小数点のロードとストアのメジャーオペコード(LOAD-FP/STORE-FP)の中にエンコードされます。
+ベクトルロード/ストアのエンコーディングは、標準的なスカラ浮動小数点ロード/ストアの12ビット即値フィールドの一部を再利用して、
+さらにベクトル命令のエンコーディングを行い、ビット25には標準的なベクトルマスクビット ( <<sec-vector-mask-encoding>> を参照)を格納します。
 
 include::vmem-format.adoc[]
 
@@ -1698,22 +1710,42 @@ include::valu-format.adoc[]
 
 include::vcfg-format.adoc[]
 
+////
 Vector instructions can have scalar or vector source operands and
 produce scalar or vector results, and most vector instructions can be
 performed either unconditionally or conditionally under a mask.
+////
 
+ベクトル命令は、スカラーまたはベクトルのソースオペランドを持ち、
+スカラまたはベクトルの結果を生成することができ、
+ほとんどのベクトル命令は、無条件またはマスクの下で条件付きで実行することができます。
+
+////
 Vector loads and stores move bit patterns between vector register
 elements and memory.  Vector arithmetic instructions operate on values
 held in vector register elements.
+////
 
-=== Scalar Operands
+ベクトルのロードとストアは、ベクトルのレジスタ要素とメモリの間でビットパタンを移動させます。
+ベクトル演算命令は、ベクトルレジスタ要素に保持された値を演算します。
 
+// === Scalar Operands
+
+=== スカラオペランド
+
+////
 Scalar operands can be immediates, or taken from the `x` registers,
 the `f` registers, or element 0 of a vector register.  Scalar results
 are written to an `x` or `f` register or to element 0 of a vector
 register.  Any vector register can be used to hold a scalar regardless
 of the current LMUL setting.
+////
 
+スカラオペランドは即値、または `x` レジスタ、`f` レジスタ、またはベクトルレジスタの要素 0 から取得することができます。
+スカラの結果は `x` または `f` レジスタ、またはベクトルレジスタの要素 0 に書き込まれます。
+現在の LMUL の設定に関わらず、どのベクターレジスターもスカラーを保持するために使用できます。
+
+////
 NOTE: In a change from v0.6, the floating-point registers no longer
 overlay the vector registers and scalars can now come from the integer
 or floating-point registers.  Not overlaying the `f` registers reduces
@@ -1724,15 +1756,31 @@ Overlaying `f` with `v` would provide the advantage of lowering the
 number of state bits in some implementations, but complicates
 high-performance designs and would prevent compatibility with the
 Zfinx ISA option.
+////
 
-=== Vector Operands
+NOTE: v0.6 からの変更点として、浮動小数点レジスタがベクトルレジスタをオーバーレイしなくなり、スカラーは整数または浮動小数点レジスタから得られるようになりました。
+`f` レジスタをオーバーレイしないことで、ベクトルレジスタが圧迫させないようにし、
+標準的な呼び出し規則との相互作用を避け、高性能なスカラー浮動小数点の設計を簡素化し、Zfinx ISA オプションとの互換性を実現します。
+`f` と`v` を重ねると、実装によってはステート・ビット数を減らせるというメリットがありますが、
+高性能な設計が複雑になり、Zfinx ISAオプションとの互換性もなくなります。
 
+
+/// === Vector Operands
+
+=== ベクトルオペランド
+
+////
 Each vector operand has an _effective_ _element_ _width_ (EEW) and an
 _effective_ LMUL (EMUL) that is used to determine the size and
 location of all the elements within a vector register group.  By
 default, for most operands of most instructions, EEW=SEW and
 EMUL=LMUL.
+////
 
+各ベクトルオペランドは、ベクタレジスタグループ内のすべての要素のサイズと位置を決定するために使用される _effective_ _element_ _width_ (EEW) と_effective_ _LMUL (EMUL)を持っています。
+デフォルトでは、ほとんどの命令のほとんどのオペランドで、EEW=SEW、EMUL=LMULとなります。
+
+////
 Some vector instructions have source and destination vector operands
 with the same number of elements but different widths, so that EEW and
 EMUL differ from SEW and LMUL respectively but EEW/EMUL = SEW/LMUL.
@@ -1740,13 +1788,28 @@ For example, most widening arithmetic instructions have a source group
 with EEW=SEW and EMUL=LMUL but destination group with EEW=2*SEW and
 EMUL=2*LMUL.  Narrowing instructions have a source operand that has
 EEW=2*SEW and EMUL=2*LMUL but destination where EEW=SEW and EMUL=LMUL.
+////
 
+ベクトル命令の中には、ソースと書き込みベクトルオペランドの要素数が同じでも幅が異なるものがあり、
+その場合、EEWとEMULはそれぞれSEWとLMULと異なりますが、EEW/EMUL = SEW/LMULとなります。
+例えば、Widening演算命令の多くは、ソースグループがEEW=SEW、EMUL=LMULで、
+書き込みグループがEEW=2*SEW、EMUL=2*LMULとなっています。
+Narrowing命令は、ソースオペランドはEEW=2*SEW、EMUL=2*LMULですが、
+書き込みレジスタはEEW=SEW、EMUL=LMULです。
+
+////
 Vector operands or results may occupy one or more vector registers
 depending on EMUL, but are always specified using the lowest-numbered
 vector register in the group.  Using other than the lowest-numbered
 vector register to specify a vector register group is a reserved
 encoding.
+////
 
+ベクトルオペランドまたは演算結果は、EMULに応じて1つまたは複数のベクトルレジスタを占めることがありますが、
+常にグループ内で最も低い番号のベクトルレジスタを使用して指定されます。
+ベクトルレジスタグループの指定に最下位のベクトルレジスタ以外を使用するエンコーディングは予約されています。
+
+////
 A destination vector register group can overlap a source vector register
 group only if one of the following holds:
 
@@ -1761,58 +1824,130 @@ group only if one of the following holds:
 
 For the purpose of register group overlap constraints, mask elements have
 EEW=1.
+////
 
+書き込みベクトルレジスタグループは、次のいずれかが成立する場合に限り、
+ソースベクトルレジスタグループとオーバーラップすることができます。
+
+- 書き込みレジスタのEEWとソースのEEWが等しい。
+- 書き込みレジスタのEEWがソースのEEWよりも小さく、オーバーラップする部分がソースのレジスタグループの最も低い番号の部分である(例えば、LMUL=1の場合、 `vnsrl.wi v0, v0, 3` は合法だが、`v1` の書き込みは合法ではない)。
+- 書き込みレジスタのEEWがソースのEEWよりも大きく、ソースのEMULが少なくとも1であり、オーバーラップが書き込みレジスタグループの最も高い番号の部分にある場合(例えば、LMUL=8の場合、 `vzext.vf4 v0, v6` は合法ですが、ソースの `v0` 、 `v2` 、`v4`は合法ではない)。
+
+レジスタグループのオーバーラップ制約のために、マスク要素はEEW=1となります。
+
+////
 The largest vector register group used by an instruction can not be
 greater than 8 vector registers (i.e., EMUL{le}8), and if a vector
 instruction would require greater than 8 vector registers in a group,
 the instruction encoding is reserved.  For example, a widening
 operation that produces a widened vector register group result when
 LMUL=8 is reserved as this would imply a result EMUL=16.
+////
 
+ある命令で使用される最大のベクトルレジスタグループは、8個以上のベクトル・レジスタであってはならず(すなわち、EMUL{le}8)、
+ベクトル命令が8個以上のベクトルレジスタグループを必要とする場合には、その命令エンコーディングは予約されます。
+例えば、LMUL=8のときにWideringされたベクトルレジスタ群の結果を得るWidening演算は、EMUL=16の結果を意味するため、予約されます。
+
+////
 Widened scalar values, e.g., results from widening reduction
 operations, are held in the first element of a vector register and
 have EMUL=1.
+////
 
+Wideningされたスカラ値(Wideningリダクション演算の結果など)は、
+ベクトルレジスタの最初の要素に保持され、EMUL=1となる。
+
+////
 NOTE: Current reduction operations are defined to hold input and
 output values in a single vector register, with implicit EMUL of 1, so
 cannot accommodate using a vector register group to hold a wide scalar
 reduction result.  This would require an independent parameter to give
 the EMUL for the scalar reduction element.
+////
 
-=== Vector Masking
+NOTE: 現在のリダクション演算は、入力値と出力値を単一のベクトルレジスタに保持するように定義されており、
+暗黙のうちにEMULが1となるため、wide スカラリダクションの結果を保持するためにベクトルレジスタグループを使用することはできません。
+この場合、スカラリダクション要素のEMULを指定する独立したパラメータが必要になります。
 
+// === Vector Masking
+
+=== ベクトルマスキング
+
+////
 Masking is supported on many vector instructions.  Element operations
 that are masked off (inactive) never generate exceptions.  The
 destination vector register elements corresponding to masked-off
 elements are handled with either a mask-undisturbed or mask-agnostic
 policy depending on the setting of the `vma` bit in `vtype` (Section
 <<sec-agnostic>>).
+////
 
+マスキングは多くのベクトル命令でサポートされています。
+マスクオフされた(非アクティブな)要素の操作は、例外を発生させません。
+マスクオフされた要素に対応する書き込みベクトルレジスタのタ要素は、`vtype`の`vma ビットの
+設定に応じて、mask-undisturbedまたはmask-agnosticのいずれかのポリシーで処理されます(セクション <<sec-agnostic>> )。
+
+////
 The mask value used to control execution of a masked vector
 instruction is always supplied by vector register `v0`.
+////
 
+マスクされたベクトル命令の実行を制御するために使用されるマスク値は、
+常にベクトルレジスタ `v0` によって提供されます。
+
+////
 NOTE: Future vector extensions may provide longer instruction
 encodings with space for a full mask register specifier.
+////
 
+NOTE: 将来のベクトル拡張は、完全なマスクレジスタ指定のためのスペースを持つ、
+より長い命令エンコーディングを提供するかもしれません。
+
+////
 The destination vector register group for a masked vector instruction
 cannot overlap the source mask register (`v0`), unless the destination
 vector register is being written with a mask value (e.g., comparisons)
 or the scalar result of a reduction.  These instruction encodings are
 reserved.
+////
 
+マスクド・ベクトル命令の書き込みベクタレジスタグループは、書き込みベクタレジスタにマスク値(比較など)やリダクションのスカラー結果が書き込まれていない限り、
+ソースマスクレジスタ(`v0`)とオーバーラップすることはできません。
+これらの命令エンコーディングは予約済みです。
+
+////
 NOTE: This constraint supports restart with a non-zero `vstart` value.
+////
 
+NOTE: この制約は、非ゼロの `vstart` 値でのリスタートをサポートします。
+
+////
 NOTE: Some masked instructions that target `v0` which were legal in
 v0.8 are illegal with the new MLEN=1 mask layout for v1.0. For
 example, `vadd.vv v0, v1, v2, v0.m` is now always illegal; previously,
 it was legal for LMUL=1.
+////
 
+NOTE: v0.8では有効だった`v0`を対象としたいくつかのマスクされた命令は、v1.0の新しいMLEN=1のマスク・レイアウトでは違法となります。
+例えば、 `vadd.vv v0, v1, v2, v0.m` は、以前は LMUL=1 の場合には合法でしたが、現在は常に違法です。
+
+////
 Other vector registers can be used to hold working mask values, and
 mask vector logical operations are provided to perform predicate
 calculations. [[sec-mask-vector-logical]]
+////
 
+作業用マスクの値を保持するために他のベクトルレジスタを使用することができ、
+述語計算を行うためのマスクベクトル論理演算が提供されています。
+[[sec-mask-vector-logical]]を参照してください。
+
+////
 As specified in Section <<sec-agnostic>>, mask destination values are
 always treated as tail-agnostic, regardless of the setting of `vta`.
+////
+
+<<sec-agnostic>>  で規定されているように、マスクの書き込み値は `vta` の設定にかかわらず、
+常に tail-agnostic として扱われます。
 
 [[sec-vector-mask-encoding]]
 ==== Mask Encoding
