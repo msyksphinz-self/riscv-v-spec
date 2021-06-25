@@ -2139,7 +2139,7 @@ do so even when `vstart` {ge} `vl`, including when `vl`=0.
 ////
 
 `x` レジスタや `f` レジスタを書き込む命令は、
-`vl` =0のときも含めて、`vstart` {ge} `vl`のときにも実行されます。
+`vl` =0のときも含めて、`vstart` {ge} `vl` のときにも実行されます。
 
 ////
 NOTE: Some instructions such as `vslidedown` and `vrgather` may read
