@@ -1928,7 +1928,7 @@ example, `vadd.vv v0, v1, v2, v0.m` is now always illegal; previously,
 it was legal for LMUL=1.
 ////
 
-NOTE: v0.8では有効だった`v0`を対象としたいくつかのマスクされた命令は、v1.0の新しいMLEN=1のマスク・レイアウトでは違法となります。
+NOTE: v0.8では有効だった `v0` を対象としたいくつかのマスクされた命令は、v1.0の新しいMLEN=1のマスク・レイアウトでは違法となります。
 例えば、 `vadd.vv v0, v1, v2, v0.m` は、以前は LMUL=1 の場合には合法でしたが、現在は常に違法です。
 
 ////
@@ -1950,11 +1950,18 @@ always treated as tail-agnostic, regardless of the setting of `vta`.
 常に tail-agnostic として扱われます。
 
 [[sec-vector-mask-encoding]]
-==== Mask Encoding
+// ==== Mask Encoding
 
+==== マスクエンコーディング
+
+////
 Where available, masking is encoded in a single-bit `vm` field in the
  instruction (`inst[25]`).
+////
 
+マスキングが可能な場合は、命令内の1ビットの`vm` フィールドにエンコードされます( `inst[25]` )。
+
+////
 [cols="1,15"]
 |===
 | vm | Description
@@ -1962,58 +1969,125 @@ Where available, masking is encoded in a single-bit `vm` field in the
 | 0 | vector result, only where v0.mask[i] = 1
 | 1 | unmasked
 |===
+////
 
+[cols="1,15"]
+|===
+| vm | 説明
+
+| 0 | ベクトル演算の結果は v0.mask[i]=1の領域にのみ書き込まれる
+| 1 | マスクされない
+|===
+
+////
 NOTE: In earlier proposals, `vm` was a two-bit field `vm[1:0]` that
 provided both true and complement masking using `v0` as well as
 encoding scalar operations.
+////
 
+NOTE: 初期の提案では、`vm` は2ビットのフィールド `vm[1:0]` で、
+`v0` を使った真と補填マスキングと、スカラ演算の符号化を行っていました。
+
+////
 Vector masking is represented in assembler code as another vector
 operand, with `.t` indicating if operation occurs when `v0.mask[i]` is
 `1`.  If no masking operand is specified, unmasked vector execution
 (`vm=1`) is assumed.
+///
 
+ベクトルのマスキングはアセンブラのコードでは別のベクトルオペランドとして表現され、`.t` は `v0.mask[i]` が `1`のときに演算が行われるかどうかを示します。
+マスキングオペランドが指定されていない場合は、ベクトル実行はマスクされていない(`vm=1`)とされます。
+
+////
 ----
     vop.v*    v1, v2, v3, v0.t  # enabled where v0.mask[i]=1, m=0
     vop.v*    v1, v2, v3        # unmasked vector operation, m=1
 ----
+////
 
+----
+    vop.v*    v1, v2, v3, v0.t  # マスク有効、v0.mask[i]=1の部分がマスクされる
+    vop.v*    v1, v2, v3        # マスク無効
+----
+
+////
 NOTE: Even though current vector extensions only support one vector
 mask register `v0` and only the true form of predication, the assembly
 syntax writes it out in full to be compatible with future extensions
 that might add a mask register specifier and supporting both true and
 complement masking. The `.t` suffix on the masking operand also helps
 to visually encode the use of a mask.
+////
 
+NOTE: 現在のベクトル拡張では、1つのベクトルマスクレジスタ `v0` と真の形式のプレディケートしかサポートしていませんが、
+アセンブリ構文では、マスクレジスタ指定子を追加し、真のマスキングと負のマスキングの両方をサポートする可能性のある将来の拡張と互換性を持たせるために、完全な文法を書き出します。
+マスキングオペランドの接尾辞 `.t` は、マスクの使用を視覚的に符号化するのにも役立ちます。
+
+////
 NOTE: The `.mask` suffix is not part of the assembly syntax.
 We only append it in contexts where a mask vector is subscripted,
 e.g., `v0.mask[i]`.
+////
+
+NOTE: `.mask` という接尾辞は、アセンブリの構文には含まれていません。
+`v0.mask[i]`のように文章中にマスクベクトルに添え字として使用されるだけです。
 
 [[sec-inactive-defs]]
-=== Prestart, Active, Inactive, Body, and Tail Element Definitions
+// === Prestart, Active, Inactive, Body, and Tail Element Definitions
 
+=== プリスタート、アクティブ、非アクティブ、ボディ、末尾要素の定義
+
+////
 The destination element indices operated on during a vector
 instruction's execution can be divided into three disjoint subsets.
+////
 
+ベクトル命令の実行時に操作される出力要素のインデックスは、3つのサブセットに分けられます。
+
+////
 * The _prestart_ elements are those whose element index is less than the
 initial value in the `vstart` register.  The prestart elements do not
 raise exceptions and do not update the destination vector register.
+////
 
+* _プリスタート_ 要素は、要素のインデックスが `vstart` レジスタの初期値よりも小さいものです。
+プリスタート要素は、例外を発生させず、書き込みベクトルレジスタも更新しません。
+
+////
 * The _body_ elements are those whose element index is greater than or equal
 to the initial value in the `vstart` register, and less than the current
 vector length setting in `vl`. The body can be split into two disjoint subsets:
+////
 
+* _ボディ_ 要素は、要素のインデックスが `vstart` レジスタの初期値以上で、
+`vl` の現在のベクトル長設定よりも小さいものです。ボディは2つの分離したサブセットに分割することができます。
+
+////
 ** The _active_ elements during a vector instruction's execution are the
 elements within the body and where the current mask is enabled at that element
 position.  The active elements can raise exceptions and update the destination
 vector register group.
+////
 
+** ベクトル命令の実行中の _アクティブ_ 要素は、ボディ内の要素で、
+その要素位置で現在のマスクが有効になっているところです。
+アクティブな要素は、例外を発生させたり、書き込みベクトルレジスタグループを更新することができます。
+
+////
 ** The _inactive_ elements are the elements within the body
 but where the current mask is disabled at that element
 position.  The inactive elements do not raise exceptions and do not
 update any destination vector register group unless masked agnostic is
 specified (`vtype.vma`=1), in which case inactive elements may be
 overwritten with 1s.
+////
 
+** _非アクティブ_ 要素は、ボディ内の要素で、その要素の位置で現在のマスクが無効になっている要素です。
+非アクティブな要素は， masked agnostic が指定されていない限り (`vtype.vma`=1)，
+例外を発生させず、書き込みベクトルレジスタグループを更新しません。
+この場合，非アクティブな要素は 1 で上書きされる可能性があります。
+
+////
 * The _tail_ elements during a vector instruction's execution are the
 elements past the current vector length setting specified in `vl`.
 The tail elements do not raise exceptions, and do not update any
@@ -2023,6 +2097,13 @@ destination vector register group unless tail agnostic is specified
 mask-producing instructions except for mask loads.  When LMUL < 1, the
 tail includes the elements past VLMAX that are held in the same vector
 register.
+////
+
+* ベクトル命令実行中の _末尾_ 要素は、`vl` で指定された現在のベクトル長設定を超えた要素です。
+末尾要素は例外を発生させず、Tail Agunostics指定されていない限り (`vtype.vta`=1)、
+書き込みベクトルレジスタグループを更新しません。
+この場合、末尾要素は 1 で上書きされるか、マスクロードを除くマスク生成命令の場合は命令の結果で上書きされる可能性があります。
+LMUL < 1の場合、末尾には同じベクタレジスタに保持されているVLMAX以降の要素が含まれます。
 
 ----
     for element index x
@@ -2034,21 +2115,42 @@ register.
     inactive(x) = body(x) && !mask(x)
 ----
 
+////
 When `vstart` {ge} `vl`, there are no body elements, and no elements
 are updated in any destination vector register group, including that
 no tail elements are updated with agnostic values.
+////
 
+`vstart` {ge} `vl` のとき、ボディの要素はなく、どの書き込みベクトルレジスタグループの要素も更新されず、
+これは末尾要素がagnosticな値で更新されないことも含みます。
+
+////
 NOTE: As a consequence, when `vl`=0, no elements, including agnostic
 elements, are updated in the destination vector register group
 regardless of `vstart`.
+////
 
+NOTE: 結果として、`vl`=0のときには、`vstart`にかかわらず、
+書き込みベクトルレジスタグループはAgnosticな要素を含めて、いかなる要素も更新されません。
+
+////
 Instructions that write an `x` register or `f` register
 do so even when `vstart` {ge} `vl`, including when `vl`=0.
+////
 
+`x` レジスタや `f` レジスタを書き込む命令は、
+`vl` =0のときも含めて、`vstart` {ge} `vl`のときにも実行されます。
+
+////
 NOTE: Some instructions such as `vslidedown` and `vrgather` may read
 indices past `vl` or even VLMAX in source vector register groups.  The
 general policy is to return the value 0 when the index is greater than
 VLMAX in the source vector register group.
+////
+
+NOTE: `vslidedown` や `vrgather` などの一部の命令は、ソースベクトルレジスタグループの
+`vl` または VLMAX を超えるインデックスを読み取ることがあります。
+一般的なポリシーは、インデックスがソースベクトルレジスタグループのVLMAXよりも大きい場合、値0を返します。
 
 [[sec-vector-config]]
 == Configuration-Setting Instructions (`vsetvli`/`vsetivl`/`vsetvl`)
