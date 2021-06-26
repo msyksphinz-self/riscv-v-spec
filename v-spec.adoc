@@ -2153,8 +2153,10 @@ NOTE: `vslidedown` や `vrgather` などの一部の命令は、ソースベク�
 一般的なポリシーは、インデックスがソースベクトルレジスタグループのVLMAXよりも大きい場合、値0を返します。
 
 [[sec-vector-config]]
-== Configuration-Setting Instructions (`vsetvli`/`vsetivl`/`vsetvl`)
+// == Configuration-Setting Instructions (`vsetvli`/`vsetivl`/`vsetvl`)
+== コンフィグレーション設定命令 (`vsetvli`/`vsetivl`/`vsetvl`)
 
+////
 One of the common approaches to handling a large number of elements is
 "stripmining" where each iteration of a loop handles some number of elements,
 and the iterations continue until all elements have been processed. The RISC-V
@@ -2167,11 +2169,25 @@ implementation and the `vtype` setting. A straightforward loop structure,
 shown in <<example-stripmine-sew>>, depicts the ease with which the code keeps
 track of the remaining number of elements and the amount per iteration handled
 by hardware.
+////
 
+多数の要素を処理するための一般的なアプローチの一つに、ループの各イタレーションでいくつかの要素を処理し、
+すべての要素が処理されるまでイタレーションを続ける"ストリップマイニング"があります。
+RISC-Vのベクトル仕様では、この手法を直接かつポータブルにサポートしています。
+アプリケーションは、処理する要素の総数(アプリケーションベクトル長、AVL)を `vl` の候補値として指定し、
+ハードウェアは、マイクロアーキテクチャの実装と `vtype` の設定に基づいて、
+ハードウェアが反復ごとに処理する要素数( `vl` に格納されている) を、汎用レジスタを介して応答します。
+<<example-stripmin-sew>> に示されている簡単なループ構造は、コードが残りの要素数とハードウェアが処理する1回あたりの量を簡単に追跡していることを示しています。
+
+////
 A set of instructions is provided to allow rapid configuration of the
 values in `vl` and `vtype` to match application needs.  The
 `vset{i}vl{i}` instructions set the `vtype` and `vl` CSRs based on
 their arguments, and write the new value of `vl` into `rd`.
+////
+
+アプリケーションのニーズに合わせて `vl` と `vtype` の値を迅速に設定できるように、一連の命令が提供されています。
+`vset{i}vl{i}` 命令は、その引数に基づいて、`vtype` と `vl` の CSR を設定し、`rd` に `vl` の新しい値を書き込みます。
 
 ----
  vsetvli rd, rs1, vtypei   # rd = new vl, rs1 = AVL, vtypei = new vtype setting
@@ -2181,13 +2197,19 @@ their arguments, and write the new value of `vl` into `rd`.
 
 include::vcfg-format.adoc[]
 
-=== `vtype` encoding
+// === `vtype` encoding
+=== `vtype` エンコーディング
 
 include::vtype-format.adoc[]
 
+////
 The new `vtype` setting is encoded in the immediate fields of
 `vsetvli` and `vsetivli`,  and in the `rs2` register for `vsetvl`.
+////
 
+新しい`vtype` の設定は、 `vsetvli` と`vsetivli` の即時フィールド、および `vsetvl` の `rs2` レジスタにエンコードされます。
+
+////
 ----
  Suggested assembler names used for vset{i}vli vtypei immediate
 
@@ -2213,14 +2235,52 @@ Examples:
     vsetvli t0, a0, e8, m2      # SEW= 8, LMUL=2
     vsetvli t0, a0, e32, mf2    # SEW=32, LMUL=1/2
 ----
+////
 
+----
+ vset{i}vli の即値vtipeiで提案されるアセンブラ名
+
+ e8    # SEW=8b
+ e16   # SEW=16b
+ e32   # SEW=32b
+ e64   # SEW=64b
+ e128  # SEW=128b
+ e256  # SEW=256b
+ e512  # SEW=512b
+ e1024 # SEW=1024b
+
+ mf8  # LMUL=1/8
+ mf4  # LMUL=1/4
+ mf2  # LMUL=1/2
+ m1   # LMUL=1, mの設定を省略した場合
+ m2   # LMUL=2
+ m4   # LMUL=4
+ m8   # LMUL=8
+
+例:
+    vsetvli t0, a0, e8          # SEW= 8, LMUL=1
+    vsetvli t0, a0, e8, m2      # SEW= 8, LMUL=2
+    vsetvli t0, a0, e32, mf2    # SEW=32, LMUL=1/2
+----
+
+////
 The `vsetvl` variant operates similarly to `vsetvli` except that it
 takes a `vtype` value from `rs2` and can be used for context restore.
+////
 
+`vsetvl` の動作は、`rs2` から `vtype` の値を受け取ることと、
+コンテキストの復元に使えることを除いて、`vsetvli` と同様になります。
+
+////
 If the `vtype` setting is not supported by the implementation, then
 the `vill` bit is set in `vtype`, the remaining bits in `vtype` are
 set to zero, and the `vl` register is also set to zero.
+////
 
+`vtype` の設定が実装でサポートされていない場合には、`vtype` に `vill` ビットが設定され、
+`vtype` の残りのビットは 0 に設定され、`vl` レジスタも 0 に設定されます。
+
+////
 NOTE: Earlier drafts required a trap when setting `vtype` to an
 illegal value.  However, this would have added the first
 data-dependent trap on a CSR write to the ISA.  Implementations may
@@ -2229,13 +2289,27 @@ setting `vill`, to allow emulation to support new configurations for
 forward-compatibility.  The current scheme supports light-weight
 runtime interrogation of the supported vector unit configurations by
 checking if `vill` is clear for a given setting.
+////
 
-=== AVL encoding
+NOTE: 以前のドラフトでは、`vtype` に不正な値を設定した場合、トラップが必要でした。
+しかし、これはISAへのCSRの書き込み時に最初のデータ依存のトラップを追加することになりました。
+実装では、 `vill` を設定する代わりに、 `vtype` に不正な値が書き込まれたときにトラップすることを選択して、
+エミュレーションで新しい構成をサポートできるようにして、将来の互換性を確保することができます。
+現在のスキームは、ある設定に対して `vill` がクリアされているかどうかをチェックすることで、
+サポートされているベクトルユニットの設定をランタイムに軽く照会することをサポートしています。
 
+// === AVL encoding
+=== AVLのエンコーディング
+
+////
 The new vector
 length setting is based on AVL, which for `vsetvli` and `vsetvl` is encoded in the `rs1` and `rd`
 fields as follows:
+////
 
+新しいベクトル長の設定はAVLに基づいており、 `vsetvli` と`vsetvl` では、 `rs1` と`rd` のフィールドに以下のようにエンコードされます。
+
+////
 .AVL used in `vsetvli` and `vsetvl` instructions
 [cols="2,2,10,10"]
 [%autowidth]
@@ -2245,15 +2319,37 @@ fields as follows:
 | !x0    |  x0    | ~0                | Set `vl` to VLMAX
 |  x0    |  x0    | Value in `vl` register | Keep existing `vl` (of course, `vtype` may change)
 |===
+////
 
+.`vsetvli` と `vsetvl` 命令に使用されるAVL
+[cols="2,2,10,10"]
+[%autowidth]
+|===
+|  `rd`  | `rs1`  | AVL値             | `vl` を更新する
+|  -     | !x0    | `x[rs1]` の値     | 通常のストリップマイニング
+| !x0    |  x0    | ~0                | `vl` を VLMAXに設定する
+|  x0    |  x0    | `vl` レジスタの値 | `vl` をキープする(もちろん、 `vtype` は変更される)
+|===
+
+////
 When `rs1` is not `x0`, the AVL is an unsigned integer held in the `x`
 register specified by `rs1`, and the new `vl` value is also written to
 the `x` register specified by `rd`.
+////
 
+`rs1` が `x0` でない場合，AVL は `rs1` で指定された `x` レジスタに保持される符号なし整数となり、
+新しい `vl` 値も `rd` で指定された `x` レジスタに書き込まれます。
+
+////
 When `rs1=x0` but `rd!=x0`, the maximum unsigned integer value (`~0`)
 is used as the AVL, and the resulting VLMAX is written to `vl` and
 also to the `x` register specified by `rd`.
+////
 
+`rs1=x0` であるが、 `rd!=x0` のときは、符号なし整数の最大値 (`~0`) が AVL として使用され、
+結果として VLMAX が `vl` に書き込まれ、 `rd` で指定された `x` レジスタにも書き込まれます。
+
+////
 When `rs1=x0` and `rd=x0`, the instruction operates as if the current
 vector length in `vl` is used as the AVL, and the resulting value is
 written to `vl`, but not to a destination register.  This form can
@@ -2261,7 +2357,15 @@ only be used when VLMAX and hence `vl` is not actually changed by the
 new SEW/LMUL ratio.  Use of the instruction with a new SEW/LMUL ratio
 that would result in a change of VLMAX is reserved.  Implementations
 may set `vill` in this case.
+////
 
+`rs1=x0` かつ `rd=x0` の場合、この命令は `vl` の現在のベクトル長をAVLとして使用し、
+結果の値は`vl`に書き込まれますが、書き込みレジスタには書き込まれません。
+この形式はVLMAXの場合にのみ使用でき、したがって `vl` は新しいSEW/LMUL比によって実際には変更されません。
+VLMAXの変更をもたらすような新しいSEW/LMUL比率の命令の使用は予約済みです。
+この場合、実装では `vill` を設定することができます。
+
+////
 NOTE: This last form of the instructions allows the `vtype` register to
 be changed while maintaining the current `vl`, provided VLMAX is not
 reduced.  This design was chosen to ensure `vl` would always hold a
@@ -2271,22 +2375,52 @@ instruction if the new SEW/LMUL ratio causes VLMAX to shrink, and so
 this case has been reserved as it is not clear this is a generally
 useful operation, and implementations can otherwise assume `vl` is not
 changed by this instruction to optimize their microarchitecture.
+////
 
+NOTE: この命令の最後の形式では、VLMAXが減少しないことを条件に、現在の `vl` を維持しながら `vtype` レジスタを変更することができます。
+この設計は、現在の `vtype` 設定に対して `vl` が常に正当な値を保持するように選択されました。
+現在の `vl` 値は `vl` CSR から読み取ることができます。
+新しいSEW/LMUL比率によってVLMAXが縮小する場合、この命令によって `vl` 値が減少する可能性がありますが、
+これが一般的に有用な動作であることは明らかではないため、このケースは留保されています。
+また、実装は、マイクロアーキテクチャを最適化するために、この命令によって `vl` が変更されないと仮定することができます。
+
+////
 For the `vsetivli` instruction, the AVL is encoded as a 5-bit
 zero-extended immediate (0--31) in the `rs1` field.
+////
 
+`vsetivli` 命令では、AVLは `rs1` フィールドの
+5ビットのゼロ拡張即時値(0～31)としてエンコードされます。
+
+////
 NOTE: The encoding of AVL for `vsetivli` is the same as for regular
 CSR immediate values.
+////
 
+NOTE: `vsetivli` のAVLのエンコーディングは、通常のCSRの即値と同じです。
+
+////
 NOTE: The `vsetivli` instruction provides more compact code when the
 dimensions of vectors are small, and known to fit inside the vector
 registers, so do not need stripmining overhead.
+////
 
-=== Constraints on Setting `vl`
+`vsetivli` 命令は、ベクトルサイズが小さく、ベクトルレジスタ内に収まることがわかっているため、
+ストリップマイニングのオーバーヘッドが不要な場合に、よりコンパクトなコードを提供します。
 
+// === Constraints on Setting `vl`
+
+=== `vl` 設定の制約
+
+////
 The `vset{i}vl{i}` instructions first set VLMAX according to the `vtype`
 argument, then set `vl` obeying the following constraints:
+////
 
+`vset{i}vl{i}` 命令は、まず引数の `vtype` にしたがってVLMAXを設定し、
+次に以下の制約にしたがって `vl` を設定します。
+
+////
 . `vl = AVL` if `AVL {le} VLMAX`
 . `ceil(AVL / 2) {le} vl {le} VLMAX` if `AVL < (2 * VLMAX)`
 . `vl = VLMAX` if `AVL {ge} (2 * VLMAX)`
@@ -2298,7 +2432,20 @@ argument, then set `vl` obeying the following constraints:
 .. `vl {le} AVL`
 .. a value read from `vl` when used as the AVL argument to `vset{i}vl{i}` results in the same
 value in `vl`, provided the resultant VLMAX equals the value of VLMAX at the time that `vl` was read
+////
 
+. `AVL {le} VLMAX` のときは `vl = AVL`
+. `AVL W (2 * VLMAX)` のときは `ceil(AVL / ) {le} vl {le} VLMAX`
+. `AVL {ge} (2 * VLMAX)` のときは `vl = VLMAX`
+. 同一の入力AVLおよびVLMAX値に対して、任意の実装で決定される
+. これらの具体的な特性は、事前のルールから導かれます。
+.. `AVL = 0` なら `vl = 0`
+.. `AVL > 0` なら `vl > 0`
+.. `vl {le} VLMAX`
+.. `vl {le} AVL`
+.. `vl` から読み込んだ値を `vset{i}vl{i}` の AVL 引数として使用すると、`vl` 内の同じ値になります。 ただし、結果として得られる VLMAX が `vl` が読み込まれた時点での VLMAX の値と同じであることが条件です。
+
+////
 [NOTE]
 --
 The `vl` setting rules are designed to be sufficiently strict to
@@ -2316,12 +2463,32 @@ This allows software to avoid needing to explicitly calculate a running
 maximum of vector lengths observed during a stripmined loop.
 Requirement 2 also allows an implementation to set vl to VLMAX for `VLMAX < AVL < 2*VLMAX`
 --
+////
+
+[NOTE]
+--
+`vl`の設定ルールは、`AVL {le} VLMAX` では、レジスタの流出やコンテキストの入れ替えがあっても `vl` の動作を維持できるよう、
+十分に厳密に設計されています。しかし、 `AVL > VLMAX` の場合は、ベクトルレーンの使用率を向上させることができる柔軟性を備えています。
+例えば、 `VLMAX < AVL < 2*VLMAX` の場合、`vl = ceil(AVL / 2)` と設定することで、ストリップマイニングループの最後の2回の反復に作業を均等に分散させることができます。
+要件2は、 `AVL < 2*VLMAX` の場合であっても、リダクションループの最初のストリップミン反復では、
+すべての反復の中で最大のベクトル長を使用することを保証する。
+これにより、ソフトウェアは、ストリップマイニングループで観測されたベクトル長の実行最大値を明示的に計算する必要がなくなります。
+また、要件2では、 `VLMAX < AVL < 2*VLMAX` の場合、vlをVLMAXに設定することができます。
+
+--
 
 [[example-stripmine-sew]]
-=== Example of stripmining and changes to SEW
+// === Example of stripmining and changes to SEW
 
+=== ストリップマイニングとSEW変更の例
+
+////
 The SEW and LMUL settings can be changed dynamically to provide high
 throughput on mixed-width operations in a single loop.
+////
+
+SEWとLMULの設定を動的に変更することで、1つのループで幅が混在するオペレーションでも高い処理能力を発揮します。
+////
 ----
 # Example: Load 16-bit values, widen multiply to 32b, shift 32b result
 # right by 3, store 32b values.
@@ -2346,6 +2513,32 @@ loop:
     sub a0, a0, a3          # Decrement count by vl
     bnez a0, loop           # Any more?
 ----
+////
+
+----
+# 例: 16ビットの値をロードし、32ビットに拡張し乗算を行い、
+# 結果の32ビットを3ビット右にシフトし、結果の32ビットをストアする
+# プログラムの先頭では:
+#  a0は処理を行う全体の要素数を保持している
+#  a1はソース配列のアドレスを保持している
+#  a2は書き込み配列のアドレスを保持している
+loop:
+    vsetvli a3, a0, e16, m4, ta, ma  # vtype = 16-bit 整数ベクトル
+                                     # a3をvlに更新する(個のイタレーションにおける要素の個数)
+    vle16.v v4, (a1)        # 16ビットのベクトルを取得する
+    slli t1, a3, 1          # このイタレーションで処理する要素の個数から要素の2バイト数を計算する
+    add a1, a1, t1          # ポインタを進める
+    vwmul.vx v8, v4, x10    # v4の値を32ビットに拡張して<v8--v15>に格納する
+
+    vsetvli x0, x0, e32, m8, ta, ma  # 32ビット操作に変更する
+    vsrl.vi v8, v8, 3
+    vse32.v v8, (a2)        # 32ビットの値をベクトルにストアする
+    slli t1, a3, 2          # このイタレーションで処理する要素の個数から要素の4バイト数を計算する
+    add a2, a2, t1          # ポインタを進める
+    sub a0, a0, a3          # vlだけカウンタを減少させる
+    bnez a0, loop           # これ以上処理する？
+----
+
 
 [[sec-vector-memory]]
 == Vector Loads and Stores
