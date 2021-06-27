@@ -2629,7 +2629,7 @@ SEW/LMUL to specify the data width.
 
 // === Vector Load/Store Addressing Modes
 
-== ベクトルロードストアアドレッシングモード
+=== ベクトルロードストアアドレッシングモード
 
 ////
 The vector extension supports unit-stride, strided, and
