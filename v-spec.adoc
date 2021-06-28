@@ -1743,7 +1743,7 @@ of the current LMUL setting.
 
 スカラオペランドは即値、または `x` レジスタ、`f` レジスタ、またはベクトルレジスタの要素 0 から取得することができます。
 スカラの結果は `x` または `f` レジスタ、またはベクトルレジスタの要素 0 に書き込まれます。
-現在の LMUL の設定に関わらず、どのベクターレジスターもスカラーを保持するために使用できます。
+現在の LMUL の設定に関わらず、どのベクトルレジスタもスカラーを保持するために使用できます。
 
 ////
 NOTE: In a change from v0.6, the floating-point registers no longer
@@ -2638,7 +2638,7 @@ registers and strides are taken from the GPR `x` registers.
 ////
 
 ベクトル拡張は、ユニットストライド、ストライド、インデックス(スキャッター/ギャザー)のアドレッシングモードをサポートしています。
-ベクターのロード/ストアベースレジスタとストライドは、GPRの `x` レジスタから取得されます。
+ベクトルのロード/ストアベースレジスタとストライドは、GPRの `x` レジスタから取得されます。
 
 ////
 The base effective address for all vector accesses is given by the
@@ -2662,7 +2662,7 @@ increments given by the byte offset contained in the `x` register
 specified by `rs2`.
 ////
 
-ベクターの定数ストライド演算では、ベース実効アドレスで最初のメモリ要素をアクセスし、
+ベクトルの定数ストライド演算では、ベース実効アドレスで最初のメモリ要素をアクセスし、
 その後，`rs2`で指定される`x`レジスタに含まれるバイトオフセットで与えられるアドレス増分で後続の要素をアクセスします。
 
 ////
@@ -2800,7 +2800,7 @@ NOTE: To provide ordered vector accesses to a strongly ordered IO
 region, the ordered indexed instructions should be used.
 ////
 
-NOTE: 強く順序付けられたIO領域への順序付けられたベクターアクセスを提供するためには、
+NOTE: 強く順序付けられたIO領域への順序付けられたベクトルアクセスを提供するためには、
 順序付けられたインデックス付き命令を使用する必要があります。
 
 ////
@@ -2854,7 +2854,7 @@ Section <<sec-aos>>.
 ////
 
 `nf[2:0]` フィールドは、各セグメントのフィールドの数をエンコードします。
-通常のベクトルロード/ストアでは、 `nf`=0で、各要素の位置でベクターレジスターグループとメモリーの間で1つの値が移動することを示します。
+通常のベクトルロード/ストアでは、 `nf`=0で、各要素の位置でベクトルレジスタグループとメモリーの間で1つの値が移動することを示します。
 より大きな値の `nf` フィールドは、後述の <<sec-aos>> 項で説明するように、
 セグメント内の複数の連続したフィールドにアクセスするために使用されます。
 
@@ -2879,32 +2879,64 @@ to transfer for the whole vector register load/store instructions.
 ロード/ストア命令で転送するホールベクタレジスタの数をエンコードします。
 
 [[sec-vector-loadstore-width-encoding]]
-=== Vector Load/Store Width Encoding
+=== ベクトルロードストア幅のエンコーディング
+// === Vector Load/Store Width Encoding
 
+////
 Vector loads and stores have an EEW encoded directly in the
 instruction.  The corresponding EMUL is calculated as EMUL =
 (EEW/SEW)*LMUL. If the EMUL would be out of range (EMUL>8 or
 EMUL<1/8), the instruction encoding is reserved.  The vector register
 groups must have legal register specifiers for the selected EMUL;
 the instruction encoding is otherwise considered reserved.
+////
 
+ベクトルのロードとストアは、命令に直接EEWがエンコードされています。
+対応するEMULはEMUL = (EEW/SEW)*LMULとして計算されます。
+EMULが範囲外(EMUL>8またはEMUL<1/8)になる場合は、命令のエンコーディングは予約されます。
+ベクトルレジスタグループには、選択されたEMULに対応する正当なレジスタ指定子がなければならず、
+それ以外の命令エンコーディングは予約済みとみなされます。
+
+////
 Vector unit-stride and constant-stride use the EEW/EMUL encoded in the
 instruction for the data values, while vector indexed loads and stores
 use the EEW/EMUL encoded in the instruction for the index values and
 the SEW/LMUL encoded in `vtype` for the data values.
+////
 
+ベクトルユニットストライドおよび定数ストライドでは、データ値に命令でエンコードされたEEW/EMULを使用し、
+ベクトルインデックスロードおよびストアでは、インデックス値に命令でエンコードされたEEW/EMULを使用し、
+データ値に `vtype` でエンコードされたSEW/LMULを使用します。
+
+////
 Vector loads and stores are encoded using width values that are not
 claimed by the standard scalar floating-point loads and stores.
+////
 
+ベクトルのロード・ストアは、標準的なスカラー浮動小数点の
+ロード・ストアが明示していない幅の値を使ってエンコードされます。
+
+////
 The `mew` bit (`inst[28]`) is expected to be used to encode expanded
 memory sizes of 128 bits and above, but these encodings are _reserved_
 at this point.
+////
 
+`mew` ビット(`inst[28]`)は、128ビット以上の拡張メモリサイズをエンコードするために使用されることが期待されますが、
+これらのエンコードは現時点では _予約_ です。
+
+////
 Vector loads and stores for EEWs of all supported SEW settings must be
 provided in an implementation.  Vector load/store encodings for
 unsupported EEW widths are reserved.
+////
 
-.Width encoding for vector loads and stores.
+サポートされているすべてのSEW設定のEEWのベクターロード/ストアは、実装で提供されなければなりません。
+サポートされていないEEW幅のベクターロード・ストアエンコーディングは予約済みです。
+
+
+// .Width encoding for vector loads and stores.
+.ベクトルロードストアのアクセス幅エンコーディング
 [cols="5,1,1,1,1,>3,>3,>3,3,2"]
 |===
 |                  | mew 3+| width [2:0] | Mem bits | Data Reg bits | Index bits | Opcodes |
@@ -2927,19 +2959,40 @@ unsupported EEW widths are reserved.
 | Vector 64b index     | 0 |   1 | 1 | 1 | SEW | SEW  | 64 | VLxEI64/VSxEI64     |
 |===
 
-
+////
 Mem bits is the size of each element accessed in memory.
+////
 
+Mem bits は、メモリにアクセスされる各要素のサイズです。
+
+////
 Data reg bits is the size of each data element accessed in register.
+////
 
+Data reg bits は、レジスタにアクセスされる各データ要素のサイズです。
+
+////
 Index bits is the size of each index accessed in register.
+////
 
+Index bits は，レジスタにアクセスされる各インデックスのサイズです。
+
+////
 Data and index bit EEW encodings larger than 64b are currently reserved.
+////
 
+64b以上のデータおよびインデックスビットのEEWエンコーディングは現在予約済みです。
+
+////
 NOTE: RV128 will require data and index EEW of 128.
+////
 
-=== Vector Unit-Stride Instructions
+NOTE: RV128では、データおよびインデックスのEEWが128となります。
 
+// === Vector Unit-Stride Instructions
+=== ベクトルユニットストライド命令
+
+////
 ----
     # Vector unit-stride loads and stores
 
@@ -2963,13 +3016,46 @@ NOTE: RV128 will require data and index EEW of 128.
     # vse512.v  vs3, (rs1), vm  #  512-bit unit-stride store. Reserved
     # vse1024.v vs3, (rs1), vm  # 1024-bit unit-stride store. Reserved
 ----
+////
 
+----
+    # ベクトルユニットストライドロードストア命令
+
+    # vd は書き込みレジスタ, rs1 はベースアドレス, vm はマスクエンコーディング (v0.t or <missing>)
+    vle8.v    vd, (rs1), vm  #    8-bit ユニットストライドロード
+    vle16.v   vd, (rs1), vm  #   16-bit ユニットストライドロード
+    vle32.v   vd, (rs1), vm  #   32-bit ユニットストライドロード
+    vle64.v   vd, (rs1), vm  #   64-bit ユニットストライドロード
+    # vle128.v  vd, (rs1), vm  #  128-bit ユニットストライドロード、予約済み
+    # vle256.v  vd, (rs1), vm  #  256-bit ユニットストライドロード、予約済み
+    # vle512.v  vd, (rs1), vm  #  512-bit ユニットストライドロード、予約済み
+    # vle1024.v vd, (rs1), vm  # 1024-bit ユニットストライドロード、予約済み
+
+    # vs3はストアデータ, rs1はベースアドレス, vmはマスクエンコーディング (v0.t or <missing>)
+    vse8.v    vs3, (rs1), vm  #    8-bit ユニットストライドストア
+    vse16.v   vs3, (rs1), vm  #   16-bit ユニットストライドストア
+    vse32.v   vs3, (rs1), vm  #   32-bit ユニットストライドストア
+    vse64.v   vs3, (rs1), vm  #   64-bit ユニットストライドストア
+    # vse128.v  vs3, (rs1), vm  #  128-bit ユニットストライドストア、予約済み
+    # vse256.v  vs3, (rs1), vm  #  256-bit ユニットストライドストア、予約済み
+    # vse512.v  vs3, (rs1), vm  #  512-bit ユニットストライドストア、予約済み
+    # vse1024.v vs3, (rs1), vm  # 1024-bit ユニットストライドストア、予約済み
+----
+
+////
 An additional unit-stride load and store is provided to support
 transferring mask values to/from memory.  These operate the
 same as unmasked byte loads or stores (EEW=8), except that the effective
 vector length is ``evl``=ceil(``vl``/8) (i.e. EMUL=1), and the destination register is
 always written with a tail-agnostic policy.
+////
 
+マスク値をメモリとの間で転送するために、ユニットストライドのロード/ストアが追加されました。
+これは、実効ベクトル長が ``evl``=ceil(``vl``/8) (つまりEMUL=1)であることと、
+転送先のレジスタが常にテールアグノスティックポリシーで書き込まれることを除けば、
+マスクなしのバイトロード/ストア(EEW=8)と同じ動作をします。
+
+////
 ----
     # Vector unit-stride mask load
     vlm.v vd, (rs1)   #  Load byte vector of length ceil(vl/8)
@@ -2977,26 +3063,56 @@ always written with a tail-agnostic policy.
     # Vector unit-stride mask store
     vsm.v vs3, (rs1)  #  Store byte vector of length ceil(vl/8)
 ----
+////
 
+----
+    # ベクトルユニットストライドマスクロード命令
+    vlm.v vd, (rs1)   #  ceil(vl/8)バイト長だけバイトデータをロードする
+
+    # ベクトルユニットストライドマスクストア命令
+    vsm.v vs3, (rs1)  #  ceil(vl/8)バイト長だけバイトデータをストアする
+----
+
+////
 `vlm.v` and `vsm.v` are encoded with `width[2:0]`=0, like
 `vle8.v` and `vse8.v`; they are distinguished by different
 `lumop` and `sumop` encodings.  Since `vlm.v` and `vsm.v` operate as byte loads and stores,
 `vstart` is in units of bytes for these instructions.
+////
 
+`vlm.v` と `vsm.v` は、`vle8.v` と `vse8.v` と同様に `width[2:0]`=0 でエンコードされますが、
+`lumop` と `sumop` のエンコードが異なることで区別されます。
+`vlm.v` と `vsm.v` はバイトロードとストアとして動作するので、
+これらの命令では `vstart` はバイト単位になります。
+
+////
 NOTE: The previous assembler mnemonics `vle1.v` and `vse1.v` were
 confusing as length was handled different for these instructions
 versus other element load/store instructions.  To avoid software
 churn, these older assembly mnemonics are being retained as aliases.
+////
 
+NOTE: 以前のアセンブラのニーモニックである `vle1.v` と `vse1.v` は、
+これらの命令と他の要素のロード/ストア命令で長さの扱いが異なるため、混乱を招きました。
+ソフトウェアの混乱を避けるために、これらの古いアセンブラニーモニックはエイリアスとして残されています。
+
+////
 NOTE: The primary motivation to provide mask load and store is to
 support machines that internally rearrange data to reduce
 cross-datapath wiring.  However, this also provides a convenient
 mechanism to access packed bit vectors in memory as mask registers,
 and reduces the cost of mask spill/fill by reducing need to change
 `vl`.
+////
 
-=== Vector Strided Instructions
+NOTE: マスクロード/ストアを提供する主な動機は、
+データパス間の配線を減らすためにデータを内部で再配置するマシンをサポートすることです。
+また、 `vl` を変更する必要がないため、マスクのスピル/フィルのコストを削減することができます。
 
+// === Vector Strided Instructions
+=== ベクトルストライド命令
+
+////
 ----
     # Vector strided loads and stores
 
@@ -3020,30 +3136,86 @@ and reduces the cost of mask spill/fill by reducing need to change
     # vsse512.v  vs3, (rs1), rs2, vm  #  512-bit strided store. Reserved
     # vsse1024.v vs3, (rs1), rs2, vm  # 1024-bit strided store. Reserved
 ----
+////
 
+----
+    # ベクトルストライドロードストア命令
+
+    # vdは書き込みレジスタ, rs1はベースレジスタ, rs2はバイトストライド
+    vlse8.v    vd, (rs1), rs2, vm  #    8-bit ストライドロード命令
+    vlse16.v   vd, (rs1), rs2, vm  #   16-bit ストライドロード命令
+    vlse32.v   vd, (rs1), rs2, vm  #   32-bit ストライドロード命令
+    vlse64.v   vd, (rs1), rs2, vm  #   64-bit ストライドロード命令
+    # vlse128.v  vd, (rs1), rs2, vm  #  128-bit ストライドロード命令、予約済み
+    # vlse256.v  vd, (rs1), rs2, vm  #  256-bit ストライドロード命令、予約済み
+    # vlse512.v  vd, (rs1), rs2, vm  #  512-bit ストライドロード命令、予約済み
+    # vlse1024.v vd, (rs1), rs2, vm  # 1024-bit ストライドロード命令、予約済み
+
+    # vs3 store data, rs1 base address, rs2 byte stride
+    vsse8.v    vs3, (rs1), rs2, vm  #    8-bit ストライドストア命令
+    vsse16.v   vs3, (rs1), rs2, vm  #   16-bit ストライドストア命令
+    vsse32.v   vs3, (rs1), rs2, vm  #   32-bit ストライドストア命令
+    vsse64.v   vs3, (rs1), rs2, vm  #   64-bit ストライドストア命令
+    # vsse128.v  vs3, (rs1), rs2, vm  #  128-bit ストライドストア命令、予約済み
+    # vsse256.v  vs3, (rs1), rs2, vm  #  256-bit ストライドストア命令、予約済み
+    # vsse512.v  vs3, (rs1), rs2, vm  #  512-bit ストライドストア命令、予約済み
+    # vsse1024.v vs3, (rs1), rs2, vm  # 1024-bit ストライドストア命令、予約済み
+----
+
+////
 Negative and zero strides are supported.
+////
 
+負の数のストライドとゼロストライドに対応しています。
+
+////
 Element accesses within a strided instruction are unordered with
 respect to each other.
+////
 
+ストライド命令内の要素アクセスは、互いに順序付けられていません。
+
+////
 When `rs2`=`x0`, then an implementation is allowed, but not required,
 to perform fewer memory operations than the number of active elements,
 and may perform different numbers of memory operations across
 different dynamic executions of the same static instruction.
+////
 
+`rs2`=`x0`の場合、実装はアクティブな要素の数よりも少ないメモリ操作を実行することが許されますが、必須ではありません。
+また、同じ静的に同じ命令の異なる動的な実行において、異なる数のメモリ操作を実行することができます。
+
+////
 NOTE: Compilers must be aware to not use the `x0` form for rs2 when
 the immediate stride is `0` if the intent to is to require all memory
 accesses are performed.
+////
 
+NOTE: すべてのメモリ・アクセスの実行を要求する意図がある場合は、
+即時ストライドが `0` のときに rs2 に `x0` 形式を使用しないように、
+コンパイラーは注意しなければなりません。
+
+////
 When `rs2!=x0` and the value of `x[rs2]=0`, the implementation must
 perform one memory access for each active element (but these accesses
 will not be ordered).
+////
 
+`rs2!=x0` で `x[rs2]=0` の場合、実装はアクティブな要素ごとに1回のメモリアクセスを
+行わなければなりません(ただし、これらのアクセスは順序付けられません)。
+
+////
 NOTE: When repeating ordered vector accesses to the same memory
 address are required, then an ordered indexed operation can be used.
+////
 
-=== Vector Indexed Instructions
+NOTE: 同じメモリアドレスへの順序付きベクターアクセスを繰り返す必要がある場合は、
+順序付きインデックス操作を使用することができます。
 
+// === Vector Indexed Instructions
+=== ベクトルインデックス命令
+
+////
 ----
     # Vector indexed loads and stores
 
@@ -3076,17 +3248,65 @@ address are required, then an ordered indexed operation can be used.
     vsoxei64.v   vs3, (rs1), vs2, vm  # ordered 64-bit indexed store of SEW data
 
 ----
+////
 
+----
+    # ベクトルインデックスロードストア命令
+
+    # ベクトル順序無しインデックスロード命令
+    # vdは書き込みベクトルレジスタ, rs1はベースアドレス, vs2はインデックス
+    vluxei8.v    vd, (rs1), vs2, vm  # unordered  8-bit SEWデータのインデックスロード命令
+    vluxei16.v   vd, (rs1), vs2, vm  # unordered 16-bit SEWデータのインデックスロード命令
+    vluxei32.v   vd, (rs1), vs2, vm  # unordered 32-bit SEWデータのインデックスロード命令
+    vluxei64.v   vd, (rs1), vs2, vm  # unordered 64-bit SEWデータのインデックスロード命令
+
+    # ベクトル順序付きインデックスロード命令
+    # vdは書き込みベクトルレジスタ, rs1はベースアドレス, vs2はインデックス
+    vloxei8.v    vd, (rs1), vs2, vm  # ordered  8-bit SEWデータのインデックスロード命令
+    vloxei16.v   vd, (rs1), vs2, vm  # ordered 16-bit SEWデータのインデックスロード命令
+    vloxei32.v   vd, (rs1), vs2, vm  # ordered 32-bit SEWデータのインデックスロード命令
+    vloxei64.v   vd, (rs1), vs2, vm  # ordered 64-bit SEWデータのインデックスロード命令
+
+    # ベクトル順序無しインデックスストア命令
+    # vs3はストアデータ, rs1はベースアドレス, vs2はインデックス
+    vsuxei8.v   vs3, (rs1), vs2, vm # unordered  8-bit SEWデータのインデックスストア命令
+    vsuxei16.v  vs3, (rs1), vs2, vm # unordered 16-bit SEWデータのインデックスストア命令
+    vsuxei32.v  vs3, (rs1), vs2, vm # unordered 32-bit SEWデータのインデックスストア命令
+    vsuxei64.v  vs3, (rs1), vs2, vm # unordered 64-bit SEWデータのインデックスストア命令
+
+    # ベクトル順序付きインデックスストア命令
+    # vs3はストアデータ, rs1はベースアドレス, vs2はインデックス
+    vsoxei8.v    vs3, (rs1), vs2, vm  # ordered  8-bit SEWデータのインデックスストア命令
+    vsoxei16.v   vs3, (rs1), vs2, vm  # ordered 16-bit SEWデータのインデックスストア命令
+    vsoxei32.v   vs3, (rs1), vs2, vm  # ordered 32-bit SEWデータのインデックスストア命令
+    vsoxei64.v   vs3, (rs1), vs2, vm  # ordered 64-bit SEWデータのインデックスストア命令
+
+----
+
+////
 NOTE: The assembler syntax for indexed loads and stores uses
 ``ei``__x__ instead of ``e``__x__ to indicate the statically encoded EEW
 is of the index not the data.
+////
 
+NOTE: インデックス付きロード/ストアのアセンブラ構文では、
+静的にエンコードされたEEWがデータではなくインデックスであることを示すために、
+``e``__x__ の代わりに ``ei``__x__ を使用しています。
+
+////
 NOTE: The indexed operations mnemonics have a "U" or "O" to
 distinguish between unordered and ordered, while the other vector
 addressing modes have no character. While this is perhaps a little
 less consistent, this approach minimizes disruption to existing
 software, as VSXEI previously meant "ordered" - and the opcode can be
 retained as an alias during transition to help reduce software churn.
+////
+
+NOTE: インデックス付き操作のニーモニックには、順序なしと順序付きを区別するための"U"または"O"がありますが、
+他のベクトルアドレッシングモードには文字がありません。
+この方法は、一貫性に欠けるかもしれませんが、VSXEIが以前は"順序付き"を意味していたように、
+既存のソフトウェアの混乱を最小限に抑えることができます。
+また、移行中にオペコードを別名として保持することで、ソフトウェアの解約を減らすことができます。
 
 === Unit-stride Fault-Only-First Loads
 
