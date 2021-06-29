@@ -3308,8 +3308,10 @@ NOTE: インデックス付き操作のニーモニックには、順序なし�
 既存のソフトウェアの混乱を最小限に抑えることができます。
 また、移行中にオペコードを別名として保持することで、ソフトウェアの解約を減らすことができます。
 
-=== Unit-stride Fault-Only-First Loads
+// === Unit-stride Fault-Only-First Loads
+=== ユニットストライドFault-Only-Firstロード
 
+////
 The unit-stride fault-only-first load instructions are used to
 vectorize loops with data-dependent exit conditions ("while" loops).
 These instructions execute as a regular load except that they will
@@ -3318,7 +3320,14 @@ element 0 raises an exception, `vl` is not modified, and the trap is
 taken.  If an element > 0 raises an exception, the corresponding trap
 is not taken, and the vector length `vl` is reduced to the index of
 the element that would have raised an exception.
+////
 
+ユニットストライドfault-only-first load命令は、データに依存した終了条件を持つループ("while "ループ)をベクトル化するために使用されます。
+これらの命令は、要素0で発生した同期例外によるトラップのみを取得することを除いて、
+通常のロードと同様に実行されます。 要素 > 0 で例外が発生した場合、対応するトラップは取られず、
+ベクタ長 `vl` は例外が発生したであろう要素のインデックスに縮小されます。
+
+////
 Load instructions may overwrite active destination vector register
 group elements past the element index at which the trap is reported.
 Similarly, fault-only-first load instructions may update destination
@@ -3329,7 +3338,14 @@ the addressed memory locations.  Non-idempotent memory locations can
 only be accessed when it is known the corresponding element load
 operation will not be restarted due to a trap or vector length
 trimming.
+////
 
+ロード命令は、トラップが報告された要素のインデックスを超えて、アクティブな書き込みベクトルレジスタグループの要素を上書きする可能性があります。
+同様に、fault-only-firstのロード命令では、書き込みレジスタの要素が、ベクターの長さを切り詰める原因となる要素を超えて更新されることがあります(ただし、元のベクターの長さを超えることはありません)。
+これらの疑似更新の値は、アドレスされたメモリ位置のメモリ内の値と一致する必要はありません。
+非占有のメモリ位置は、対応する要素のロード操作がトラップやベクトル長のトリミングによって再起動されないことがわかっている場合にのみアクセスできます。
+
+////
 ----
     # Vector unit-stride fault-only-first loads
 
@@ -3343,13 +3359,37 @@ trimming.
     # vle512ff.v  vd, (rs1), vm  #  512-bit unit-stride fault-only-first load. Reserved
     # vle1024ff.v vd, (rs1), vm  # 1024-bit unit-stride fault-only-first load. Reserved
 ----
+////
 
+----
+    # ベクトルユニットストライドfault-only-firstロード
+
+    # vdは書き込みレジスタ, rs1はベースアドレス, vmはマスクエンコーディング (v0.t もしくは<指定なし>)
+    vle8ff.v    vd, (rs1), vm  #    8-bit ユニットストライドfault-only-firstロード
+    vle16ff.v   vd, (rs1), vm  #   16-bit ユニットストライドfault-only-firstロード
+    vle32ff.v   vd, (rs1), vm  #   32-bit ユニットストライドfault-only-firstロード
+    vle64ff.v   vd, (rs1), vm  #   64-bit ユニットストライドfault-only-firstロード
+    # vle128ff.v  vd, (rs1), vm  #  128-bit ユニットストライドfault-only-firstロード(予約)
+    # vle256ff.v  vd, (rs1), vm  #  256-bit ユニットストライドfault-only-firstロード(予約)
+    # vle512ff.v  vd, (rs1), vm  #  512-bit ユニットストライドfault-only-firstロード(予約)
+    # vle1024ff.v vd, (rs1), vm  # 1024-bit ユニットストライドfault-only-firstロード(予約)
+----
+
+////
 ----
 strlen example using unit-stride fault-only-first instruction
 
 include::example/strlen.s[lines=4..-1]
 ----
+////
 
+----
+ユニットストライドfault-only-first命令によるstrlenの例
+
+include::example/strlen.s[lines=4..-1]
+----
+
+////
 NOTE: There is a security concern with fault-on-first loads, as they
 can be used to probe for valid effective addresses.  Strided and
 scatter/gather fault-only-first instructions are not provided due to
@@ -3360,35 +3400,79 @@ only allow probing a region immediately contiguous to a known region,
 and so do not appreciably impact security.  It is possible that
 security mitigations can be implemented to allow fault-only-first
 variants of non-contiguous accesses in future vector extensions.
+////
 
+NOTE: fault-on-firstのロードは、有効な実効アドレスを調べるために使用される可能性があるため、
+セキュリティ上の懸念があります。 ストライドおよびスキャッター/ギャザーのfault-on-firstロード命令は、エンコーディング空間がないため提供されていません。
+また、より大きなセキュリティホールとなる可能性があり、ソフトウェアはトラップを経験することなく、
+複数のランダムなページのアクセス性を簡単にチェックすることができます。
+ユニットストライド版では、既知の領域とすぐに隣接する領域のプロービングしかできないため、セキュリティに大きな影響はありません。
+将来のベクトル拡張では、非連続アクセスの fault-only-first を可能にするセキュリティ緩和策が実装される可能性があります。
+
+////
 Even when an exception is not raised, implementations are permitted to process
 fewer than `vl` elements and reduce `vl` accordingly, but if `vstart`=0 and
 `vl`>0, then at least one element must be processed.
+////
 
+例外が発生しない場合でも、実装では `vl` より少ない要素を処理し、それに応じて `vl` を減らすことが許可されていますが、
+`vstart`=0 かつ `vl`>0 の場合は、少なくとも 1 つの要素を処理する必要があります。
+
+////
 When the fault-only-first instruction takes a trap due to an
 interrupt, implementations should not reduce `vl` and should instead
 set a `vstart` value.
+////
 
+fault-on-firstロード命令が割り込みによるトラップを発生する場合、
+実装は `vl` を削減せず、代わりに `vstart` の値を設定する必要があります。
+
+////
 NOTE: When the fault-only-first instruction would trigger a debug
 data-watchpoint trap on an element after the first, implementations
 should not reduce `vl` but instead should trigger the debug trap as
 otherwise the event might be lost.
+////
+
+NOTE: fault-only-first 命令が最初の要素の後にデバッグ・データ・ウォッチポイント・トラップをトリガーする場合、
+実装は `vl` を減らすのではなく、イベントが失われる可能性があるため、
+デバッグ・トラップをトリガーするべきです。
 
 [[sec-aos]]
-=== Vector Load/Store Segment Instructions
+// === Vector Load/Store Segment Instructions
 
+=== ベクトルロードストアセグメント命令
+
+////
 This instruction subset is given the ISA string name `Zvlsseg`.
+////
 
+この命令サブセットには、ISAの文字列名 `Zvlsseg` が与えられています。
+
+////
 The vector load/store segment instructions move multiple contiguous
 fields in memory to and from consecutively numbered vector registers.
+////
 
+ベクトルロード/ストアセグメント命令は、メモリ上の複数の連続したフィールドを、
+連続した番号のベクトルレジスタとの間で移動します。
+
+////
 NOTE: These operations support operations on "array-of-structures"
 datatypes by unpacking each field in a structure into separate vector
 registers.
+////
 
+NOTE: これらの操作は、構造体の各フィールドを別々のベクトルレジスタにアンパックすることで、
+"構造体の配列"データタイプの操作をサポートします。
+
+////
 The three-bit `nf` field in the vector instruction encoding is an
 unsigned integer that contains one less than the number of fields per
 segment, _NFIELDS_.
+////
+
+ベクトル命令の符号化における3ビットの `nf` フィールドは、セグメントごとのフィールド数 _NFIELDS_ よりも1つ少ない符号なし整数です。
 
 [cols="1,1,1,13"]
 |===
@@ -3404,15 +3488,26 @@ segment, _NFIELDS_.
 | 1 | 1 | 1 | 8
 |===
 
+////
 The EMUL setting must be such that EMUL * NFIELDS {le} 8, otherwise
 the instruction encoding is reserved.
+////
 
+EMULの設定は、EMUL * NFIELDS {le} 8となるようにしなければならず、
+そうでない場合は、命令のエンコーディングは予約されています。
+
+////
 NOTE: The product EMUL * NFIELDS represents the number of underlying
 vector registers that will be touched by a segmented load or store
 instruction.  This constraint makes this total no larger than 1/4 of
 the architectural register file, and the same as for regular
 operations with EMUL=8.
+////
 
+EMUL * NFIELDSは、セグメント化されたロード/ストア命令でタッチされる基本的なベクトルレジスタの数を表しています。
+この制約により、この合計はアーキテクチャレジスタファイルの1/4以下となり、EMUL=8の通常の演算と同じになります。
+
+////
 Each field will be held in successively numbered vector register
 groups.  When EMUL>1, each field will occupy a vector register group
 held in multiple successively numbered vector registers, and the
@@ -3420,40 +3515,93 @@ vector register group for each field must follow the usual vector
 register alignment constraints (e.g., when EMUL=2 and NFIELDS=4, each
 field's vector register group must start at an even vector register,
 but does not have to start at a multiple of 8 vector register number).
+////
 
+各フィールドは、連続した番号のベクトルレジスタグループに保持されます。
+EMUL>1の場合、各フィールドは複数の連続した番号のベクトルレジスタで保持されるベクトルレジスタグループを占有し、
+各フィールドのベクトルレジスタグループは通常のベクトルレジスタアライメント制約に従わなければなりません
+(例えば、EMUL=2、NFIELDS=4の場合、各フィールドのベクトルレジスタグループは偶数のベクトルレジスタで開始しなければなりませんが、
+8の倍数のベクトルレジスタ番号で開始する必要はありません）。
+
+////
 If the vector register numbers accessed by the segment load or store
 would increment past 31, then the instruction encoding is reserved.
+////
 
+セグメント・ロードまたはストアによってアクセスされるベクトルレジスタ番号が31を超えてインクリメントされる場合、
+その命令エンコーディングは予約されています。
+
+////
 NOTE: This constraint is to help allow for forward-compatibility with
 a possible future longer instruction encoding that has more
 addressable vector registers.
+////
 
+NOTE: この制約は、より多くのアドレス可能なベクトルレジスタを持つ、
+将来のより長い命令エンコーディングとの前方互換性を確保するためのものです。
+
+////
 The `vl` register gives the number of structures to move, which is
 equal to the number of elements transferred to each vector register
 group.  Masking is also applied at the level of whole structures.
+////
 
+`vl` レジスタは、移動する構造体の数を示しており、
+これは各ベクトルレジスタグループに転送される要素の数と同じです。
+マスキングは構造体全体のレベルでも適用されます。
+
+////
 For segment loads and stores, the individual memory accesses used to
 access fields within each segment are unordered with respect to each
 other even for ordered indexed segment loads and stores.
+////
 
+セグメントロードおよびストアでは、各セグメント内のフィールドにアクセスするために使用される個々のメモリアクセスは、
+順序付きのインデックス付きのセグメントロードおよびストアであっても、お互いに順序付けられていません。
+
+////
 If a trap is taken, `vstart` is in units of structures.
 If a trap occurs partway through accessing a structure, it is
 implementation-defined whether a subset of the structure access is performed.
+////
 
-==== Vector Unit-Stride Segment Loads and Stores
+トラップが発生した場合、`vstart` は構造体の単位になります。
+構造体へのアクセスの途中でトラップが発生した場合、
+構造体へのアクセスのサブセットを実行するかどうかは、実装で定義されています。
 
+// ==== Vector Unit-Stride Segment Loads and Stores
+
+==== ベクトルユニットストライドセグメントロードストア命令
+
+////
 The vector unit-stride load and store segment instructions move packed
 contiguous segments ("array-of-structures") into multiple destination
 vector register groups.
+////
 
+ベクトルユニットストライドのセグメントロードおよびセグメントストア命令は、
+パックされた連続したセグメント("array-of-structures")を
+複数の書き込みベクトルレジスタグループに移動させます。
+
+////
 NOTE: For structures with heterogeneous-sized fields, software can
 later unpack structure fields from a segment using additional
 instructions after the segment load brings data into the vector
 registers.
+////
 
+NOTE: 異なるサイズのフィールドを持つ構造体の場合、セグメント・ロードでデータをベクトルレジスタに取り込んだ後、
+ソフトウェアは追加の命令を使ってセグメントから構造体フィールドをアンパックすることができます。
+
+////
 The assembler prefixes `vlseg`/`vsseg` are used for unit-stride
 segment loads and stores respectively.
+////
 
+ユニットストライドのセグメントロードとストアには、
+それぞれ `vlseg`/`vsseg` というアセンブラのプレフィックスが使われます。
+
+////
 ----
     # Format
     vlseg<nf>e<eew>.v vd, (rs1), vm       # Unit-stride segment load template
@@ -3464,11 +3612,29 @@ segment loads and stores respectively.
 
     vsseg3e32.v vs3, (rs1), vm  # Store packed vector of 3*4-byte segments from vs3,vs3+1,vs3+2 to memory
 ----
+////
 
+----
+    # フォーマット
+    vlseg<nf>e<eew>.v vd, (rs1), vm       # ユニットストライドセグメントロードのテンプレート
+    vsseg<nf>e<eew>.v vs3, (rs1), vm       # ユニットストライドセグメントストア命令のテンプレート
+
+    # Examples
+    vlseg8e8.v vd, (rs1), vm   # 1バイトフィールドを8つ持つ要素を8つのベクトルレジスタにロードする
+
+    vsseg3e32.v vs3, (rs1), vm  # 3*4バイトセグメントの要素をvs3,vs3+1,vs3+2からメモリにストアする
+----
+
+////
 For loads, the `vd` register will hold the first field loaded from the
 segment.  For stores, the `vs3` register is read to provide the first
 field to be stored in each segment.
+////
 
+ロードの場合、`vd` レジスタはセグメントからロードされる最初のフィールドを保持します。
+ストアの場合は、`vs3`レジスタが読み込まれ、各セグメントに格納される最初のフィールドが提供されます。
+
+////
 ----
     # Example 1
     # Memory structure holds packed RGB pixels (24-bit data structure, 8bpp)
@@ -3485,22 +3651,60 @@ field to be stored in each segment.
     # v8 holds real
     # v9 holds imaginary
 ----
+////
 
+----
+    # 例1
+    # パッキングされたRGBピクセル(8bppの24ビットデータ構造)
+    vsetvli a1, t0, e8, ta, ma
+    vlseg3e8.v v8, (a0), vm
+    # v8 は赤ピクセルを持っている
+    # v9 は緑ピクセルを持っている
+    # v10 青ピクセルを持っている
+
+    # 例2
+    # メモリ構造は複素数を持っている。32ビットの実数と32ビットの虚数を持っている
+    vsetvli a1, t0, e32, ta, ma
+    vlseg2e32.v v8, (a0), vm
+    # v8 は実数を持っている
+    # v9 虚数を持っている
+----
+
+////
 There are also fault-only-first versions of the unit-stride instructions.
+////
 
+ユニットストライド命令については、fault-only-first版も定義されている。
+
+////
 ----
     # Template for vector fault-only-first unit-stride segment loads.
     vlseg<nf>e<eew>ff.v vd, (rs1),  vm          # Unit-stride fault-only-first segment loads
 ----
+////
 
+----
+    # ベクトルfault-only-firstユニットストライドセグメントロード命令の例
+    vlseg<nf>e<eew>ff.v vd, (rs1),  vm          # ユニットストライドfault-only-firstセグメントロード
+----
+
+////
 For fault-only-first segment loads, if an exception is detected partway
 through accessing a segment, regardless of whether the element index is zero,
 it is implementation-defined whether a subset of the segment is loaded.
+////
 
+fault-only-firstセグメントのロードでは、セグメントへのアクセスの途中で例外が検出された場合、
+要素のインデックスがゼロであるかどうかにかかわらず、セグメントのサブセットをロードするかどうかは実装で定義されます。
+
+////
 These instructions may overwrite destination vector register group
 elements past the point at which a trap is reported or past the point
 at which vector length is trimmed.
+////
 
+これらの命令は、トラップが報告された時点や、ベクター長がトリムされた時点を過ぎても、
+書き込みベクトルレジスタグループの要素を上書きすることがあります。
 
 ==== Vector Strided Segment Loads and Stores
 
