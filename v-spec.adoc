@@ -2931,8 +2931,8 @@ provided in an implementation.  Vector load/store encodings for
 unsupported EEW widths are reserved.
 ////
 
-サポートされているすべてのSEW設定のEEWのベクターロード/ストアは、実装で提供されなければなりません。
-サポートされていないEEW幅のベクターロード・ストアエンコーディングは予約済みです。
+サポートされているすべてのSEW設定のEEWのベクトルロード/ストアは、実装で提供されなければなりません。
+サポートされていないEEW幅のベクトルロード・ストアエンコーディングは予約済みです。
 
 
 // .Width encoding for vector loads and stores.
@@ -3209,7 +3209,7 @@ NOTE: When repeating ordered vector accesses to the same memory
 address are required, then an ordered indexed operation can be used.
 ////
 
-NOTE: 同じメモリアドレスへの順序付きベクターアクセスを繰り返す必要がある場合は、
+NOTE: 同じメモリアドレスへの順序付きベクトルアクセスを繰り返す必要がある場合は、
 順序付きインデックス操作を使用することができます。
 
 // === Vector Indexed Instructions
@@ -3341,7 +3341,7 @@ trimming.
 ////
 
 ロード命令は、トラップが報告された要素のインデックスを超えて、アクティブな書き込みベクトルレジスタグループの要素を上書きする可能性があります。
-同様に、fault-only-firstのロード命令では、書き込みレジスタの要素が、ベクターの長さを切り詰める原因となる要素を超えて更新されることがあります(ただし、元のベクターの長さを超えることはありません)。
+同様に、fault-only-firstのロード命令では、書き込みレジスタの要素が、ベクトルの長さを切り詰める原因となる要素を超えて更新されることがあります(ただし、元のベクトルの長さを超えることはありません)。
 これらの疑似更新の値は、アドレスされたメモリ位置のメモリ内の値と一致する必要はありません。
 非占有のメモリ位置は、対応する要素のロード操作がトラップやベクトル長のトリミングによって再起動されないことがわかっている場合にのみアクセスできます。
 
@@ -3703,17 +3703,28 @@ elements past the point at which a trap is reported or past the point
 at which vector length is trimmed.
 ////
 
-これらの命令は、トラップが報告された時点や、ベクター長がトリムされた時点を過ぎても、
+これらの命令は、トラップが報告された時点や、ベクトル長がトリムされた時点を過ぎても、
 書き込みベクトルレジスタグループの要素を上書きすることがあります。
 
-==== Vector Strided Segment Loads and Stores
+// ==== Vector Strided Segment Loads and Stores
 
+==== ベクトルストライドセグメントロードストア命令
+
+////
 Vector strided segment loads and stores move contiguous segments where
 each segment is separated by the byte-stride offset given in the `rs2`
 GPR argument.
+////
 
+ベクターのストライドセグメントは、GPRの引数 `rs2` で指定されたバイトストライドの
+オフセットで区切られた連続したセグメントを移動してロード、ストアします。
+
+////
 NOTE: Negative and zero strides are supported.
+////
+NOTE: 負のストライドとゼロのストライドがサポートされています。
 
+////
 ----
     # Format
     vlsseg<nf>e<eew>.v vd, (rs1), rs2, vm          # Strided segment loads
@@ -3730,13 +3741,40 @@ NOTE: Negative and zero strides are supported.
     vssseg2e32.v v2, (x5), x6   # Store words from v2[i] to address x5+i*x6
                                 #   and words from v3[i] to address x5+i*x6+4
 ----
+////
 
+----
+    # フォーマット
+    vlsseg<nf>e<eew>.v vd, (rs1), rs2, vm          # ストライドセグメントロード
+    vssseg<nf>e<eew>.v vs3, (rs1), rs2, vm         # ストライドセグメントストア
+
+    # 例
+    vsetvli a1, t0, e8, ta, ma
+    vlsseg3e8.v v4, (x5), x6   # アドレスx5+i*x6をv4[i]に格納する
+                              #  x5+i*x6+1をv5[i]に格納する
+                              #  x5+i*x6+2をv6[i]に格納する
+
+    # 例
+    vsetvli a1, t0, e32, ta, ma
+    vssseg2e32.v v2, (x5), x6   # v2[i]のワードをアドレスx5+i*x6にストアする
+                                #   また、v3[i]のワードをx5+i*x6+4にストアする
+----
+
+////
 Accesses to the fields within each segment can occur in any order,
 including the case where the byte stride is such that segments overlap
 in memory.
+////
 
-==== Vector Indexed Segment Loads and Stores
+各セグメント内のフィールドへのアクセスは、
+セグメントがメモリ内で重なるようなバイトストライドの場合も含め、
+どのような順序でも行うことができます。
 
+// ==== Vector Indexed Segment Loads and Stores
+
+==== ベクトルインデックスセグメントロードストア命令
+
+////
 Vector indexed segment loads and stores move contiguous segments where
 each segment is located at an address given by adding the scalar base
 address in the `rs1` field to byte offsets in vector register `vs2`.
@@ -3744,11 +3782,23 @@ Both ordered and unordered forms are provided, where the ordered forms
 access segments in element order.  However, even for the ordered form,
 accesses to the fields within an individual segment are not ordered
 with respect to each other.
+////
 
+各セグメントは、`rs1` フィールドのスカラのベースアドレスと、ベクトルレジスタ `vs2` のバイトオフセットを足したアドレスに位置します。
+Index-Ordered形式とIndex-Unordered形式の両方が提供されており、
+Index-Ordered形式はセグメントを要素順にアクセスします。
+しかし、順序付けられた形式でも、個々のセグメント内のフィールドへのアクセスは、お互いに順序付けられていません。
+
+////
 The data vector register group has EEW=SEW, EMUL=LMUL, while the index
 vector register group has EEW encoded in the instruction with
 EMUL=(EEW/SEW)*LMUL.
+////
 
+データベクトルレジスタ群はEEW=SEW、EMUL=LMUL、
+インデックスベクトルレジスタ群はEEWがEMUL=(EEW/SEW)*LMULで命令にエンコードされています。
+
+////
 ----
     # Format
     vluxseg<nf>ei<eew>.v vd, (rs1), vs2, vm   # Indexed-unordered segment loads
@@ -3767,17 +3817,52 @@ EMUL=(EEW/SEW)*LMUL.
     vsuxseg2ei32.v v2, (x5), v5   # Store words from v2[i] to address x5+v5[i]
                               #   and words from v3[i] to address x5+v5[i]+4
 ----
+////
 
+----
+    # 例
+    vluxseg<nf>ei<eew>.v vd, (rs1), vs2, vm   # Indexed-unorderedセグメントロード
+    vloxseg<nf>ei<eew>.v vd, (rs1), vs2, vm   # Indexed-orderedセグメントロード
+    vsuxseg<nf>ei<eew>.v vs3, (rs1), vs2, vm  # Indexed-unorderedセグメントストア
+    vsoxseg<nf>ei<eew>.v vs3, (rs1), vs2, vm  # Indexed-orderedセグメントストア
+
+    # 例
+    vsetvli a1, t0, e8, ta, ma
+    vluxseg3ei32.v v4, (x5), v3   # アドレスx5+v3[i]のバイトデータをv4[i]にロードする
+                              #  アドレスx5+v3[i]+1のバイトデータをv5[i]にロードする
+                              #  アドレスx5+v3[i]+2のバイトデータをv6[i]にロードする
+
+    # 例
+    vsetvli a1, t0, e32, ta, ma
+    vsuxseg2ei32.v v2, (x5), v5   # v2[i]中のワードをアドレスx5+v5[i]にストアする
+                              #   v3[i]中のワードをアドレスx5+v5[i]+4にストアする
+----
+
+////
 For vector indexed segment loads, the destination vector register
 groups cannot overlap the source vector register group (specified by
 `vs2`), else the instruction encoding is reserved.
+////
 
+ベクトルインデックスセグメントロードでは、
+書き込みベクトルレジスタグループはソースベクトルレジスタグループ(`vs2`で指定)と重なることはできません。
+
+////
 NOTE: This constraint supports restart of indexed segment loads
 that raise exceptions partway through loading a structure.
+////
 
-=== Vector Load/Store Whole Register Instructions
+NOTE: この制約は、構造体のロードの途中で例外が発生したインデックス付きセグメント・ロードの再起動をサポートします。
 
+// === Vector Load/Store Whole Register Instructions
+
+=== ベクトル全体レジスタロードストア命令
+
+////
 Format for Vector Load Whole Register Instructions under LOAD-FP major opcode
+////
+
+LOAD-FPメジャーオペコードのベクターロードホールレジスタ命令のフォーマット
 
 ////
 31 29  28  27 26  25 24   20 19       15 14   12 11      7 6     0
@@ -3818,8 +3903,13 @@ Format for Vector Store Whole Register Instructions under STORE-FP major opcode
 ]}
 ```
 
+////
 These instructions load and store whole vector register groups.
+////
 
+これらの命令は、ベクターレジスタグループ全体をロードおよびストアします。
+
+////
 NOTE: These instructions are intended to be used to save and restore
 vector registers when the type or length of the current contents of
 the vector register is not known, or where modifying `vl` and `vtype`
@@ -3827,10 +3917,22 @@ would be costly. Examples include compiler register spills, vector
 function calls where values are passed in vector registers, interrupt
 handlers, and OS context switches.  Software can determine the number
 of bytes transferred by reading the `vlenb` register.
+////
 
+NOTE: これらの命令は、ベクタ・レジスタの現在の内容のタイプや長さがわからない場合や、
+`vl`や`vtype`を変更するとコストがかかる場合に、ベクタ・レジスタの保存や復元に使用することを目的としています。
+例えば、コンパイラのレジスタ・スピル、ベクタ・レジスタで値が渡されるベクタ関数呼び出し、割り込みハンドラ、OSのコンテキスト・スイッチなどです。
+ソフトウェアは、`vlenb`レジスタを読むことで、転送されたバイト数を知ることができます。
+
+////
 The load instructions have an EEW encoded in the `mew` and `width`
 fields following the pattern of regular unit-stride loads.
+////
 
+ロード命令では、通常のユニットストライド・ロードのパターンに従って、
+`mew`および`width`フィールドにEEWがエンコードされています。
+
+////
 NOTE: Because in-register byte layouts are identical to in-memory byte
 layouts, the same data is written to the destination register group
 regardless of EEW.
@@ -3838,10 +3940,24 @@ Hence, it would have sufficed to provide only EEW=8 variants.
 The full set of EEW variants is provided so that the encoded EEW can be used
 as a hint to indicate the destination register group will next be accessed
 with this EEW, which aids implementations that rearrange data internally.
+////
 
+NOTE: レジスタ内ののバイトレイアウトはメモリ内のバイトレイアウトと同じなので、
+EEWに関係なく同じデータが出力先のレジスタ群に書き込まれます。
+そのため，EEW=8 のバリエーションだけを用意すれば十分でした。
+EEWのバリエーションをすべて用意したのは、エンコードされたEEWをヒントにして、
+次にこのEEWでアクセスされる書き込みレジスタグループを示すことができるようにするためで、
+これは内部的にデータを再配置する実装の助けになります。
+
+////
 The vector whole register store instructions are encoded similar to
 unmasked unit-stride store of elements with EEW=8.
+////
 
+ベクトル全体レジスタストア命令は、EEW=8 のマスクされていない
+ユニットストライドストアと同様にエンコードされます。
+
+////
 The `nf` field encodes how many vector registers to load and store.
 The encoded number of registers must be a power of 2 and the vector
 register numbers must be aligned as with a vector register group,
@@ -3852,23 +3968,54 @@ supported, with other values reserved.  When multiple registers are
 transferred, the lowest-numbered vector register is held in the
 lowest-numbered memory addresses and successive vector register
 numbers are placed contiguously in memory.
+////
 
+フィールド `nf` は、ロードおよびストアするベクタレジスタの数をエンコードします。
+符号化されたレジスタ数は2の累乗でなければならず、
+ベクタレジスタ番号はベクタレジスタグループと同様にアラインメントされていなければならず、
+そうでなければ命令の符号化は予約されます。
+`nf` フィールドは、転送するベクターレジスターの数をエンコードするもので、
+ベースの後に連続して番号が付けられます。
+`nf` の値は1，2，4，8のみがサポートされており、その他の値は予約されています。
+複数のレジスタを転送する場合、最も低い番号のベクトルレジスタは最も低い番号のメモリアドレスに保持され、
+連続したベクトルレジスタ番号はメモリに連続して配置されます。
+
+////
 The instructions operate with an effective vector length,
 `evl`=`nf`*VLEN/EEW, regardless of current settings in `vtype` and
 `vl`.  The usual property that no elements are written if `vstart`
 {ge} `vl` does not apply to these instructions.  Instead, no elements
 are written if `vstart` {ge} `evl`.
+////
 
+この命令は、 `vtype` や `vl` の現在の設定にかかわらず、 `evl`=`nf` *VLEN/EEWという実効ベクター長で動作します。
+`vstart` {ge} `vl` の場合には要素が書き込まれないという通常の特性は、 `vtype` や `vl` の現在の設定に関係なく動作します。
+`vstart` {ge} `vl` の場合には要素が書き込まれないという通常の特性は、
+これらの命令には適用されません。
+代わりに、`vstart` {ge} `evl` の場合には要素は書き込まれません。
+
+////
 The instructions operate similarly to unmasked unit-stride load and
 store instructions of elements, with the base address passed in the
 scalar `x` register specified by `rs1`.
+////
 
+この命令は、要素のマスクされていないユニットストライドロードおよびストア命令と同様に動作し、
+ベースアドレスは `rs1` で指定されるスカラ `x` レジスタで渡されます。
+
+////
 Implementations are allowed to raise a misaligned address exception on
 whole register loads and stores if the base address is not naturally
 aligned to the larger of the size of the encoded EEW in bytes (EEW/8)
 or the implementation's smallest supported SEW size in bytes
 (SEW~MIN~/8).
+////
 
+実装では，ベースアドレスが、エンコードされたEEWのサイズ(バイト)(EEW/8)と実装でサポートされている
+SEWの最小サイズ(バイト)(SEW~MIN~/8)のいずれか大きい方に自然にアラインされていない場合、
+レジスタ全体のロードとストアでアドレスのずれの例外を発生させることができます。
+
+////
 NOTE: Allowing misaligned exceptions to be raised based on
 non-alignment to encoded EEW simplifies the implementation of these
 instructions.  Some subset implementations might not support smaller
@@ -3877,7 +4024,16 @@ smallest supported SEW even if larger than encoded EEW.  An extreme
 implementation might have SEW~MIN~>XLEN for example.  Software
 environments can mandate the minimum alignment requirements to support
 an ABI.
+////
 
+NOTE: エンコードされたEEWへの非アラインメントに基づいてミスアラインの例外を発生させることができるため、
+これらの命令の実装が簡素化されます。
+サブセットの実装によっては、より小さなSEW幅をサポートしていない場合があるため、
+エンコードされたEEWよりも大きくても、サポートされている最小のSEWに対してミスアラインド例外を報告することが許可されています。
+極端な実装では、例えば SEW~MIN~>XLEN のようになります。
+ソフトウェア環境は、ABIをサポートするための最小アラインメント要件を義務付けることができます。
+
+////
 ----
    # Format of whole register load and store instructions.
    vl1r.v v3, (a0)       # Pseudoinstruction equal to vl1re8.v
@@ -3929,13 +4085,76 @@ an ABI.
    vs4r.v v4, (a1)      # Store v4-v7 to address in a1
    vs8r.v v8, (a1)      # Store v8-v15 to address in a1
 ----
+////
 
+----
+   # 全体レジスタロードストア命令のフォーマット
+   vl1r.v v3, (a0)       # vl1re8.vの疑似命令
+
+   vl1re8.v    v3, (a0)  # a0に保持されているアドレスからVLEN/8バイトだけロードしv3に格納する
+   vl1re16.v   v3, (a0)  # a0に保持されているアドレスからVLEN/16バイトだけロードしv3に格納する
+   vl1re32.v   v3, (a0)  # a0に保持されているアドレスからVLEN/32バイトだけロードしv3に格納する
+   vl1re64.v   v3, (a0)  # a0に保持されているアドレスからVLEN/64バイトだけロードしv3に格納する
+   # vl1re128.v  v3, (a0)
+   # vl1re256.v  v3, (a0)
+   # vl1re512.v  v3, (a0)
+   # vl1re1024.v v3, (a0)
+
+   vl2r.v v2, (a0)       # vl2re8.v v2, (a0)の疑似命令
+
+   vl2re8.v    v2, (a0)  # a0に保持されているアドレスから2*VLEN/8バイトだけロードしv2-v3に格納する
+   vl2re16.v   v2, (a0)  # a0に保持されているアドレスから2*VLEN/16バイトだけロードしv2-v3に格納する
+   vl2re32.v   v2, (a0)  # a0に保持されているアドレスから2*VLEN/32バイトだけロードしv2-v3に格納する
+   vl2re64.v   v2, (a0)  # a0に保持されているアドレスから2*VLEN/64バイトだけロードしv2-v3に格納する
+   # vl2re128.v  v2, (a0)
+   # vl2re256.v  v2, (a0)
+   # vl2re512.v  v2, (a0)
+   # vl2re1024.v v2, (a0)
+
+   vl4r.v v4, (a0)       # vl4re8.vの疑似命令
+
+   vl4re8.v    v4, (a0)  # a0に保持されているアドレスから4*VLEN/8バイトだけロードしv4-v7に格納する
+   vl4re16.v   v4, (a0)
+   vl4re32.v   v4, (a0)
+   vl4re64.v   v4, (a0)
+   # vl4re128.v  v4, (a0)
+   # vl4re256.v  v4, (a0)
+   # vl4re512.v  v4, (a0)
+   # vl4re1024.v v4, (a0)
+
+   vl8r.v v8, (a0)       # vl8re8.vの疑似命令
+
+   vl8re8.v    v8, (a0)  # a0に保持されているアドレスから8*VLEN/8バイトだけロードしv8-v15に格納する
+   vl8re16.v   v8, (a0)
+   vl8re32.v   v8, (a0)
+   vl8re64.v   v8, (a0)
+   # vl8re128.v  v8, (a0)
+   # vl8re256.v  v8, (a0)
+   # vl8re512.v  v8, (a0)
+   # vl8re1024.v v8, (a0)
+
+   vs1r.v v3, (a1)      # v3をa1に保持されているアドレスにストアする
+   vs2r.v v2, (a1)      # v2-v3をa1に保持されているアドレスにストアする
+   vs4r.v v4, (a1)      # v4-v7をa1に保持されているアドレスにストアする
+   vs8r.v v8, (a1)      # v8-v15をa1に保持されているアドレスにストアする
+----
+
+////
 NOTE: Implementations should raise illegal instruction exceptions on
 `vl<nf>r` instructions for EEW values that are not supported.
+////
 
+NOTE: サポートされていないEEWの値に対する `vl<nf>r` 命令では、
+実装上、不正命令例外を発生させる必要があります。
+
+////
 NOTE: We have considered adding a whole register mask load
 instruction (``vl1re1.v vd, (rs1)``) as a mask hint but this is not currently on
 PoR.
+////
+
+NOTE: マスクヒントとして、レジスタ全体のマスクロード命令(``vl1re1.vd, (rs1)``)を追加することを検討しましたが、
+これは現在PoRにはありません。
 
 == Vector Memory Alignment Constraints
 
