@@ -3922,7 +3922,7 @@ of bytes transferred by reading the `vlenb` register.
 NOTE: これらの命令は、ベクタ・レジスタの現在の内容のタイプや長さがわからない場合や、
 `vl`や`vtype`を変更するとコストがかかる場合に、ベクタ・レジスタの保存や復元に使用することを目的としています。
 例えば、コンパイラのレジスタ・スピル、ベクタ・レジスタで値が渡されるベクタ関数呼び出し、割り込みハンドラ、OSのコンテキスト・スイッチなどです。
-ソフトウェアは、`vlenb`レジスタを読むことで、転送されたバイト数を知ることができます。
+ソフトウェアは、 `vlenb` レジスタを読むことで、転送されたバイト数を知ることができます。
 
 ////
 The load instructions have an EEW encoded in the `mew` and `width`
@@ -4188,10 +4188,10 @@ misaligned accesses are supported in the associated address range.
 NOTE: 実装によっては、スカラおよびベクトルメモリアクセスのどちらも、あるいは一方が、あるいは両方が、一部またはすべてのミスアラインドアクセスをハードウェアでサポートすることができます。
 関連するアドレス範囲でベクトルのミスアラインドアクセスがサポートされているかどうかを判断するために、別のPMAを定義する必要があります。
 
-///
+////
 Vector misaligned memory accesses follow the same rules for atomicity
 as scalar misaligned memory accesses.
-///
+////
 
 ベクトルのミスアラインドメモリアクセスは、
 スカラのミスアラインドメモリアクセスと同じアトミック性のルールに従います。
