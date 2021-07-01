@@ -4260,60 +4260,105 @@ NOTE: ベクトル長とマスクをデータではなく制御として扱う�
 マスク値が判明する前にメモリにアクセスすることができ、
 分岐予測失敗時に回復するメカニズムを必要としません。
 
-== Vector Arithmetic Instruction Formats
+// == Vector Arithmetic Instruction Formats
 
+== ベクトル算術演算命令
+
+////
 The vector arithmetic instructions use a new major opcode (OP-V =
 1010111~2~) which neighbors OP-FP.  The three-bit `funct3` field is
 used to define sub-categories of vector instructions.
+////
+
+ベクトル演算命令では、OP-FPに隣接する新しいメジャーオペコード(OP-V = 1010111~2~)を使用します。
+3ビットの `funct3` フィールドは、ベクトル命令のサブカテゴリを定義するのに使われます。
 
 include::valu-format.adoc[]
 
 [[sec-arithmetic-encoding]]
-=== Vector Arithmetic Instruction encoding
+// === Vector Arithmetic Instruction encoding
 
+=== ベクトル算術演算命令エンコーディング
+
+////
 The `funct3` field encodes the operand type and source locations.
+////
+
+`funct3` フィールによりオペランドのタイプとソース位置をエンコードします。
 
 .funct3
 [cols="1,1,1,3,5,5"]
 |===
-3+| funct3[2:0] | Category | Operands | Type of scalar operand
+3+| funct3[2:0] | カテゴリ | オペランド | スカラオペランドの型
 
-| 0 | 0 | 0 | OPIVV | vector-vector    |       N/A
-| 0 | 0 | 1 | OPFVV | vector-vector    |       N/A
-| 0 | 1 | 0 | OPMVV | vector-vector    |       N/A
-| 0 | 1 | 1 | OPIVI | vector-immediate | `imm[4:0]`
-| 1 | 0 | 0 | OPIVX | vector-scalar    | GPR `x` register `rs1`
-| 1 | 0 | 1 | OPFVF | vector-scalar    | FP `f` register `rs1`
-| 1 | 1 | 0 | OPMVX | vector-scalar    | GPR `x` register `rs1`
-| 1 | 1 | 1 | OPCFG | scalars-imms     | GPR `x` register `rs1` & `rs2`/`imm`
+| 0 | 0 | 0 | OPIVV | ベクトル-ベクトル  |       N/A
+| 0 | 0 | 1 | OPFVV | ベクトル-ベクトル  |       N/A
+| 0 | 1 | 0 | OPMVV | ベクトル-ベクトル  |       N/A
+| 0 | 1 | 1 | OPIVI | ベクトル-即値      | `imm[4:0]`
+| 1 | 0 | 0 | OPIVX | ベクトル-スカラ    | GPR `x` レジスタ `rs1`
+| 1 | 0 | 1 | OPFVF | ベクトル-スカラ    | FP `f` レジスタ `rs1`
+| 1 | 1 | 0 | OPMVX | ベクトル-スカラ    | GPR `x` レジスタ `rs1`
+| 1 | 1 | 1 | OPCFG | スカラ-即値        | GPR `x` レジスタ `rs1` & `rs2`/`imm`
 |===
 
+////
 Integer operations are performed using unsigned or two's-complement
 signed integer arithmetic depending on the opcode.
+////
 
+整数演算は、オペコードに応じて符号なしまたは2の補数の符号付き整数演算で行われます。
+
+////
 NOTE: In this discussion, fixed-point operations are
 considered to be integer operations.
+////
 
+NOTE: ここでは、固定小数点演算を整数演算とみなします。
+
+////
 All standard vector floating-point arithmetic operations follow the
 IEEE-754/2008 standard.  All vector floating-point operations use the
 dynamic rounding mode in the `frm` register.  Use of the `frm` field
 when it contains an invalid rounding mode by any vector floating-point
 instruction, even those that do not depend on the rounding mode, or
 when `vl`=0, or when `vstart` {ge} `vl`, is reserved.
+////
 
+すべての標準ベクトル浮動小数点演算は、IEEE-754/2008 規格に準拠しています。
+すべてのベクトル浮動小数点演算は、`frm` レジスタのダイナミック丸めモードを使用します。
+丸めモードに依存しない命令であっても、ベクトル浮動小数点演算命令で無効な丸めモードが含まれている場合や、
+`vl`=0 の場合、または `vstart` {ge} `vl` の場合の `frm` フィールドの使用は予約されています。
+
+////
 NOTE: All vector floating-point code will rely on a valid value in
 `frm`.  Implementations can make all vector FP instructions report
 exceptions when the rounding mode is invalid to simplify control
 logic.
+////
 
+NOTE: すべてのベクトル浮動小数点コードは、`frm` に有効な値があるかどうかに依存します。
+実装では、制御ロジックを単純化するために、丸めモードが無効なときにすべてのベクトルFP命令が例外を報告するようにすることができます。
+
+////
 Vector-vector operations take two vectors of operands from vector
 register groups specified by `vs2` and `vs1` respectively.
+////
 
+ベクトル演算は、`vs2` と`vs1`でそれぞれ指定されたベクトルレジスタグループから、
+オペランドの2つのベクトルを取ります。
+
+////
 Vector-scalar operations can have three possible forms, but in all
 cases take one vector of operands from a vector register group
 specified by `vs2` and a second scalar source operand from one of
 three alternative sources.
+////
 
+ベクトル・スカラー演算には3つの形式がありますが、いずれの場合も、
+`vs2` で指定されたベクトルレジスタ群から1つのベクトルのオペランドを取り、
+3つの代替ソースのうちの1つから2つ目のスカラーソースのオペランドを取ります。
+
+////
 . For integer operations, the scalar can be a 5-bit immediate encoded
 in the `rs1` field.  The value is sign-extended to SEW bits, unless
 otherwise specified.  . For integer operations, the scalar can be
@@ -4328,16 +4373,40 @@ used, else the canonical NaN value is used.  Vector instructions where
 any floating-point vector operand's EEW is not a supported
 floating-point type width (which includes when FLEN < SEW) are
 reserved.
+////
 
+. 整数演算の場合、スカラーは `rs1` フィールドでエンコードされた5ビットの即値になります。
+この値は、特に指定がない限り、SEWビットに符号拡張されます。
+. 整数演算では、スカラーは `rs1` で指定されたスカラー `x` レジスタから取ることができます。
+XLEN>SEWの場合、特に指定がない限り、`x` レジスタの最下位SEWビットが使用されます。
+XLEN<SEWの場合、`x`レジスタからの値はSEWビットに符号拡張されます。
+浮動小数点演算の場合、スカラはスカラ `f` レジスタから取得できます。
+FLEN > SEWの場合、`f`レジスタの値が有効なNaNボックス値であるかどうかがチェックされ、
+その場合は`f` レジスタの最下位SEWビットが使用され、そうでない場合は正規のNaN値が使用されます。
+浮動小数点ベクトルオペランドのEEWがサポートされていない浮動小数点型の幅であるベクトル命令(FLEN < SEWの場合を含む)は予約されています。
+
+////
 NOTE: Some instructions _zero_-extend the 5-bit immediate, and denote this
 by naming the immediate `uimm` in the assembly syntax.
+////
 
+NOTE: 一部の命令では、5ビット即値をゼロ拡張し、アセンブリ構文で即値を`uimm` と命名してこれを示します。
+
+////
 NOTE: The proposed Zfinx variants will take the floating-point scalar
 argument from the `x` registers.
+////
 
+NOTE: 提案されているZfinxのバリエーションは、`x` レジスタから浮動小数点のスカラー引数を取ります。
+
+////
 Vector arithmetic instructions are masked under control of the `vm`
 field.
+////
 
+ベクトル演算命令は、`vm` フィールドの制御下でマスクされます。
+
+////
 ----
 # Assembly syntax pattern for vector binary arithmetic instructions
 
@@ -4349,13 +4418,34 @@ vop.vi  vd, vs2, imm, vm  # integer vector-immediate   vd[i] = vs2[i] op imm
 vfop.vv  vd, vs2, vs1, vm # FP vector-vector operation vd[i] = vs2[i] fop vs1[i]
 vfop.vf  vd, vs2, rs1, vm # FP vector-scalar operation vd[i] = vs2[i] fop f[rs1]
 ----
+////
 
+----
+# ベクトル2項算術演算命令のアセンブリ構文パタン
+
+# ベクトル演算の結果はvm(v0.t, <指定なし>)によりマスクされる
+vop.vv  vd, vs2, vs1, vm  # 整数 ベクトル-ベクトル vd[i] = vs2[i] op vs1[i]
+vop.vx  vd, vs2, rs1, vm  # 整数 ベクトル-スカラ   vd[i] = vs2[i] op x[rs1]
+vop.vi  vd, vs2, imm, vm  # 整数 ベクトル-即値     vd[i] = vs2[i] op imm
+
+vfop.vv  vd, vs2, vs1, vm # 浮動小数点 ベクトル-ベクトル 演算 vd[i] = vs2[i] fop vs1[i]
+vfop.vf  vd, vs2, rs1, vm # 浮動小数点 ベクトル-スカラ 演算   vd[i] = vs2[i] fop f[rs1]
+----
+
+////
 NOTE: In the encoding, `vs2` is the first operand, while `rs1/imm`
 is the second operand. This is the opposite to the standard scalar
 ordering.  This arrangement retains the existing encoding conventions
 that instructions that read only one scalar register, read it from
 `rs1`, and that 5-bit immediates are sourced from the `rs1` field.
+////
 
+NOTE: このエンコーディングでは、`vs2` が第1オペランドで、`rs1/imm` が第2オペランドです。
+これは、標準的なスカラの順序とは逆です。
+この配列は、1つのスカラレジスタのみを読み出す命令は `rs1` から読み出すという既存のエンコーディング規約を維持し、
+5ビットの即値は`rs1`フィールドから供給されます。
+
+////
 ----
 # Assembly syntax pattern for vector ternary arithmetic instructions (multiply-add)
 
@@ -4375,12 +4465,40 @@ vfop.vf vd, rs1, vs2, vm  # vd[i] = f[rs1] * vs2[i] + vd[i]
 vfop.vv vd, vs1, vs2, vm  # vd[i] = vs1[i] * vd[i] + vs2[i]
 vfop.vf vd, rs1, vs2, vm  # vd[i] = f[rs1] * vd[i] + vs2[i]
 ----
+////
 
+----
+# ベクトル3項算術演算命令(multiply-add)のアセンブリ構文パタン
+
+# 加算入力値を上書きする整数演算
+vop.vv vd, vs1, vs2, vm  # vd[i] = vs1[i] * vs2[i] + vd[i]
+vop.vx vd, rs1, vs2, vm  # vd[i] = x[rs1] * vs2[i] + vd[i]
+
+# 乗算入力値を上書きする整数演算
+vop.vv vd, vs1, vs2, vm  # vd[i] = vs1[i] * vd[i] + vs2[i]
+vop.vx vd, rs1, vs2, vm  # vd[i] = x[rs1] * vd[i] + vs2[i]
+
+# 加算入力値を上書きする浮動小数点演算
+vfop.vv vd, vs1, vs2, vm  # vd[i] = vs1[i] * vs2[i] + vd[i]
+vfop.vf vd, rs1, vs2, vm  # vd[i] = f[rs1] * vs2[i] + vd[i]
+
+# 乗算入力値を上書きする浮動小数点演算
+vfop.vv vd, vs1, vs2, vm  # vd[i] = vs1[i] * vd[i] + vs2[i]
+vfop.vf vd, rs1, vs2, vm  # vd[i] = f[rs1] * vd[i] + vs2[i]
+----
+
+////
 NOTE: For ternary multiply-add operations, the assembler syntax always
 places the destination vector register first, followed by either `rs1`
 or `vs1`, then `vs2`.  This ordering provides a more natural reading
 of the assembler for these ternary operations, as the multiply
 operands are always next to each other.
+////
+
+NOTE: 三項乗算加算演算では、アセンブラの構文において常に書き込みベクトルレジスタが最初に置かれ、
+次に `rs1` または `vs1` 、そして `vs2` の順になります。
+この順序では、乗算オペランドが常に隣り合っているため、
+これらの三項演算のアセンブラをより自然に読むことができます。
 
 [[sec-widening]]
 === Widening Vector Arithmetic Instructions
