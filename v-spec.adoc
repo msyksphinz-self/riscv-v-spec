@@ -4156,50 +4156,109 @@ PoR.
 NOTE: マスクヒントとして、レジスタ全体のマスクロード命令(``vl1re1.vd, (rs1)``)を追加することを検討しましたが、
 これは現在PoRにはありません。
 
-== Vector Memory Alignment Constraints
+// == Vector Memory Alignment Constraints
 
+== ベクトルメモリアラインメント制約
+
+////
 If an element accessed by a vector memory instruction is not naturally
 aligned to the size of the element, either the element is transferred
 successfully or an address misaligned exception is raised on that
 element.
+////
 
+ベクトルメモリ命令でアクセスした要素のサイズが自然にアラインされていない場合、
+その要素は正常に転送されるか、その要素に対してアドレスミスアラインの例外が発生します。
+
+////
 Support for misaligned vector memory accesses is independent of an
 implementation's support for misaligned scalar memory accesses.
+////
 
+ベクトルメモリアクセスのミスアラインメントのサポートは、
+スカラメモリアクセスのミスアラインメントのサポートとは独立しています。
+
+////
 NOTE: An implementation may have neither, one, or both scalar and
 vector memory accesses support some or all misaligned accesses in
 hardware.  A separate PMA should be defined to determine if vector
 misaligned accesses are supported in the associated address range.
+////
 
+NOTE: 実装によっては、スカラおよびベクトルメモリアクセスのどちらも、あるいは一方が、あるいは両方が、一部またはすべてのミスアラインドアクセスをハードウェアでサポートすることができます。
+関連するアドレス範囲でベクトルのミスアラインドアクセスがサポートされているかどうかを判断するために、別のPMAを定義する必要があります。
+
+///
 Vector misaligned memory accesses follow the same rules for atomicity
 as scalar misaligned memory accesses.
+///
 
-== Vector Memory Consistency Model
+ベクトルのミスアラインドメモリアクセスは、
+スカラのミスアラインドメモリアクセスと同じアトミック性のルールに従います。
 
+// == Vector Memory Consistency Model
+
+== ベクトルメモリコンシステンシモデル
+
+////
 Vector memory instructions appear to execute in program order on the
 local hart.
+////
 
+ベクトルメモリアクセス命令は、ローカルのhartではプログラム順に実行されているように見えます。
+
+////
 Vector memory instructions follow RVWMO at the instruction level.
+////
 
+ベクトルメモリアクセス命令は、命令レベルではRVWMOに従います。
+
+////
 Except for vector indexed-ordered loads and stores, element operations
 are unordered within the instruction.
+////
 
+Index-Ordered形式以外のロード・ストア命令を除き、要素操作は命令内では順不同です。
+
+////
 Vector indexed-ordered loads and stores read and write elements
 from/to memory in element order respectively.
+////
 
+Index-Ordered形式ロード・ストア命令は、
+要素をメモリに読み書きする際に、それぞれ要素順に行います。
+
+////
 NOTE: More formal definitions required.
+////
 
+NOTE: より正式な定義が必要です。
+
+////
 Instructions affected by the vector length register `vl` have a control
 dependency on `vl`, rather than a data dependency.
 Similarly, masked vector instructions have a control dependency on the source
 mask register, rather than a data dependency.
+////
 
+ベクトル長レジスタ`vl` の影響を受ける命令は、データ依存ではなく、
+`vl`への制御依存を持ちます。
+同様に、マスクされたベクトル命令は、データ依存ではなく、ソースマスクレジスタへの制御依存を持ちます。
+
+////
 NOTE: Treating the vector length and mask as control rather than data
 typically matches the semantics of the corresponding scalar code, where branch
 instructions ordinarily would have been used.
 Treating the mask as control allows masked vector load instructions to access
 memory before the mask value is known, without the need for
 a misspeculation-recovery mechanism.
+////
+
+NOTE: ベクトル長とマスクをデータではなく制御として扱うことは、通常、対応するスカラーコードのセマンティクスと一致し、
+ここでは通常、分岐命令が使用されていました。
+マスクを制御として扱うことで、マスクされたベクトルロード命令は、
+マスク値が判明する前にメモリにアクセスすることができ、
+分岐予測失敗時に回復するメカニズムを必要としません。
 
 == Vector Arithmetic Instruction Formats
 
