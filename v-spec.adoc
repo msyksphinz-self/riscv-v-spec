@@ -1591,7 +1591,7 @@ register.
 ////
 
 ベクトルマスクは、SEWやLMULに関係なく、1つのベクトルレジスタのみを占有します。
-各要素には、マスクベクタレジスタに1つのマスクビットが割り当てられます。
+各要素には、マスクベクトルレジスタに1つのマスクビットが割り当てられます。
 
 ////
 NOTE: Earlier designs (pre-0.9) had a varying number of bits per mask
@@ -1777,7 +1777,7 @@ default, for most operands of most instructions, EEW=SEW and
 EMUL=LMUL.
 ////
 
-各ベクトルオペランドは、ベクタレジスタグループ内のすべての要素のサイズと位置を決定するために使用される _effective_ _element_ _width_ (EEW) と _effective_ _LMUL_ (EMUL)を持っています。
+各ベクトルオペランドは、ベクトルレジスタグループ内のすべての要素のサイズと位置を決定するために使用される _effective_ _element_ _width_ (EEW) と _effective_ _LMUL_ (EMUL)を持っています。
 デフォルトでは、ほとんどの命令のほとんどのオペランドで、EEW=SEW、EMUL=LMULとなります。
 
 ////
@@ -1911,7 +1911,7 @@ or the scalar result of a reduction.  These instruction encodings are
 reserved.
 ////
 
-マスクド・ベクトル命令の書き込みベクタレジスタグループは、書き込みベクタレジスタにマスク値(比較など)やリダクションのスカラー結果が書き込まれていない限り、
+マスクド・ベクトル命令の書き込みベクトルレジスタグループは、書き込みベクトルレジスタにマスク値(比較など)やリダクションのスカラー結果が書き込まれていない限り、
 ソースマスクレジスタ(`v0`)とオーバーラップすることはできません。
 これらの命令エンコーディングは予約済みです。
 
@@ -2103,7 +2103,7 @@ register.
 末尾要素は例外を発生させず、Tail Agunostics指定されていない限り (`vtype.vta`=1)、
 書き込みベクトルレジスタグループを更新しません。
 この場合、末尾要素は 1 で上書きされるか、マスクロードを除くマスク生成命令の場合は命令の結果で上書きされる可能性があります。
-LMUL < 1の場合、末尾には同じベクタレジスタに保持されているVLMAX以降の要素が含まれます。
+LMUL < 1の場合、末尾には同じベクトルレジスタに保持されているVLMAX以降の要素が含まれます。
 
 ----
     for element index x
@@ -2557,7 +2557,7 @@ generate and accept a non-zero `vstart` value.
 
 ベクトルのロードとストアは、ベクトルレジスタとメモリの間で値を移動させます。
 ベクトルロードとストアはマスクされ、非アクティブな要素で例外を発生させません。
-マスク付きベクタロード命令は、マスク付きAgnostics (`vtype.vma`=1) が指定されていない限り、
+マスク付きベクトルロード命令は、マスク付きAgnostics (`vtype.vma`=1) が指定されていない限り、
 書き込みベクトルレジスタグループの非アクティブな要素を更新しません。
 マスク付きベクトルストアは、アクティブなメモリ要素のみを更新します。
 すべてのベクトルロードとストアは、ゼロではない `vstart` 値を生成して受け入れることができます。
@@ -2875,8 +2875,8 @@ The `nf[2:0]` field also encodes the number of whole vector registers
 to transfer for the whole vector register load/store instructions.
 ////
 
-また、 `nf[2:0]` フィールドは、ホールベクタレジスタの
-ロード/ストア命令で転送するホールベクタレジスタの数をエンコードします。
+また、 `nf[2:0]` フィールドは、全体ベクトルレジスタの
+ロード/ストア命令で転送する全体ベクトルレジスタの数をエンコードします。
 
 [[sec-vector-loadstore-width-encoding]]
 === ベクトルロードストア幅のエンコーディング
@@ -3325,7 +3325,7 @@ the element that would have raised an exception.
 ユニットストライドfault-only-first load命令は、データに依存した終了条件を持つループ("while "ループ)をベクトル化するために使用されます。
 これらの命令は、要素0で発生した同期例外によるトラップのみを取得することを除いて、
 通常のロードと同様に実行されます。 要素 > 0 で例外が発生した場合、対応するトラップは取られず、
-ベクタ長 `vl` は例外が発生したであろう要素のインデックスに縮小されます。
+ベクトル長 `vl` は例外が発生したであろう要素のインデックスに縮小されます。
 
 ////
 Load instructions may overwrite active destination vector register
@@ -3404,7 +3404,7 @@ variants of non-contiguous accesses in future vector extensions.
 
 NOTE: fault-on-firstのロードは、有効な実効アドレスを調べるために使用される可能性があるため、
 セキュリティ上の懸念があります。 ストライドおよびスキャッター/ギャザーのfault-on-firstロード命令は、エンコーディング空間がないため提供されていません。
-また、より大きなセキュリティホールとなる可能性があり、ソフトウェアはトラップを経験することなく、
+また、より大きなセキュリティ全体となる可能性があり、ソフトウェアはトラップを経験することなく、
 複数のランダムなページのアクセス性を簡単にチェックすることができます。
 ユニットストライド版では、既知の領域とすぐに隣接する領域のプロービングしかできないため、セキュリティに大きな影響はありません。
 将来のベクトル拡張では、非連続アクセスの fault-only-first を可能にするセキュリティ緩和策が実装される可能性があります。
@@ -3716,7 +3716,7 @@ each segment is separated by the byte-stride offset given in the `rs2`
 GPR argument.
 ////
 
-ベクターのストライドセグメントは、GPRの引数 `rs2` で指定されたバイトストライドの
+ベクトルのストライドセグメントは、GPRの引数 `rs2` で指定されたバイトストライドの
 オフセットで区切られた連続したセグメントを移動してロード、ストアします。
 
 ////
@@ -3862,7 +3862,7 @@ NOTE: この制約は、構造体のロードの途中で例外が発生した�
 Format for Vector Load Whole Register Instructions under LOAD-FP major opcode
 ////
 
-LOAD-FPメジャーオペコードのベクターロードホールレジスタ命令のフォーマット
+LOAD-FPメジャーオペコードのベクトルロード全体レジスタ命令のフォーマット
 
 ////
 31 29  28  27 26  25 24   20 19       15 14   12 11      7 6     0
@@ -3907,7 +3907,7 @@ Format for Vector Store Whole Register Instructions under STORE-FP major opcode
 These instructions load and store whole vector register groups.
 ////
 
-これらの命令は、ベクターレジスタグループ全体をロードおよびストアします。
+これらの命令は、ベクトルレジスタグループ全体をロードおよびストアします。
 
 ////
 NOTE: These instructions are intended to be used to save and restore
@@ -3919,9 +3919,9 @@ handlers, and OS context switches.  Software can determine the number
 of bytes transferred by reading the `vlenb` register.
 ////
 
-NOTE: これらの命令は、ベクタ・レジスタの現在の内容のタイプや長さがわからない場合や、
-`vl`や`vtype`を変更するとコストがかかる場合に、ベクタ・レジスタの保存や復元に使用することを目的としています。
-例えば、コンパイラのレジスタ・スピル、ベクタ・レジスタで値が渡されるベクタ関数呼び出し、割り込みハンドラ、OSのコンテキスト・スイッチなどです。
+NOTE: これらの命令は、ベクトル・レジスタの現在の内容のタイプや長さがわからない場合や、
+`vl`や`vtype`を変更するとコストがかかる場合に、ベクトル・レジスタの保存や復元に使用することを目的としています。
+例えば、コンパイラのレジスタ・スピル、ベクトル・レジスタで値が渡されるベクトル関数呼び出し、割り込みハンドラ、OSのコンテキスト・スイッチなどです。
 ソフトウェアは、 `vlenb` レジスタを読むことで、転送されたバイト数を知ることができます。
 
 ////
@@ -3970,11 +3970,11 @@ lowest-numbered memory addresses and successive vector register
 numbers are placed contiguously in memory.
 ////
 
-フィールド `nf` は、ロードおよびストアするベクタレジスタの数をエンコードします。
+フィールド `nf` は、ロードおよびストアするベクトルレジスタの数をエンコードします。
 符号化されたレジスタ数は2の累乗でなければならず、
-ベクタレジスタ番号はベクタレジスタグループと同様にアラインメントされていなければならず、
+ベクトルレジスタ番号はベクトルレジスタグループと同様にアラインメントされていなければならず、
 そうでなければ命令の符号化は予約されます。
-`nf` フィールドは、転送するベクターレジスターの数をエンコードするもので、
+`nf` フィールドは、転送するベクトルレジスターの数をエンコードするもので、
 ベースの後に連続して番号が付けられます。
 `nf` の値は1，2，4，8のみがサポートされており、その他の値は予約されています。
 複数のレジスタを転送する場合、最も低い番号のベクトルレジスタは最も低い番号のメモリアドレスに保持され、
@@ -3988,7 +3988,7 @@ The instructions operate with an effective vector length,
 are written if `vstart` {ge} `evl`.
 ////
 
-この命令は、 `vtype` や `vl` の現在の設定にかかわらず、 `evl`=`nf` *VLEN/EEWという実効ベクター長で動作します。
+この命令は、 `vtype` や `vl` の現在の設定にかかわらず、 `evl`=`nf` *VLEN/EEWという実効ベクトル長で動作します。
 `vstart` {ge} `vl` の場合には要素が書き込まれないという通常の特性は、 `vtype` や `vl` の現在の設定に関係なく動作します。
 `vstart` {ge} `vl` の場合には要素が書き込まれないという通常の特性は、
 これらの命令には適用されません。
@@ -4501,7 +4501,9 @@ NOTE: 三項乗算加算演算では、アセンブラの構文において常�
 これらの三項演算のアセンブラをより自然に読むことができます。
 
 [[sec-widening]]
-=== Widening Vector Arithmetic Instructions
+// === Widening Vector Arithmetic Instructions
+
+=== 幅拡張ベクトル算術演算命令
 
 A few vector arithmetic instructions are defined to be __widening__
 operations where the destination vector register group has EEW=2*SEW and
