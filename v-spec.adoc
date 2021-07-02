@@ -4622,7 +4622,7 @@ A few instructions are provided to convert double-width source vectors
 into single-width destination vectors.  These instructions convert a
 vector register group with EEW/EMUL=2*SEW/2*LMUL to a vector register
 group with the current SEW/LMUL setting.
-/////
+////
 
 2 倍幅のソースベクトルを 1 倍幅の書き込みベクトルに変換する命令がいくつか用意されています。
 これらの命令は、EEW/EMUL=2*SEW/2*LMULのベクトルレジスタグループを、
