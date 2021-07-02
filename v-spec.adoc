@@ -3974,7 +3974,7 @@ numbers are placed contiguously in memory.
 符号化されたレジスタ数は2の累乗でなければならず、
 ベクトルレジスタ番号はベクトルレジスタグループと同様にアラインメントされていなければならず、
 そうでなければ命令の符号化は予約されます。
-`nf` フィールドは、転送するベクトルレジスターの数をエンコードするもので、
+`nf` フィールドは、転送するベクトルレジスタの数をエンコードするもので、
 ベースの後に連続して番号が付けられます。
 `nf` の値は1，2，4，8のみがサポートされており、その他の値は予約されています。
 複数のレジスタを転送する場合、最も低い番号のベクトルレジスタは最も低い番号のメモリアドレスに保持され、
@@ -4505,14 +4505,25 @@ NOTE: 三項乗算加算演算では、アセンブラの構文において常�
 
 === 幅拡張ベクトル算術演算命令
 
+////
 A few vector arithmetic instructions are defined to be __widening__
 operations where the destination vector register group has EEW=2*SEW and
 EMUL=2*LMUL.
+////
 
+いくつかのベクトル演算命令は、書き込みベクトルレジスタグループがEEW=2*SEWおよびEMUL=2*LMULを持つ__幅拡張__ 演算が定義されています。
+
+////
 The first vector register group operand can be either single or
 double-width. These are generally written with a `vw*` prefix on the
 opcode or `vfw*` for vector floating-point operations.
+////
 
+第1ベクトルレジスタグループのオペランドは、単一幅または二倍幅のいずれかです。
+これらは通常、オペコードの前に `vw*` というプレフィックスを付けて記述され、
+ベクトル浮動小数点演算の場合は `vfw*` となります。
+
+////
 ----
 Assembly syntax pattern for vector widening arithmetic instructions
 
@@ -4524,69 +4535,159 @@ vwop.vx  vd, vs2, rs1, vm  # integer vector-scalar      vd[i] = vs2[i] op x[rs1]
 vwop.wv  vd, vs2, vs1, vm  # integer vector-vector      vd[i] = vs2[i] op vs1[i]
 vwop.wx  vd, vs2, rs1, vm  # integer vector-scalar      vd[i] = vs2[i] op x[rs1]
 ----
+////
 
+----
+ベクトル幅拡張算術演算命令のアセンブリ構文パタン
+
+# 2つの1倍幅ソースで2倍幅の結果: 2*SEW = SEW op SEW
+vwop.vv  vd, vs2, vs1, vm  # 整数 vector-vector      vd[i] = vs2[i] op vs1[i]
+vwop.vx  vd, vs2, rs1, vm  # 整数 vector-scalar      vd[i] = vs2[i] op x[rs1]
+
+# 1番目のソースオペランドが2倍幅, 2番目のソースオペランドが1倍幅, 結果が2倍幅: 2*SEW = SEW op SEW
+vwop.wv  vd, vs2, vs1, vm  # 整数 vector-vector      vd[i] = vs2[i] op vs1[i]
+vwop.wx  vd, vs2, rs1, vm  # 整数 vector-scalar      vd[i] = vs2[i] op x[rs1]
+----
+
+////
 NOTE: Originally, a `w` suffix was used on opcode, but this could be
 confused with the use of a `w` suffix to mean word-sized operations in
 doubleword integers, so the `w` was moved to prefix.
+////
 
+NOTE: 元々、オペコードには`w` という接尾語が使われていましたが、
+2倍幅整数のワードサイズの演算を意味する `w` という接尾語と混同される恐れがあったため、 `w` はプレフィックスに移されました。
+
+////
 NOTE: The floating-point widening operations were changed to `vfw*`
 from `vwf*` to be more consistent with any scalar widening
 floating-point operations that will be written as `fw*`.
+////
 
+NOTE: 浮動小数点の拡大演算は、`fw*` と書かれるスカラ拡大浮動小数点演算との整合性をとるために、
+`vwf*` から `vfw*` に変更されました。
+
+////
 NOTE: For integer multiply-add, another possible widening option
 increases the size of the accumulator to EEW=4*SEW (i.e., 4*SEW +=
 SEW*SEW).  These would be distinguished by a `vq*` prefix on the
 opcode, for quad-widening.  These are not included at this time, but
 are a possible addition in a future extension.
+////
 
+NOTE: 整数の乗算加算では、アキュムレータのサイズを EEW=4*SEW (すなわち、4*SEW += SEW*SEW) に増やすという別の幅拡張オプションが考えられます。
+これらは4倍にするために、オペコードの前に `vq*` という接頭語を付けることで区別されます。
+これらは、現時点では含まれていませんが、将来の拡張で追加される可能性があります。
+
+////
 For all widening instructions, the destination EEW and EMUL values
 must be a supported configuration, otherwise the instruction encoding
 is reserved.
+////
 
+すべての幅拡張命令において、書き込みのEEWおよびEMULの値はサポートされているコンフィギュレーションでなければならず、
+そうでない場合は命令のエンコーディングは予約されています。
+
+////
 The destination vector register group must be specified using a vector
 register number that is valid for the destination's EMUL, otherwise the
 instruction encoding is reserved.
+////
 
+書き込みベクトルレジスタグループは、書き込みのEMULに有効なベクトルレジスタ番号を使って指定しなければならず、
+そうでない場合は命令エンコーディングは予約されます。
+
+////
 NOTE: This constraint is necessary to support restart with non-zero
 `vstart`.
+////
 
+NOTE: この制約は，非ゼロの `vstart` による再起動をサポートするために必要です。
+
+////
 NOTE: For the `vw<op>.wv vd, vs2, vs1` format instructions, it is legal
 for vd to equal vs2.
+////
+
+NOTE: `vw<op>.wv vd, vs2, vs1` 形式の命令では、vd が vs2 に等しくても許されます。
+
 
 [[sec-narrowing]]
-=== Narrowing Vector Arithmetic Instructions
+// === Narrowing Vector Arithmetic Instructions
 
+=== ベクトル幅縮小算術演算命令
+
+////
 A few instructions are provided to convert double-width source vectors
 into single-width destination vectors.  These instructions convert a
 vector register group with EEW/EMUL=2*SEW/2*LMUL to a vector register
 group with the current SEW/LMUL setting.
+/////
 
+2 倍幅のソースベクトルを 1 倍幅の書き込みベクトルに変換する命令がいくつか用意されています。
+これらの命令は、EEW/EMUL=2*SEW/2*LMULのベクトルレジスタグループを、
+現在のSEW/LMUL設定のベクトルレジスタグループに変換します。
+
+////
 If EEW > ELEN or EMUL > 8, the instruction encoding is reserved.
+////
 
+EEW > ELENまたはEMUL > 8の場合、命令のエンコーディングは予約されています。
+
+////
 NOTE: An alternative design decision would have been to treat SEW/LMUL
 as defining the size of the source vector register group.  The choice
 here is motivated by the belief the chosen approach will require fewer
 `vtype` changes.
+////
 
+NOTE: 別の設計上の候補は、SEW/LMULをソースベクトルレジスタグループのサイズを定義するものとして扱うことでした。
+ここでの選択は、選択されたアプローチがより少ない `vtype` の変更を必要とするという信念に基づいています。
+
+////
 The source and destination vector register groups have to be specified
 with a vector register number that is legal for the source and
 destination EMUL values respectively, otherwise the instruction
 encoding is reserved.
+////
 
+ソースおよび書き込みベクトルレジスタグループは、ソースおよび書き込みのEMUL値に対してそれぞれ正当な
+ベクトルレジスタ番号で指定されなければならず、そうでなければ命令エンコーディングは予約されます。
+
+////
 Where there is a second source vector register group (specified by
 `vs1`), this has the same (narrower) width as the result (i.e.,
 EEW=SEW).
+////
 
+第2のソースベクトルレジスタグループ(`vs1`で指定)がある場合、
+これは結果と同じ(より狭い)幅を持ちます(すなわち、EEW=SEW)。
+
+////
 NOTE: It is safe to overwrite a second source vector register group
 with the same EEW and EMUL as the result.
+////
 
+NOTE: 結果と同じEEWとEMULを持つ第2のソースベクトルレジスタ群を上書きしても安全です。
+
+////
 A `vn*` prefix on the opcode is used to distinguish these instructions
 in the assembler, or a `vfn*` prefix for narrowing floating-point
 opcodes.  The double-width source vector register group is signified
 by a `w` in the source operand suffix (e.g., `vnsra.wv`)
+////
 
+アセンブラでこれらの命令を区別するためにオペコードに`vn*` というプレフィックスをつけたり、
+浮動小数点オペコードを絞り込むために `vfn*` というプレフィックスをつけたりします。
+2倍幅ソースベクトルレジスタグループは、
+ソースオペランドのサフィックスに `w` を付けて表します(例: `vnsra.wv`)。
+
+////
 NOTE: Comparison operations that set a mask register are also
 implicitly a narrowing operation.
+////
+
+NOTE: マスク・レジスタを設定する比較演算も、暗黙のうちに幅縮小演算となります。
 
 [[sec-vector-integer]]
 == Vector Integer Arithmetic Instructions
