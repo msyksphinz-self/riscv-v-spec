@@ -4690,15 +4690,29 @@ implicitly a narrowing operation.
 NOTE: マスク・レジスタを設定する比較演算も、暗黙のうちに幅縮小演算となります。
 
 [[sec-vector-integer]]
-== Vector Integer Arithmetic Instructions
+// == Vector Integer Arithmetic Instructions
 
+== ベクトル整数算術演算命令
+
+////
 A set of vector integer arithmetic instructions is provided.
+////
 
-=== Vector Single-Width Integer Add and Subtract
+整数ベクトル算術演算命令が提供されています。
 
+// === Vector Single-Width Integer Add and Subtract
+
+=== ベクトル単一幅整数加算減算命令
+
+////
 Vector integer add and subtract are provided.  Reverse-subtract
 instructions are also provided for the vector-scalar forms.
+////
 
+ベクトル整数加減算命令が提供されています。
+ベクトル・スカラ形式においては逆減算命令も提供されています。
+
+////
 ----
 # Integer adds.
 vadd.vv vd, vs2, vs1, vm   # Vector-vector
@@ -4713,17 +4727,47 @@ vsub.vx vd, vs2, rs1, vm   # vector-scalar
 vrsub.vx vd, vs2, rs1, vm   # vd[i] = x[rs1] - vs2[i]
 vrsub.vi vd, vs2, imm, vm   # vd[i] = imm - vs2[i]
 ----
+////
 
+----
+# 整数加算
+vadd.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vadd.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vadd.vi vd, vs2, imm, vm   # ベクトル-即値
+
+# 整数減算
+vsub.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsub.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+# 整数逆減算
+vrsub.vx vd, vs2, rs1, vm   # vd[i] = x[rs1] - vs2[i]
+vrsub.vi vd, vs2, imm, vm   # vd[i] = imm - vs2[i]
+----
+
+////
 NOTE: A vector of integer values can be negated using a
 reverse-subtract instruction with a scalar operand of `x0`. Can define
 assembly pseudoinstruction `vneg.v vd,vs` = `vrsub.vx vd,vs,x0`.
+////
 
-=== Vector Widening Integer Add/Subtract
+ベクトル内の整数値は、`x0` とのスカラ逆減算によって符号を反転することができます。
+これは `vneg vd,vs` = `vrsub.vx vd,vs,x0` としてアセンブリ疑似命令を定義することができます。
 
+// === Vector Widening Integer Add/Subtract
+
+=== ベクトル幅拡張整数加減算命令
+
+////
 The widening add/subtract instructions are provided in both signed and
 unsigned variants, depending on whether the narrower source operands
 are first sign- or zero-extended before forming the double-width sum.
+////
 
+符号付きと符号なしの両方で、幅拡張加減算命令が定義されています。
+これらは幅の小さいオペランドが最初に符号拡張かゼロ拡張され、
+倍幅での加減算が行われます。
+
+////
 ----
 # Widening unsigned integer add/subtract, 2*SEW = SEW +/- SEW
 vwaddu.vv  vd, vs2, vs1, vm  # vector-vector
@@ -4749,20 +4793,63 @@ vwadd.wx  vd, vs2, rs1, vm  # vector-scalar
 vwsub.wv  vd, vs2, vs1, vm  # vector-vector
 vwsub.wx  vd, vs2, rs1, vm  # vector-scalar
 ----
+////
 
+----
+# 符号なし整数の幅拡張加減算命令, 2*SEW = SEW +/- SEW
+vwaddu.vv  vd, vs2, vs1, vm  # vector-vector
+vwaddu.vx  vd, vs2, rs1, vm  # vector-scalar
+vwsubu.vv  vd, vs2, vs1, vm  # vector-vector
+vwsubu.vx  vd, vs2, rs1, vm  # vector-scalar
+
+# 符号付き整数の幅拡張加減算命令, 2*SEW = SEW +/- SEW
+vwadd.vv  vd, vs2, vs1, vm  # vector-vector
+vwadd.vx  vd, vs2, rs1, vm  # vector-scalar
+vwsub.vv  vd, vs2, vs1, vm  # vector-vector
+vwsub.vx  vd, vs2, rs1, vm  # vector-scalar
+
+# 符号なし整数の幅拡張加減算命令, 2*SEW = 2*SEW +/- SEW
+vwaddu.wv  vd, vs2, vs1, vm  # vector-vector
+vwaddu.wx  vd, vs2, rs1, vm  # vector-scalar
+vwsubu.wv  vd, vs2, vs1, vm  # vector-vector
+vwsubu.wx  vd, vs2, rs1, vm  # vector-scalar
+
+# 符号付き整数の幅拡張加減算命令, 2*SEW = 2*SEW +/- SEW
+vwadd.wv  vd, vs2, vs1, vm  # vector-vector
+vwadd.wx  vd, vs2, rs1, vm  # vector-scalar
+vwsub.wv  vd, vs2, vs1, vm  # vector-vector
+vwsub.wx  vd, vs2, rs1, vm  # vector-scalar
+----
+
+////
 NOTE: An integer value can be doubled in width using the widening add
 instructions with a scalar operand of `x0`.  Can define assembly
 pseudoinstructions `vwcvt.x.x.v vd,vs,vm = vwadd.vx vd,vs,x0,vm` and
 `vwcvtu.x.x.v vd,vs,vm = vwaddu.vx vd,vs,x0,vm`.
+////
 
-=== Vector Integer Extension
+NOTE: スカラオペランド `x0` との幅拡張加算命令を使用することにより整数値の幅を2倍に拡張することができます。
+`vwcvt.x.x.v vd,vs,vm = vwadd.vx vd,vs,x0,vm` と `vwcvtu.x.x.v vd,vs,vm = vwaddu.vx vd,vs,x0,vm` により
+疑似アセンブリ命令を定義することができます。
 
+// === Vector Integer Extension
+
+=== ベクトル整数拡張
+
+////
 The vector integer extension instructions zero- or sign-extend a
 source vector integer operand with EEW less than SEW to fill SEW-sized
 elements in the destination.  The EEW of the source is 1/2, 1/4, or
 1/8 of SEW, while EMUL of the source is (EEW/SEW)*LMUL.  The
 destination has EEW equal to SEW and EMUL equal to LMUL.
+////
 
+ゼロ拡張と符号拡張のベクトル整数拡張命令は、SEWよりも小さいEEWの整数オペランドを
+SEWの幅まで拡張して書き込みレジスタに転送します。
+ソースのEEWはSEWの1/2, 1/4, 1/8であり、ソースのEMULは(EEW/SEW)*LMULです。
+書き込み側のEEWはSEWと同一であり、EMULはLMULと同一です。
+
+////
 ----
 vzext.vf2 vd, vs2, vm  # Zero-extend SEW/2 source to SEW destination
 vsext.vf2 vd, vs2, vm  # Sign-extend SEW/2 source to SEW destination
@@ -4771,30 +4858,67 @@ vsext.vf4 vd, vs2, vm  # Sign-extend SEW/4 source to SEW destination
 vzext.vf8 vd, vs2, vm  # Zero-extend SEW/8 source to SEW destination
 vsext.vf8 vd, vs2, vm  # Sign-extend SEW/8 source to SEW destination
 ----
+////
 
+----
+vzext.vf2 vd, vs2, vm  # SEW/2のソースオペランドをゼロ拡張してSEW幅化し書き込む
+vsext.vf2 vd, vs2, vm  # SEW/2のソースオペランドを符号拡張してSEW幅化し書き込む
+vzext.vf4 vd, vs2, vm  # SEW/4のソースオペランドをゼロ拡張してSEW幅化し書き込む
+vsext.vf4 vd, vs2, vm  # SEW/4のソースオペランドを符号拡張してSEW幅化し書き込む
+vzext.vf8 vd, vs2, vm  # SEW/8のソースオペランドをゼロ拡張してSEW幅化し書き込む
+vsext.vf8 vd, vs2, vm  # SEW/8のソースオペランドを符号拡張してSEW幅化し書き込む
+----
+
+////
 If the source EEW is not a supported width, or source EMUL would be
 below the minimum legal LMUL, the instruction encoding is reserved.
+////
+ソースのEEWがサポートされていない場合もしくはEMULがLMULの最小値よりも小さい場合、
+命令エンコーディングは予約されています。
 
-=== Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
+// === Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
 
+=== ベクトル整数 キャリー付き加算 / ボロー付き減算命令
+
+////
 To support multi-word integer arithmetic, instructions that operate on
 a carry bit are provided.  For each operation (add or subtract), two
 instructions are provided: one to provide the result (SEW width), and
 the second to generate the carry output (single bit encoded as a mask
 boolean).
+////
 
+複数ワードの整数演算をサポートするために、キャリービットを操作する命令が用意されています。
+各演算(加算または減算)には2つの命令が用意されています。
+1つは演算結果(SEW幅)を提供し、
+もう1つはキャリー出力(マスク・ブールとしてエンコードされた1ビット)を生成します。
+
+////
 The carry inputs and outputs are represented using the mask register
 layout as described in Section <<sec-mask-register-layout>>.  Due to
 encoding constraints, the carry input must come from the implicit `v0`
 register, but carry outputs can be written to any vector register that
 respects the source/destination overlap restrictions.
+////
 
+キャリー入出力は、 <sec-mask-register-layout> 節で説明したマスクレジスタのレイアウトを用いて表現されます。
+エンコーディングの制約により，キャリー入力は暗黙の `v0` レジスタから出力されなければなりませんが、
+キャリー出力はソース/書き込みのオーバーラップの制約を満たす任意のベクトルレジスタに書き込むことができます．
+
+////
 `vadc` and `vsbc` add or subtract the source operands and the carry-in or
 borrow-in, and write the result to vector register `vd`.
 These instructions are encoded as masked instructions (`vm=0`), but they operate
 on and write back all body elements.
 Encodings corresponding to the unmasked versions (`vm=1`) are reserved.
+////
 
+`vadc` と `vsbc` は、ソースオペランドとキャリーインまたはボローインの加算または減算を行い、
+その結果をベクトルレジスタ `vd` に書き込みます。
+これらの命令は、マスクされた命令 (`vm=0`) としてエンコードされていますが、すべてのボディ要素を操作し、書き戻します。
+マスクされていないバージョン(`vm=1`)に対応するエンコーディングは予約されています。
+
+////
 `vmadc` and `vmsbc` add or subtract the source operands, optionally
 add the carry-in or subtract the borrow-in if masked (`vm=0`), and
 write the result back to mask register `vd`.  If unmasked (`vm=1`),
@@ -4802,7 +4926,15 @@ there is no carry-in or borrow-in.  These instructions operate on and
 write back all body elements, even if masked.  Because these
 instructions produce a mask value, they always operate with a
 tail-agnostic policy.
+////
 
+`vvmadc` と `vmsbc` は、ソースオペランドを加算または減算し、マスクされている (`vm=0`) 場合にはオプションでキャリーインを加算またはボローインを減算し、
+その結果をマスクレジスタ `vd` に書き戻します。
+マスクされていない場合 (`vm=1`)、キャリーインやボローインはありません。
+これらの命令は、マスクされていても、すべてのボディ要素を操作し、書き戻します。
+これらの命令はマスク値を生成するため、常に末尾Agnosticポリシで動作します。
+
+////
 ----
  # Produce sum with carry.
 
@@ -4835,24 +4967,77 @@ tail-agnostic policy.
  # vd.mask[i] = carry_out(vs2[i] + imm)
  vmadc.vi    vd, vs2, imm      # Vector-immediate, no carry-in
 ----
+////
 
+----
+ # キャリー付き加算命令
+
+ # vd[i] = vs2[i] + vs1[i] + v0.mask[i]
+ vadc.vvm   vd, vs2, vs1, v0  # ベクトル-ベクトル
+
+ # vd[i] = vs2[i] + x[rs1] + v0.mask[i]
+ vadc.vxm   vd, vs2, rs1, v0  # ベクトル-スカラ
+
+ # vd[i] = vs2[i] + imm + v0.mask[i]
+ vadc.vim   vd, vs2, imm, v0  # ベクトル-即値
+
+ # マスクレジスタフォーマットにキャリーアウトを生成する
+
+ # vd.mask[i] = carry_out(vs2[i] + vs1[i] + v0.mask[i])
+ vmadc.vvm   vd, vs2, vs1, v0  # ベクトル-ベクトル
+
+ # vd.mask[i] = carry_out(vs2[i] + x[rs1] + v0.mask[i])
+ vmadc.vxm   vd, vs2, rs1, v0  # ベクトル-スカラ
+
+ # vd.mask[i] = carry_out(vs2[i] + imm + v0.mask[i])
+ vmadc.vim   vd, vs2, imm, v0  # ベクトル-即値
+
+ # vd.mask[i] = carry_out(vs2[i] + vs1[i])
+ vmadc.vv    vd, vs2, vs1      # ベクトル-ベクトル, no carry-in
+
+ # vd.mask[i] = carry_out(vs2[i] + x[rs1])
+ vmadc.vx    vd, vs2, rs1      # ベクトル-スカラ, no carry-in
+
+ # vd.mask[i] = carry_out(vs2[i] + imm)
+ vmadc.vi    vd, vs2, imm      # ベクトル-即値, no carry-in
+----
+
+////
 Because implementing a carry propagation requires executing two
 instructions with unchanged inputs, destructive accumulations will
 require an additional move to obtain correct results.
+////
 
+キャリー伝搬を実装するには、入力が変更されていない状態で2つの命令を実行する必要があるため、
+破壊的な蓄積を行うと、正しい結果を得るために追加の移動が必要になります。
+
+////
 ----
   # Example multi-word arithmetic sequence, accumulating into v4
   vmadc.vvm v1, v4, v8, v0  # Get carry into temp register v1
   vadc.vvm v4, v4, v8, v0   # Calc new sum
   vmmv.m v0, v1             # Move temp carry into v0 for next word
 ----
+////
 
+----
+  # v4に値を蓄積する複数ワード算術演算命令列
+  vmadc.vvm v1, v4, v8, v0  # 一時レジスタv1にキャリーを格納する
+  vadc.vvm v4, v4, v8, v0   # 加算を行う
+  vmmv.m v0, v1             # 次のワードのために一時キャリーをv0に移動する
+----
+
+////
 The subtract with borrow instruction `vsbc` performs the equivalent
 function to support long word arithmetic for subtraction.  There are
 no subtract with immediate instructions.
+////
+
+ボロー付き減算命令`vsbc`は、減算のためのロングワード演算をサポートするための機能を果たします。
+即値での減算命令はありません。
 
 ----
- # Produce difference with borrow.
+ # ボロー付きの差分を計算する
 
  # vd[i] = vs2[i] - vs1[i] - v0.mask[i]
  vsbc.vvm   vd, vs2, vs1, v0  # Vector-vector
@@ -4860,7 +5045,7 @@ no subtract with immediate instructions.
  # vd[i] = vs2[i] - x[rs1] - v0.mask[i]
  vsbc.vxm   vd, vs2, rs1, v0  # Vector-scalar
 
- # Produce borrow out in mask register format
+ # マスクレジスタフォーマットでボロー出力を生成する
 
  # vd.mask[i] = borrow_out(vs2[i] - vs1[i] - v0.mask[i])
  vmsbc.vvm   vd, vs2, vs1, v0  # Vector-vector
@@ -4875,14 +5060,26 @@ no subtract with immediate instructions.
  vmsbc.vx    vd, vs2, rs1      # Vector-scalar, no borrow-in
 ----
 
+////
 For `vmsbc`, the borrow is defined to be 1 iff the difference, prior to
 truncation, is negative.
+////
 
+`vmsbc` では，切り捨て前の差が負であるときに限りボローは1と定義される。
+
+////
 For `vadc` and `vsbc`, the instruction encoding is reserved if the
 destination vector register is `v0`.
+////
 
+`vadc` と `vsbc`では書き込みベクトルレジスタが`v0`の場合、命令エンコーディングが予約されます。
+
+////
 NOTE: This constraint corresponds to the constraint on masked vector
 operations that overwrite the mask register.
+////
+
+NOTE: この制約は、マスクレジスタを上書きするマスク付きベクトル演算の制約に相当します。
 
 === Vector Bitwise Logical Instructions
 
