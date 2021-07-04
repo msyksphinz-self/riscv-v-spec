@@ -198,7 +198,7 @@ The vector extension adds 32 architectural vector registers,
 ////
 
 ベクトル拡張により、RISC-VベーススカラISAに対して
-32本のアーキテクチャベクトルレジスタ`v0`-`v31`が追加されます。
+32本のアーキテクチャベクトルレジスタ `v0`-`v31` が追加されます。
 
 // Each vector register has a fixed VLEN bits of state.
 
@@ -250,7 +250,7 @@ at any time, even when there is no change in vector state.
 `VS` フィールドがInitialまたはCleanに設定されている場合、
 ベクトルCSRを含むベクトルの状態を変更する命令を実行すると、`VS` がDirtyに変更されます。
 また、実装では、ベクトルの状態が変化していなくても、
-いつでも`VS` フィールドをInitialまたはCleanからDirtyに変更することができます。
+いつでも `VS` フィールドをInitialまたはCleanからDirtyに変更することができます。
 
 ////
 NOTE: Accurate setting of the `VS` field is an optimization.  Software
@@ -327,7 +327,7 @@ NOTE: ELEN=32 をサポートする小さな実装では、`vtype` には 7 ビ�
 `ma` と `ta` に 2 ビット、`vsew[1:0]` に 2 ビット、
 `vlmul[2:0]` に 3 ビットです。
 `vill` で表される不正な値は、`vsew[1:0]` の不正な64ビットの組み合わせを使って内部的にエンコードすることができ、
-`vill `を保持するための追加のストレージビットを必要としません。
+`vill` を保持するための追加のストレージビットを必要としません。
 
 ////
 NOTE: Further standard and custom vector extensions will extend these
@@ -402,8 +402,8 @@ encodings are formally _reserved_ at this point.
 ////
 
 NOTE: 表に示されているように、より大きなSEWをエンコードするために、
-より大きな`vsew[2:0]`エンコーディング (`100`～`111`) が使用されることが予想されますが、
-このエンコーディングは、現時点では正式には_予約_です。
+より大きな `vsew[2:0]` エンコーディング (`100`-`111`) が使用されることが予想されますが、
+このエンコーディングは、現時点では正式には _予約_ です。
 
 ////
 .Example VLEN = 128 bits
@@ -517,7 +517,7 @@ and LMUL configuration sets the `vill` bit in `vtype`.
 実装では、LMUL {ge}  SEW~LMUL1MIN~/SEW~LMUL1MAX~ の小数の LMUL 設定をサポートする必要があります。
 SEW~LMUL1MIN~ はLMUL=1でサポートされる最も狭いSEW値で、
 SEW~LMUL1MAX~ はLMUL=1でサポートされる最も広いSEW値です。
-サポートされていないSEWとLMULの設定を行おうとすると、`vtype`の`vill`ビットが設定されます。
+サポートされていないSEWとLMULの設定を行おうとすると、 `vtype` の `vill` ビットが設定されます。
 
 ////
 For a given supported fractional LMUL setting, implementations must support
@@ -563,8 +563,8 @@ __reserved__, but implementations can set `vill` if they do not
 support these configurations.
 ////
 
-LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ での`vtype` エンコーディングの使用は__予約__ですが、
-実装はこれらの構成をサポートしていない場合、`vill`を設定することができます。
+LMUL < SEW~LMUL1MIN~/SEW~LMUL1MAX~ での `vtype` エンコーディングの使用は__予約__ですが、
+実装はこれらの構成をサポートしていない場合、 `vill` を設定することができます。
 
 ////
 NOTE: Requiring all implementations to set `vill` in this case would
@@ -591,7 +591,7 @@ LMUL is set by the signed `vlmul` field in `vtype` (LMUL =
 2^`vlmul[2:0]`^).
 ////
 
-LMULは、`vtype` の符号付き`vlmul`フィールドで設定されます (LMUL = 2^`vlmul[2:0]`^)。
+LMULは、`vtype` の符号付き `vlmul` フィールドで設定されます (LMUL = 2^`vlmul[2:0]`^)。
 
 ////
 The derived value VLMAX = LMUL*VLEN/SEW represents the maximum number
@@ -624,7 +624,7 @@ length in bits.  Instructions specifying an LMUL=2 vector register group
 with an odd-numbered vector register are reserved.
 ////
 
-LMUL=2の場合、ベクトレジスタグループには、ベクトレジスタ`v` __n__とベクトレジスタ`v` __n__+1が含まれ、
+LMUL=2の場合、ベクトレジスタグループには、ベクトレジスタ `v` __n__とベクトレジスタ `v` __n__+1が含まれ、
 ビット単位で2倍のベクト長になります。
 LMUL=2のベクトレジスタグループで、奇数番号のベクトレジスタを指定する命令は予約されています。
 
@@ -956,7 +956,7 @@ settings which require them to be saved and restored.
 ////
 
 NOTE: このCSRがないと、バイト単位のVLENを計算するためにいくつかの命令が必要になり、
-コードは現在の `vl` と`vtype` の設定を乱す必要があり、
+コードは現在の `vl` と `vtype` の設定を乱す必要があり、
 それらを保存したり復元したりする必要があります。
 
 // === Vector Start Index CSR `vstart`
@@ -1195,7 +1195,7 @@ The `vxrm` and `vxsat` separate CSRs can also be accessed via fields
 in the vector control and status CSR, `vcsr`.
 ////
 
-`vxrm` と`vxsat` CSRは、ベクトル制御・ステータスCSRである`vcsr`のフィールドを介してアクセスすることもできます。
+`vxrm` と `vxsat` CSRは、ベクトル制御・ステータスCSRである `vcsr` のフィールドを介してアクセスすることもできます。
 
 .vcsr layout
 [cols=">2,4,10"]
@@ -1761,7 +1761,7 @@ Zfinx ISA option.
 NOTE: v0.6 からの変更点として、浮動小数点レジスタがベクトルレジスタをオーバーレイしなくなり、スカラーは整数または浮動小数点レジスタから得られるようになりました。
 `f` レジスタをオーバーレイしないことで、ベクトルレジスタが圧迫させないようにし、
 標準的な呼び出し規則との相互作用を避け、高性能なスカラー浮動小数点の設計を簡素化し、Zfinx ISA オプションとの互換性を実現します。
-`f` と`v` を重ねると、実装によってはステート・ビット数を減らせるというメリットがありますが、
+`f` と `v` を重ねると、実装によってはステート・ビット数を減らせるというメリットがありますが、
 高性能な設計が複雑になり、Zfinx ISAオプションとの互換性もなくなります。
 
 
@@ -1959,7 +1959,7 @@ Where available, masking is encoded in a single-bit `vm` field in the
  instruction (`inst[25]`).
 ////
 
-マスキングが可能な場合は、命令内の1ビットの`vm` フィールドにエンコードされます( `inst[25]` )。
+マスキングが可能な場合は、命令内の1ビットの `vm` フィールドにエンコードされます( `inst[25]` )。
 
 ////
 [cols="1,15"]
@@ -1995,7 +1995,7 @@ operand, with `.t` indicating if operation occurs when `v0.mask[i]` is
 (`vm=1`) is assumed.
 ////
 
-ベクトルのマスキングはアセンブラのコードでは別のベクトルオペランドとして表現され、`.t` は `v0.mask[i]` が `1`のときに演算が行われるかどうかを示します。
+ベクトルのマスキングはアセンブラのコードでは別のベクトルオペランドとして表現され、`.t` は `v0.mask[i]` が `1` のときに演算が行われるかどうかを示します。
 マスキングオペランドが指定されていない場合は、ベクトル実行はマスクされていない(`vm=1`)とされます。
 
 ////
@@ -2030,7 +2030,7 @@ e.g., `v0.mask[i]`.
 ////
 
 NOTE: `.mask` という接尾辞は、アセンブリの構文には含まれていません。
-`v0.mask[i]`のように文章中にマスクベクトルに添え字として使用されるだけです。
+`v0.mask[i]` のように文章中にマスクベクトルに添え字として使用されるだけです。
 
 [[sec-inactive-defs]]
 // === Prestart, Active, Inactive, Body, and Tail Element Definitions
@@ -2130,7 +2130,7 @@ elements, are updated in the destination vector register group
 regardless of `vstart`.
 ////
 
-NOTE: 結果として、`vl`=0のときには、`vstart`にかかわらず、
+NOTE: 結果として、`vl`=0のときには、 `vstart` にかかわらず、
 書き込みベクトルレジスタグループはAgnosticな要素を含めて、いかなる要素も更新されません。
 
 ////
@@ -2207,7 +2207,7 @@ The new `vtype` setting is encoded in the immediate fields of
 `vsetvli` and `vsetivli`,  and in the `rs2` register for `vsetvl`.
 ////
 
-新しい`vtype` の設定は、 `vsetvli` と`vsetivli` の即時フィールド、および `vsetvl` の `rs2` レジスタにエンコードされます。
+新しい `vtype` の設定は、 `vsetvli` と `vsetivli` の即時フィールド、および `vsetvl` の `rs2` レジスタにエンコードされます。
 
 ////
 ----
@@ -2307,7 +2307,7 @@ length setting is based on AVL, which for `vsetvli` and `vsetvl` is encoded in t
 fields as follows:
 ////
 
-新しいベクトル長の設定はAVLに基づいており、 `vsetvli` と`vsetvl` では、 `rs1` と`rd` のフィールドに以下のようにエンコードされます。
+新しいベクトル長の設定はAVLに基づいており、 `vsetvli` と `vsetvl` では、 `rs1` と `rd` のフィールドに以下のようにエンコードされます。
 
 ////
 .AVL used in `vsetvli` and `vsetvl` instructions
@@ -2360,7 +2360,7 @@ may set `vill` in this case.
 ////
 
 `rs1=x0` かつ `rd=x0` の場合、この命令は `vl` の現在のベクトル長をAVLとして使用し、
-結果の値は`vl`に書き込まれますが、書き込みレジスタには書き込まれません。
+結果の値は `vl` に書き込まれますが、書き込みレジスタには書き込まれません。
 この形式はVLMAXの場合にのみ使用でき、したがって `vl` は新しいSEW/LMUL比によって実際には変更されません。
 VLMAXの変更をもたらすような新しいSEW/LMUL比率の命令の使用は予約済みです。
 この場合、実装では `vill` を設定することができます。
@@ -2467,7 +2467,7 @@ Requirement 2 also allows an implementation to set vl to VLMAX for `VLMAX < AVL 
 
 [NOTE]
 --
-`vl`の設定ルールは、`AVL {le} VLMAX` では、レジスタの流出やコンテキストの入れ替えがあっても `vl` の動作を維持できるよう、
+`vl` の設定ルールは、`AVL {le} VLMAX` では、レジスタの流出やコンテキストの入れ替えがあっても `vl` の動作を維持できるよう、
 十分に厳密に設計されています。しかし、 `AVL > VLMAX` の場合は、ベクトルレーンの使用率を向上させることができる柔軟性を備えています。
 例えば、 `VLMAX < AVL < 2*VLMAX` の場合、`vl = ceil(AVL / 2)` と設定することで、ストリップマイニングループの最後の2回の反復に作業を均等に分散させることができます。
 要件2は、 `AVL < 2*VLMAX` の場合であっても、リダクションループの最初のストリップミン反復では、
@@ -2663,7 +2663,7 @@ specified by `rs2`.
 ////
 
 ベクトルの定数ストライド演算では、ベース実効アドレスで最初のメモリ要素をアクセスし、
-その後，`rs2`で指定される`x`レジスタに含まれるバイトオフセットで与えられるアドレス増分で後続の要素をアクセスします。
+その後、 `rs2` で指定される `x` レジスタに含まれるバイトオフセットで与えられるアドレス増分で後続の要素をアクセスします。
 
 ////
 Vector indexed operations add the contents of each element of the
@@ -3182,7 +3182,7 @@ and may perform different numbers of memory operations across
 different dynamic executions of the same static instruction.
 ////
 
-`rs2`=`x0`の場合、実装はアクティブな要素の数よりも少ないメモリ操作を実行することが許されますが、必須ではありません。
+`rs2`=`x0` の場合、実装はアクティブな要素の数よりも少ないメモリ操作を実行することが許されますが、必須ではありません。
 また、同じ静的に同じ命令の異なる動的な実行において、異なる数のメモリ操作を実行することができます。
 
 ////
@@ -3632,7 +3632,7 @@ field to be stored in each segment.
 ////
 
 ロードの場合、`vd` レジスタはセグメントからロードされる最初のフィールドを保持します。
-ストアの場合は、`vs3`レジスタが読み込まれ、各セグメントに格納される最初のフィールドが提供されます。
+ストアの場合は、 `vs3` レジスタが読み込まれ、各セグメントに格納される最初のフィールドが提供されます。
 
 ////
 ----
@@ -3845,7 +3845,7 @@ groups cannot overlap the source vector register group (specified by
 ////
 
 ベクトルインデックスセグメントロードでは、
-書き込みベクトルレジスタグループはソースベクトルレジスタグループ(`vs2`で指定)と重なることはできません。
+書き込みベクトルレジスタグループはソースベクトルレジスタグループ(`vs2` で指定)と重なることはできません。
 
 ////
 NOTE: This constraint supports restart of indexed segment loads
@@ -3920,7 +3920,7 @@ of bytes transferred by reading the `vlenb` register.
 ////
 
 NOTE: これらの命令は、ベクトル・レジスタの現在の内容のタイプや長さがわからない場合や、
-`vl`や`vtype`を変更するとコストがかかる場合に、ベクトル・レジスタの保存や復元に使用することを目的としています。
+`vl` や `vtype` を変更するとコストがかかる場合に、ベクトル・レジスタの保存や復元に使用することを目的としています。
 例えば、コンパイラのレジスタ・スピル、ベクトル・レジスタで値が渡されるベクトル関数呼び出し、割り込みハンドラ、OSのコンテキスト・スイッチなどです。
 ソフトウェアは、 `vlenb` レジスタを読むことで、転送されたバイト数を知ることができます。
 
@@ -3930,7 +3930,7 @@ fields following the pattern of regular unit-stride loads.
 ////
 
 ロード命令では、通常のユニットストライド・ロードのパターンに従って、
-`mew`および`width`フィールドにEEWがエンコードされています。
+`mew` および `width` フィールドにEEWがエンコードされています。
 
 ////
 NOTE: Because in-register byte layouts are identical to in-memory byte
@@ -4241,8 +4241,8 @@ Similarly, masked vector instructions have a control dependency on the source
 mask register, rather than a data dependency.
 ////
 
-ベクトル長レジスタ`vl` の影響を受ける命令は、データ依存ではなく、
-`vl`への制御依存を持ちます。
+ベクトル長レジスタ `vl` の影響を受ける命令は、データ依存ではなく、
+`vl` への制御依存を持ちます。
 同様に、マスクされたベクトル命令は、データ依存ではなく、ソースマスクレジスタへの制御依存を持ちます。
 
 ////
@@ -4344,7 +4344,7 @@ Vector-vector operations take two vectors of operands from vector
 register groups specified by `vs2` and `vs1` respectively.
 ////
 
-ベクトル演算は、`vs2` と`vs1`でそれぞれ指定されたベクトルレジスタグループから、
+ベクトル演算は、`vs2` と `vs1` でそれぞれ指定されたベクトルレジスタグループから、
 オペランドの2つのベクトルを取ります。
 
 ////
@@ -4379,10 +4379,10 @@ reserved.
 この値は、特に指定がない限り、SEWビットに符号拡張されます。
 . 整数演算では、スカラーは `rs1` で指定されたスカラー `x` レジスタから取ることができます。
 XLEN>SEWの場合、特に指定がない限り、`x` レジスタの最下位SEWビットが使用されます。
-XLEN<SEWの場合、`x`レジスタからの値はSEWビットに符号拡張されます。
+XLEN<SEWの場合、`x` レジスタからの値はSEWビットに符号拡張されます。
 浮動小数点演算の場合、スカラはスカラ `f` レジスタから取得できます。
-FLEN > SEWの場合、`f`レジスタの値が有効なNaNボックス値であるかどうかがチェックされ、
-その場合は`f` レジスタの最下位SEWビットが使用され、そうでない場合は正規のNaN値が使用されます。
+FLEN > SEWの場合、 `f` レジスタの値が有効なNaNボックス値であるかどうかがチェックされ、
+その場合は `f` レジスタの最下位SEWビットが使用され、そうでない場合は正規のNaN値が使用されます。
 浮動小数点ベクトルオペランドのEEWがサポートされていない浮動小数点型の幅であるベクトル命令(FLEN < SEWの場合を含む)は予約されています。
 
 ////
@@ -4390,7 +4390,7 @@ NOTE: Some instructions _zero_-extend the 5-bit immediate, and denote this
 by naming the immediate `uimm` in the assembly syntax.
 ////
 
-NOTE: 一部の命令では、5ビット即値をゼロ拡張し、アセンブリ構文で即値を`uimm` と命名してこれを示します。
+NOTE: 一部の命令では、5ビット即値をゼロ拡張し、アセンブリ構文で即値を `uimm` と命名してこれを示します。
 
 ////
 NOTE: The proposed Zfinx variants will take the floating-point scalar
@@ -4443,7 +4443,7 @@ that instructions that read only one scalar register, read it from
 NOTE: このエンコーディングでは、`vs2` が第1オペランドで、`rs1/imm` が第2オペランドです。
 これは、標準的なスカラの順序とは逆です。
 この配列は、1つのスカラレジスタのみを読み出す命令は `rs1` から読み出すという既存のエンコーディング規約を維持し、
-5ビットの即値は`rs1`フィールドから供給されます。
+5ビットの即値は `rs1` フィールドから供給されます。
 
 ////
 ----
@@ -4555,7 +4555,7 @@ confused with the use of a `w` suffix to mean word-sized operations in
 doubleword integers, so the `w` was moved to prefix.
 ////
 
-NOTE: 元々、オペコードには`w` という接尾語が使われていましたが、
+NOTE: 元々、オペコードには `w` という接尾語が使われていましたが、
 2倍幅整数のワードサイズの演算を意味する `w` という接尾語と混同される恐れがあったため、 `w` はプレフィックスに移されました。
 
 ////
@@ -4660,7 +4660,7 @@ Where there is a second source vector register group (specified by
 EEW=SEW).
 ////
 
-第2のソースベクトルレジスタグループ(`vs1`で指定)がある場合、
+第2のソースベクトルレジスタグループ(`vs1` で指定)がある場合、
 これは結果と同じ(より狭い)幅を持ちます(すなわち、EEW=SEW)。
 
 ////
@@ -4677,7 +4677,7 @@ opcodes.  The double-width source vector register group is signified
 by a `w` in the source operand suffix (e.g., `vnsra.wv`)
 ////
 
-アセンブラでこれらの命令を区別するためにオペコードに`vn*` というプレフィックスをつけたり、
+アセンブラでこれらの命令を区別するためにオペコードに `vn*` というプレフィックスをつけたり、
 浮動小数点オペコードを絞り込むために `vfn*` というプレフィックスをつけたりします。
 2倍幅ソースベクトルレジスタグループは、
 ソースオペランドのサフィックスに `w` を付けて表します(例: `vnsra.wv`)。
@@ -5033,7 +5033,7 @@ function to support long word arithmetic for subtraction.  There are
 no subtract with immediate instructions.
 ////
 
-ボロー付き減算命令`vsbc`は、減算のためのロングワード演算をサポートするための機能を果たします。
+ボロー付き減算命令 `vsbc` は、減算のためのロングワード演算をサポートするための機能を果たします。
 即値での減算命令はありません。
 
 ----
@@ -5072,7 +5072,7 @@ For `vadc` and `vsbc`, the instruction encoding is reserved if the
 destination vector register is `v0`.
 ////
 
-`vadc` と `vsbc`では書き込みベクトルレジスタが`v0`の場合、命令エンコーディングが予約されます。
+`vadc` と `vsbc` では書き込みベクトルレジスタが `v0` の場合、命令エンコーディングが予約されます。
 
 ////
 NOTE: This constraint corresponds to the constraint on masked vector
@@ -5179,6 +5179,7 @@ vsra.vi vd, vs2, uimm, vm   # ベクトル-即値
 
 === ベクトルサイズ幅縮退整数右シフト命令
 
+////
 The narrowing right shifts extract a smaller field from a wider
 operand and have both zero-extending (`srl`) and sign-extending
 (`sra`) forms.  The shift amount can come from a vector or a scalar
@@ -5186,6 +5187,7 @@ operand and have both zero-extending (`srl`) and sign-extending
 vector or scalar shift-amount value are used (e.g., the low 6 bits for
 a SEW=64-bit to SEW=32-bit narrowing operation).  The immediate forms
 zero-extend their shift-amount immediate operand.
+////
 
 サイズ幅縮退の右シフトは、広いオペランドからより小さいフィールドを取り出すもので、ゼロ拡張(`srl`)と符号拡張(`sra`)の両方の形式があります。
 シフト量は、ベクトル、スカラの `x` レジスタ、または5ビットの即値から得られます。
@@ -5459,7 +5461,7 @@ needed as described below.
 ////
 
 NOTE: `vmsge{u}.vx` は、使用されていない OPIVI の変形である `vmslt{u}` の下で、非直交的な方法でエンコードされる可能性があります。
-しかし、OPIVIでスカラーの`x`レジスタを使用する命令はこれらだけです。
+しかし、OPIVIでスカラーの `x` レジスタを使用する命令はこれらだけです。
 別の方法として、さらに2つのfunct6エンコーディングを使用することもできますが、
 これらは同じ8つのfunct6エンコーディングのグループの他のものとは異なるオペランドフォーマット(マスクレジスタへの書き込み)になります。
 現在のPoRでは，これらの命令を省略し、必要に応じて以下のように合成しています。
@@ -5470,7 +5472,7 @@ value of `x` by 1 and using the `vmsgt{u}.vx` instruction, when it is
 known that this will not underflow the representation in `x`.
 ////
 
-`vmsge{u}.vx` の演算は、`x`の表現がアンダーフローしないことがわかっている場合、`x`の値を1だけ減らして`vmsgt{u}.vx`命令を使用することで合成できます。
+`vmsge{u}.vx` の演算は、 `x` の表現がアンダーフローしないことがわかっている場合、 `x` の値を1だけ減らして `vmsgt{u}.vx` 命令を使用することで合成できます。
 
 ////
 ----
@@ -5483,7 +5485,6 @@ va >= x,  x > minimum
 ////
 
 ----
-Sequences to synthesize `vmsge{u}.vx` instruction
 `vmsge{u}.vx` 命令を合成するための命令列
 
 va >= x,  x > minimum
@@ -5497,7 +5498,7 @@ but assembler pseudoinstructions can be provided for cases where the
 range of `x` is unknown.
 ////
 
-通常は上記の順序が最も効率的な実装になりますが、`x`の範囲が不明な場合にはアセンブラの疑似命令を提供することができます。
+通常は上記の順序が最も効率的な実装になりますが、 `x` の範囲が不明な場合にはアセンブラの疑似命令を提供することができます。
 
 ////
 ----
