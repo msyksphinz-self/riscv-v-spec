@@ -5081,8 +5081,10 @@ operations that overwrite the mask register.
 
 NOTE: この制約は、マスクレジスタを上書きするマスク付きベクトル演算の制約に相当します。
 
-=== Vector Bitwise Logical Instructions
+// === Vector Bitwise Logical Instructions
+=== ベクトル論理命令
 
+////
 ----
 # Bitwise logical operations.
 vand.vv vd, vs2, vs1, vm   # Vector-vector
@@ -5097,13 +5099,37 @@ vxor.vv vd, vs2, vs1, vm    # Vector-vector
 vxor.vx vd, vs2, rs1, vm    # vector-scalar
 vxor.vi vd, vs2, imm, vm    # vector-immediate
 ----
+////
 
+----
+# 論理命令
+vand.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vand.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vand.vi vd, vs2, imm, vm   # ベクトル-即値
+
+vor.vv vd, vs2, vs1, vm    # ベクトル-ベクトル
+vor.vx vd, vs2, rs1, vm    # ベクトル-スカラ
+vor.vi vd, vs2, imm, vm    # ベクトル-即値
+
+vxor.vv vd, vs2, vs1, vm    # ベクトル-ベクトル
+vxor.vx vd, vs2, rs1, vm    # ベクトル-スカラ
+vxor.vi vd, vs2, imm, vm    # ベクトル-即値
+----
+
+////
 NOTE: With an immediate of -1, scalar-immediate forms of the `vxor`
 instruction provide a bitwise NOT operation.  This can be provided as
 an assembler pseudoinstruction `vnot.v`.
+////
 
-=== Vector Single-Width Bit Shift Instructions
+NOTE: 即値が-1の場合、スカラ即値形式の `vxor` 命令は、ビットごとのNOT演算を行います。
+これは、アセンブラの疑似命令 `vnot.v` として提供することができます。
 
+// === Vector Single-Width Bit Shift Instructions
+
+=== ベクトル単一幅ビットシフト命令
+
+////
 A full complement of vector shift instructions are provided, including
 logical shift left, and logical (zero-extending) and arithmetic
 (sign-extending) shift right.  The data to be shifted is in the vector
@@ -5111,8 +5137,13 @@ register group specified by `vs2` and the shift amount can be a vector
 register group `vs1`, a scalar integer register `rs1`, or an
 immediate.  The low lg2(SEW) bits of the vector or scalar shift-amount
 value are used, and shift-amount immediates are zero-extended.
+////
 
+左への論理シフト、右への論理(ゼロ拡張)および算術(符号拡張)シフトを含む、完全なベクトルシフト命令が用意されています。
+シフトするデータは、 `vs2` で指定されたベクトルレジスタグループにあり、シフト量はベクトルレジスタグループ `vs1` 、スカラ整数レジスター `rs1` 、または即値となります。
+ベクトルまたはスカラのシフト量の値の下位lg2(SEW)ビットが使用され、シフト量の即値はゼロ拡張されます。
 
+////
 ----
 # Bit shift operations
 vsll.vv vd, vs2, vs1, vm   # Vector-vector
@@ -5127,9 +5158,26 @@ vsra.vv vd, vs2, vs1, vm   # Vector-vector
 vsra.vx vd, vs2, rs1, vm   # vector-scalar
 vsra.vi vd, vs2, uimm, vm   # vector-immediate
 ----
+////
 
+----
+# ビットシフト操作
+vsll.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsll.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vsll.vi vd, vs2, uimm, vm   # ベクトル-即値
 
-=== Vector Narrowing Integer Right Shift Instructions
+vsrl.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsrl.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vsrl.vi vd, vs2, uimm, vm   # ベクトル-即値
+
+vsra.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsra.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vsra.vi vd, vs2, uimm, vm   # ベクトル-即値
+----
+
+// === Vector Narrowing Integer Right Shift Instructions
+
+=== ベクトルサイズ幅縮退整数右シフト命令
 
 The narrowing right shifts extract a smaller field from a wider
 operand and have both zero-extending (`srl`) and sign-extending
@@ -5139,6 +5187,12 @@ vector or scalar shift-amount value are used (e.g., the low 6 bits for
 a SEW=64-bit to SEW=32-bit narrowing operation).  The immediate forms
 zero-extend their shift-amount immediate operand.
 
+サイズ幅縮退の右シフトは、広いオペランドからより小さいフィールドを取り出すもので、ゼロ拡張(`srl`)と符号拡張(`sra`)の両方の形式があります。
+シフト量は、ベクトル、スカラの `x` レジスタ、または5ビットの即値から得られます。
+ベクトルまたはスカラのシフト量の下位lg2(2*SEW)ビットが使用されます(例えば、SEW=64ビットからSEW=32ビットへの狭帯域化の場合は下位6ビット)。
+即値形式は、シフト量の即値オペランドをゼロ拡張します。
+
+////
 ----
  # Narrowing shift right logical, SEW = (2*SEW) >> SEW
  vnsrl.wv vd, vs2, vs1, vm   # vector-vector
@@ -5150,23 +5204,55 @@ zero-extend their shift-amount immediate operand.
  vnsra.wx vd, vs2, rs1, vm   # vector-scalar
  vnsra.wi vd, vs2, uimm, vm   # vector-immediate
 ----
+////
 
+----
+ # Narrowing shift right logical, SEW = (2*SEW) >> SEW
+ # ビット幅縮退論理右シフト命令, SEW = (2*SEW) >> SEW
+ vnsrl.wv vd, vs2, vs1, vm   # vector-vector
+ vnsrl.wx vd, vs2, rs1, vm   # vector-scalar
+ vnsrl.wi vd, vs2, uimm, vm   # vector-immediate
+
+ # Narrowing shift right arithmetic, SEW = (2*SEW) >> SEW
+ # ビット幅縮退算術右シフト命令, SEW = (2*SEW) >> SEW
+ vnsra.wv vd, vs2, vs1, vm   # vector-vector
+ vnsra.wx vd, vs2, rs1, vm   # vector-scalar
+ vnsra.wi vd, vs2, uimm, vm   # vector-immediate
+----
+
+////
 NOTE: It could be useful to add support for `n4` variants, where the
 destination is 1/4 width of source.
+////
 
+NOTE: 書き込みレジスタがソースの1/4の幅である、`n4` バリアントのサポートを追加すると便利です。
+
+////
 NOTE: An integer value can be halved in width using the narrowing integer
 shift instructions with a scalar operand of x0. Can define assembly
 pseudoinstructions `vncvt.x.x.w vd,vs,vm` = `vnsrl.wx vd,vs,x0,vm`.
+////
 
-=== Vector Integer Comparison Instructions
+NOTE: 整数値は、x0のスカラオペランドを持つ幅縮退の整数シフト命令を使って、幅を半分にすることができます。
+アセンブリ疑似命令 `vncvt.x.x.w vd,vs,vm` = `vnsrl.wx vd,vs,x0,vm` を定義することができます。
 
+// === Vector Integer Comparison Instructions
+=== ベクトル整数比較命令
+
+////
 The following integer compare instructions write 1 to the destination
 mask register element if the comparison evaluates to true, and 0
 otherwise.  The destination mask vector is always held in a single
 vector register, with a layout of elements as described in Section
 <<sec-mask-register-layout>>.  The destination mask vector register
 may be the same as the source vector mask register (`v0`).
+////
 
+以下の整数比較命令は、比較の結果が真であれば書き込みマスクレジスタの要素に1を、そうでなければ0を書き込みます。
+書き込みマスクベクトルは常に単一のベクトルレジスタに保持され，その要素のレイアウトはセクション <<sec-mask-register-layout>> で説明されています。
+書き込みマスクレジスタは、ソースベクタのマスクレジスタ(`v0`)と同じものでも構いません。
+
+////
 ----
 # Set if equal
 vmseq.vv vd, vs2, vs1, vm  # Vector-vector
@@ -5210,10 +5296,60 @@ vmsgt.vi vd, vs2, imm, vm    # Vector-immediate
 # Set if greater than or equal, signed
 # vmsge.vx vd, vs2, rs1, vm    # Vector-scalar
 ----
+////
 
+----
+# Set if equal
+vmseq.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vmseq.vx vd, vs2, rs1, vm  # ベクトル-スカラ
+vmseq.vi vd, vs2, imm, vm  # ベクトル-即値
+
+# Set if not equal
+vmsne.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vmsne.vx vd, vs2, rs1, vm  # ベクトル-スカラ
+vmsne.vi vd, vs2, imm, vm  # ベクトル-即値
+
+# Set if less than, unsigned
+vmsltu.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vmsltu.vx vd, vs2, rs1, vm  # ベクトル-スカラ
+
+# Set if less than, signed
+vmslt.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vmslt.vx vd, vs2, rs1, vm  # ベクトル-スカラ
+
+# Set if less than or equal, unsigned
+vmsleu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vmsleu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vmsleu.vi vd, vs2, imm, vm   # ベクトル-即値
+
+# Set if less than or equal, signed
+vmsle.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vmsle.vx vd, vs2, rs1, vm  # ベクトル-スカラ
+vmsle.vi vd, vs2, imm, vm  # ベクトル-即値
+
+# Set if greater than, unsigned
+vmsgtu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vmsgtu.vi vd, vs2, imm, vm   # ベクトル-即値
+
+# Set if greater than, signed
+vmsgt.vx vd, vs2, rs1, vm    # ベクトル-スカラ
+vmsgt.vi vd, vs2, imm, vm    # ベクトル-即値
+
+# 以下の2命令は直接提供されない
+# Set if greater than or equal, unsigned
+# vmsgeu.vx vd, vs2, rs1, vm    # ベクトル-スカラ
+# Set if greater than or equal, signed
+# vmsge.vx vd, vs2, rs1, vm    # ベクトル-スカラ
+----
+
+////
 The following table indicates how all comparisons are implemented in
 native machine code.
+////
 
+以下の表は全ての比較操作がどのようにネイティブマシンコードに実装されるのかを示しています。
+
+////
 ----
 Comparison      Assembler Mapping             Assembler Pseudoinstruction
 
@@ -5236,7 +5372,32 @@ va, vb vector register groups
 x      scalar integer register
 i      immediate
 ----
+////
 
+----
+比較            アセンブラマッピング          アセンブラ疑似命令
+
+va < vb         vmslt{u}.vv vd, va, vb, vm
+va <= vb        vmsle{u}.vv vd, va, vb, vm
+va > vb         vmslt{u}.vv vd, vb, va, vm    vmsgt{u}.vv vd, va, vb, vm
+va >= vb        vmsle{u}.vv vd, vb, va, vm    vmsge{u}.vv vd, va, vb, vm
+
+va < x          vmslt{u}.vx vd, va, x, vm
+va <= x         vmsle{u}.vx vd, va, x, vm
+va > x          vmsgt{u}.vx vd, va, x, vm
+va >= x         see below
+
+va < i          vmsle{u}.vi vd, va, i-1, vm    vmslt{u}.vi vd, va, i, vm
+va <= i         vmsle{u}.vi vd, va, i, vm
+va > i          vmsgt{u}.vi vd, va, i, vm
+va >= i         vmsgt{u}.vi vd, va, i-1, vm    vmsge{u}.vi vd, va, i, vm
+
+va, vb ベクトルレジスタグループ
+x      スカラ整数レジスタ
+i      即値
+----
+
+////
 NOTE: The immediate forms of `vmslt{u}.vi` are not provided as the
 immediate value can be decreased by 1 and the `vmsle{u}.vi` variants
 used instead.  The `vmsle.vi` range is -16 to 15, resulting in an
@@ -5249,21 +5410,44 @@ false). Because the 5-bit vector immediates are always sign-extended,
 comparisons against unsigned immediates in the range `2^SEW^-15` to
 `2^SEW^`.  Note that `vlsltu.vi` with immediate `2^SEW^` is not useful
 as it is always true.
+////
 
+NOTE: `vmslt{u}.vi` の即時形は、即時値を1減らして `vmsle{u}.vi` のバリエーションを代わりに使用できるので、提供されません。
+`vmsle.vi` の範囲は -16 から 15 で、その結果、実効的な `vmslt.vi` の範囲は -15 から 16 となります。
+`vmsleu.vi` の範囲は0から15で、実効的な `vmsltu.vi` の範囲は1から16になります (注意: 即値0の `vmsltu.vi` は常に偽なので役に立ちません)。
+5ビットのベクトル即値は常に符号拡張されているので、`vmsleu.vi` は `2^SEW^-16` から `2^SEW^-1` の範囲の符号なし即値もサポートしており、
+`2^SEW^-15` から `2^SEW^` の範囲の符号なし即値に対する `vmsltu.vi` の比較が可能です。
+即値 `2^SEW^` の `vlsltu.vi` は常に真なので、有用ではないことに注意してください。
+
+////
 Similarly, `vmsge{u}.vi` is not provided and the comparison is
 implemented using `vmsgt{u}.vi` with the immediate decremented by one.
 The resulting effective `vmsge.vi` range is -15 to 16, and the
 resulting effective `vmsgeu.vi` range is 1 to 16 (Note, `vmsgeu.vi` with
 immediate 0 is not useful as it is always true).
+////
 
+同様に、`vmsge{u}.vi` は提供されず、即値を1だけデクリメントした `vmsgt{u}.vi` を使用して比較を実装します。
+その結果、実効的な `vmsge.vi` の範囲は-15～16、実効的な `vmsgeu.vi` の範囲は1～16となります(なお、即値が0の `vmsgeu.vi` は常に真なので役に立ちません)。
+
+////
 NOTE: The `vmsgt` forms for register scalar and immediates are provided
 to allow a single comparison instruction to provide the correct
 polarity of mask value without using additional mask logical
 instructions.
+////
 
+NOTE: レジスタスカラと即値の `vmsgt` 形式は、追加のマスク論理命令を使用せずに、
+1つの比較命令でマスク値の正しい極性を提供できるようにするために提供されています。
+
+////
 To reduce encoding space, the `vmsge{u}.vx` form is not directly
 provided, and so the `va {ge} x` case requires special treatment.
+////
 
+エンコーディング空間を減らすために、`vmsge{u}.vx` 形式は直接提供されていないので、`va {ge} x` の場合は特別な処理が必要です。
+
+////
 NOTE: The `vmsge{u}.vx` could potentially be encoded in a
 non-orthogonal way under the unused OPIVI variant of `vmslt{u}`.  These
 would be the only instructions in OPIVI that use a scalar `x`register
@@ -5272,11 +5456,23 @@ but these would have a different operand format (writes to mask
 register) than others in the same group of 8 funct6 encodings.  The
 current PoR is to omit these instructions and to synthesize where
 needed as described below.
+////
 
+NOTE: `vmsge{u}.vx` は、使用されていない OPIVI の変形である `vmslt{u}` の下で、非直交的な方法でエンコードされる可能性があります。
+しかし、OPIVIでスカラーの`x`レジスタを使用する命令はこれらだけです。
+別の方法として、さらに2つのfunct6エンコーディングを使用することもできますが、
+これらは同じ8つのfunct6エンコーディングのグループの他のものとは異なるオペランドフォーマット(マスクレジスタへの書き込み)になります。
+現在のPoRでは，これらの命令を省略し、必要に応じて以下のように合成しています。
+
+////
 The `vmsge{u}.vx` operation can be synthesized by reducing the
 value of `x` by 1 and using the `vmsgt{u}.vx` instruction, when it is
 known that this will not underflow the representation in `x`.
+////
 
+`vmsge{u}.vx` の演算は、`x`の表現がアンダーフローしないことがわかっている場合、`x`の値を1だけ減らして`vmsgt{u}.vx`命令を使用することで合成できます。
+
+////
 ----
 Sequences to synthesize `vmsge{u}.vx` instruction
 
@@ -5284,11 +5480,26 @@ va >= x,  x > minimum
 
    addi t0, x, -1; vmsgt{u}.vx vd, va, t0, vm
 ----
+////
 
+----
+Sequences to synthesize `vmsge{u}.vx` instruction
+`vmsge{u}.vx` 命令を合成するための命令列
+
+va >= x,  x > minimum
+
+   addi t0, x, -1; vmsgt{u}.vx vd, va, t0, vm
+----
+
+////
 The above sequence will usually be the most efficient implementation,
 but assembler pseudoinstructions can be provided for cases where the
 range of `x` is unknown.
+////
 
+通常は上記の順序が最も効率的な実装になりますが、`x`の範囲が不明な場合にはアセンブラの疑似命令を提供することができます。
+
+////
 ----
 unmasked va >= x
 
@@ -5313,17 +5524,58 @@ masked va >= x, any vd
   The vt argument to the pseudoinstruction must name a temporary vector register that is
   not same as vd and which will be clobbered by the pseudoinstruction
 ----
+////
 
+----
+マスク無し va >= x
+
+  疑似命令: vmsge{u}.vx vd, va, x
+  展開: vmslt{u}.vx vd, va, x; vmnand.mm vd, vd, vd
+
+マスク付き va >= x, vd != v0
+
+  疑似命令: vmsge{u}.vx vd, va, x, v0.t
+  展開: vmslt{u}.vx vd, va, x, v0.t; vmxor.mm vd, vd, v0
+
+マスク付き va >= x, vd == v0
+
+  疑似命令: vmsge{u}.vx vd, va, x, v0.t, vt
+  展開: vmslt{u}.vx vt, va, x;  vmandnot.mm vd, vd, vt
+
+マスク付き va >= x, any vd
+
+  疑似命令: vmsge{u}.vx vd, va, x, v0.t, vt
+  展開: vmslt{u}.vx vt, va, x;  vmandnot.mm vt, v0, vt;  vmandnot.mm vd, vd, v0;  vmor.mm vd, vt, vd
+
+  疑似命令中のvt引数は一時ベクトルレジスタの意味であり、
+  vdとは異なり破壊される問題ないレジスタでなければならない
+----
+
+////
 Comparisons effectively AND in the mask under a mask-undisturbed policy e.g,
+////
+マスク付きundisturbedポリシによって複数の比較をANDする例を以下に示します。
 
+////
 ----
     # (a < b) && (b < c) in two instructions when mask-undisturbed
     vmslt.vv    v0, va, vb        # All body elements written
     vmslt.vv    v0, vb, vc, v0.t  # Only update at set mask
 ----
+////
 
+----
+    # (a < b) && (b < c) をマスク付きundisturbedによって2命令で実現する
+    vmslt.vv    v0, va, vb        # 全ての要素に書き込みを行う
+    vmslt.vv    v0, vb, vc, v0.t  # マスクの設定された場所のみ書き込みを行う
+----
+
+////
 Comparisons write mask registers, and so always operate under a
 tail-agnostic policy.
+////
+
+比較はマスクレジスタを書き込むため、常に末尾agnosticポリシで動作します。
 
 === Vector Integer Min/Max Instructions
 
