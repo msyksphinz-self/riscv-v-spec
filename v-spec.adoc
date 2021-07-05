@@ -5763,7 +5763,7 @@ NOTE: There is no instruction to perform a "scalar divide by vector"
 operation.
 ////
 
-注："ベクターによるスカラ除算"を実行する命令はありません。
+注："ベクトルによるスカラ除算"を実行する命令はありません。
 
 // === Vector Widening Integer Multiply Instructions
 === ベクトル幅拡張乗算命令
@@ -5931,7 +5931,7 @@ merge operates on all body elements (i.e., the set of elements from
 `vstart` up to the current vector length in `vl`).
 ////
 ベクトル整数マージ命令は、2つのソースオペランドをマスクに基づいて結合します。
-通常の算術命令とは異なり、マージはすべてのボディ要素(すなわち、 `vstart` から `vl` の現在のベクター長までの要素の集合)に対して動作します。
+通常の算術命令とは異なり、マージはすべてのボディ要素(すなわち、 `vstart` から `vl` の現在のベクトル長までの要素の集合)に対して動作します。
 
 ////
 The `vmerge` instructions are encoded as masked instructions (`vm=0`).
@@ -5975,7 +5975,7 @@ register number in `vs2` is _reserved_.
 ベクトル整数移動命令は、ソース・オペランドをベクトル・レジスタ・グループにコピーします。
 `vmv.v.v` はベクトルレジスタ群をコピーしますが、 `vmv.v.x` と `vmv.v.i` はスカラレジスタまたは即値をコピー先のベクトルレジスタ群のすべてのアクティブな要素に __転送__します。
 これらの命令は、マスクされていない命令(`vm=1`)としてエンコードされます。
-第1オペランド指定子(`vs2`)には、 `v0` が含まれていなければならず、 `vs2` に含まれるその他のベクターレジスター番号は _予約されています_ 。
+第1オペランド指定子(`vs2`)には、 `v0` が含まれていなければならず、 `vs2` に含まれるその他のベクトルレジスター番号は _予約されています_ 。
 
 ----
 vmv.v.v vd, vs1 # vd[i] = vs1[i]
