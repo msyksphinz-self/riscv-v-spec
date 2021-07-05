@@ -5578,11 +5578,17 @@ tail-agnostic policy.
 
 比較はマスクレジスタを書き込むため、常に末尾agnosticポリシで動作します。
 
-=== Vector Integer Min/Max Instructions
+// === Vector Integer Min/Max Instructions
 
+=== ベクトル整数最大/最小命令
+
+////
 Signed and unsigned integer minimum and maximum instructions are
 supported.
+////
+符号付き整数/符号なし整数の最大・最小値計算命令がサポートされている。
 
+////
 ----
 # Unsigned minimum
 vminu.vv vd, vs2, vs1, vm   # Vector-vector
@@ -5600,13 +5606,39 @@ vmaxu.vx vd, vs2, rs1, vm   # vector-scalar
 vmax.vv vd, vs2, vs1, vm   # Vector-vector
 vmax.vx vd, vs2, rs1, vm   # vector-scalar
 ----
+////
 
-=== Vector Single-Width Integer Multiply Instructions
+----
+# 符号なし最小値
+vminu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vminu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
 
+# 符号付き最小値
+vmin.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vmin.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+# 符号なし最大値
+vmaxu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vmaxu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+# 符号付き最大値
+vmax.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vmax.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+----
+
+// === Vector Single-Width Integer Multiply Instructions
+=== ベクトル単一幅整数乗算命令
+
+////
 The single-width multiply instructions perform a SEW-bit*SEW-bit
 multiply and return an SEW-bit-wide result.  The `*mulh*` versions
 write the high word of the product to the destination register.
+////
 
+単一幅の乗算命令は、SEWビット*SEWビットの乗算を行い、SEWビット幅の結果を返す。
+`*mulh*` 版では、積の上位ワードを出力レジスタに書き込みます。
+
+////
 ----
 # Signed multiply, returning low bits of product
 vmul.vv vd, vs2, vs1, vm   # Vector-vector
@@ -5624,23 +5656,59 @@ vmulhu.vx vd, vs2, rs1, vm   # vector-scalar
 vmulhsu.vv vd, vs2, vs1, vm   # Vector-vector
 vmulhsu.vx vd, vs2, rs1, vm   # vector-scalar
 ----
+////
 
+----
+# 符号付き乗算、積の下位ビットを返す
+vmul.vv vd, vs2, vs1, vm   # Vector-vector
+vmul.vx vd, vs2, rs1, vm   # vector-scalar
+
+# 符号付き乗算、積の上位ビットを返す
+vmulh.vv vd, vs2, vs1, vm   # Vector-vector
+vmulh.vx vd, vs2, rs1, vm   # vector-scalar
+
+# 符号なし乗算、積の上位ビットを返す
+vmulhu.vv vd, vs2, vs1, vm   # Vector-vector
+vmulhu.vx vd, vs2, rs1, vm   # vector-scalar
+
+# vs2を符号付き、vs1を符号なしとした乗算、積の上位ビットを返す
+vmulhsu.vv vd, vs2, vs1, vm   # Vector-vector
+vmulhsu.vx vd, vs2, rs1, vm   # vector-scalar
+----
+
+////
 NOTE: There is no `vmulhus` opcode to return high half of
 unsigned-vector * signed-scalar product.
+////
 
+NOTE: 符号なしベクトル * 符号付きスカラ積の上位半分を返す `vmulhus` オペコードはありません。
+
+////
 NOTE: The current `vmulh*` opcodes perform simple fractional
 multiplies, but with no option to scale, round, and/or saturate the
 result.  A possible extension can consider variants of `vmulh`,
 `vmulhu`, `vmulhsu` that use the `vxrm` rounding mode when discarding
 low half of product.  There is no possibility of overflow in these
 cases.
+////
 
-=== Vector Integer Divide Instructions
+NOTE: 現在の `vmulh*` オペコードは、単純な小数乗算を行いますが、結果をスケーリングしたり、丸めたり、飽和させたりするオプションはありません。
+拡張機能としては、`vmulh`, `vmulhu`, `vmulhsu` のバリエーションが考えられ、積の下半分を破棄する際に `vxrm` 丸めモードを使用します。
+これらのケースではオーバーフローの可能性はありません。
 
+// === Vector Integer Divide Instructions
+
+=== ベクトル整数除算命令
+
+////
 The divide and remainder instructions are equivalent to the RISC-V
 standard scalar integer multiply/divides, with the same results for
 extreme inputs.
+////
 
+除算・剰余命令は、RISC-V標準のスカラ整数乗除算と同等で、極端な入力に対しても同じ結果が得られます。
+
+////
 ----
     # Unsigned divide.
     vdivu.vv vd, vs2, vs1, vm   # Vector-vector
@@ -5658,21 +5726,56 @@ extreme inputs.
     vrem.vv vd, vs2, vs1, vm   # Vector-vector
     vrem.vx vd, vs2, rs1, vm   # vector-scalar
 ----
+////
 
+----
+    # 符号なし除算
+    vdivu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vdivu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+    # 符号付除算
+    vdiv.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vdiv.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+    # 符号なし剰余
+    vremu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vremu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+    # 符号付剰余
+    vrem.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vrem.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+----
+
+////
 NOTE: The decision to include integer divide and remainder was
 contentious. The argument in favor is that without a standard
 instruction, software would have to pick some algorithm to perform the
 operation, which would likely perform poorly on some
 microarchitectures versus others.
+////
 
+NOTE: 整数の除算と余剰を含めるかどうかは、意見が分かれました。
+標準的な命令がない場合、ソフトウェアは演算を実行するために何らかのアルゴリズムを選択しなければならず、
+マイクロアーキテクチャによってはパフォーマンスが低下する可能性があるというのが賛成の理由です。
+
+////
 NOTE: There is no instruction to perform a "scalar divide by vector"
 operation.
+////
 
-=== Vector Widening Integer Multiply Instructions
+注："ベクターによるスカラ除算"を実行する命令はありません。
 
+// === Vector Widening Integer Multiply Instructions
+=== ベクトル幅拡張乗算命令
+
+////
 The widening integer multiply instructions return the full 2*SEW-bit
 product from an SEW-bit*SEW-bit multiply.
+////
 
+幅拡張整数乗算命令は、SEWビット*SEWビット乗算から完全な2*SEWビット積を返します。
+
+////
 ----
 # Widening signed-integer multiply
 vwmul.vv  vd, vs2, vs1, vm # vector-vector
@@ -5686,21 +5789,50 @@ vwmulu.vx vd, vs2, rs1, vm # vector-scalar
 vwmulsu.vv vd, vs2, vs1, vm # vector-vector
 vwmulsu.vx vd, vs2, rs1, vm # vector-scalar
 ----
+////
 
-=== Vector Single-Width Integer Multiply-Add Instructions
+----
+# 幅拡張符号付き整数乗算
+vwmul.vv  vd, vs2, vs1, vm # vector-vector
+vwmul.vx  vd, vs2, rs1, vm # vector-scalar
 
+# 幅拡張符号なし整数乗算
+vwmulu.vv vd, vs2, vs1, vm # vector-vector
+vwmulu.vx vd, vs2, rs1, vm # vector-scalar
+
+# 幅拡張符号付き・符号なし整数乗算
+vwmulsu.vv vd, vs2, vs1, vm # vector-vector
+vwmulsu.vx vd, vs2, rs1, vm # vector-scalar
+----
+
+// === Vector Single-Width Integer Multiply-Add Instructions
+=== ベクトル単一幅整数乗算加算命令
+
+////
 The integer multiply-add instructions are destructive and are provided
 in two forms, one that overwrites the addend or minuend
 (`vmacc`, `vnmsac`) and one that overwrites the first multiplicand
 (`vmadd`, `vnmsub`).
+////
+整数の乗算加算命令は破壊的で、加算値や最小値を上書きするもの(`vmacc`、`vnmsac`)と、
+最初の乗算値を上書きするもの(`vmadd`、`vnmsub`)の2種類が用意されています。
 
+////
 The low half of the product is added or subtracted from the third operand.
+////
+積の下位ビットの半分が第3オペランドに加算または減算されます。
 
+////
 NOTE: `sac` is intended to be read as "subtract from accumulator". The
 opcode is `vnmsac` to match the (unfortunately counterintuitive)
 floating-point `fnmsub` instruction definition.  Similarly for the
 `vnmsub` opcode.
+////
+NOTE: `sac` は「アキュムレータからの減算(subtract from accumulator)」と読むことを意図しています。
+オペコードは、(残念ながら直感に反する)浮動小数点の `fnmsub` 命令の定義に合わせて `vnmsac` となっています。
+オペコードは `vnmsub` と似ています。
 
+////
 ----
 # Integer multiply-add, overwrite addend
 vmacc.vv vd, vs1, vs2, vm    # vd[i] = +(vs1[i] * vs2[i]) + vd[i]
@@ -5718,14 +5850,41 @@ vmadd.vx vd, rs1, vs2, vm    # vd[i] = (x[rs1] * vd[i]) + vs2[i]
 vnmsub.vv vd, vs1, vs2, vm    # vd[i] = -(vs1[i] * vd[i]) + vs2[i]
 vnmsub.vx vd, rs1, vs2, vm    # vd[i] = -(x[rs1] * vd[i]) + vs2[i]
 ----
+////
 
-=== Vector Widening Integer Multiply-Add Instructions
+----
+# 整数乗算加算命令、加算項上書き
+vmacc.vv vd, vs1, vs2, vm    # vd[i] = +(vs1[i] * vs2[i]) + vd[i]
+vmacc.vx vd, rs1, vs2, vm    # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
 
+# 整数乗算減算命令、減算項上書き
+vnmsac.vv vd, vs1, vs2, vm    # vd[i] = -(vs1[i] * vs2[i]) + vd[i]
+vnmsac.vx vd, rs1, vs2, vm    # vd[i] = -(x[rs1] * vs2[i]) + vd[i]
+
+# 整数乗算加算命令、乗算項上書き
+vmadd.vv vd, vs1, vs2, vm    # vd[i] = (vs1[i] * vd[i]) + vs2[i]
+vmadd.vx vd, rs1, vs2, vm    # vd[i] = (x[rs1] * vd[i]) + vs2[i]
+
+# 整数乗算減算命令、乗算項上書き
+vnmsub.vv vd, vs1, vs2, vm    # vd[i] = -(vs1[i] * vd[i]) + vs2[i]
+vnmsub.vx vd, rs1, vs2, vm    # vd[i] = -(x[rs1] * vd[i]) + vs2[i]
+----
+
+// === Vector Widening Integer Multiply-Add Instructions
+
+=== ベクトル幅拡張整数乗算加算命令
+
+////
 The widening integer multiply-add instructions add the full 2*SEW-bit
 product from a SEW-bit*SEW-bit multiply to a 2*SEW-bit value and
 produce a 2*SEW-bit result.  All combinations of signed and unsigned
 multiply operands are supported.
+////
+幅拡張整数乗算・加算命令は、SEWビット*SEWビットの乗算から2*SEWビットの値に2*SEWビットの乗算を加算し、
+2*SEWビットの結果を生成します。
+符号付きおよび符号なしの乗算オペランドのすべての組み合わせがサポートされています。
 
+////
 ----
 # Widening unsigned-integer multiply-add, overwrite addend
 vwmaccu.vv vd, vs1, vs2, vm    # vd[i] = +(vs1[i] * vs2[i]) + vd[i]
@@ -5742,14 +5901,39 @@ vwmaccsu.vx vd, rs1, vs2, vm  # vd[i] = +(signed(x[rs1]) * unsigned(vs2[i])) + v
 # Widening unsigned-signed-integer multiply-add, overwrite addend
 vwmaccus.vx vd, rs1, vs2, vm  # vd[i] = +(unsigned(x[rs1]) * signed(vs2[i])) + vd[i]
 ----
+////
 
-=== Vector Integer Merge Instructions
+----
+# 幅拡張符号なし整数乗算加算命令、加算項上書き
+vwmaccu.vv vd, vs1, vs2, vm    # vd[i] = +(vs1[i] * vs2[i]) + vd[i]
+vwmaccu.vx vd, rs1, vs2, vm    # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
 
+# 幅拡張符号付き整数乗算加算命令、加算項上書き
+vwmacc.vv vd, vs1, vs2, vm    # vd[i] = +(vs1[i] * vs2[i]) + vd[i]
+vwmacc.vx vd, rs1, vs2, vm    # vd[i] = +(x[rs1] * vs2[i]) + vd[i]
+
+# 幅拡張符号なし整数乗算加算命令、加算項上書き
+vwmaccsu.vv vd, vs1, vs2, vm  # vd[i] = +(signed(vs1[i]) * unsigned(vs2[i])) + vd[i]
+vwmaccsu.vx vd, rs1, vs2, vm  # vd[i] = +(signed(x[rs1]) * unsigned(vs2[i])) + vd[i]
+
+# Widening unsigned-signed-integer multiply-add, overwrite addend
+# 幅拡張符号なし・符号付き整数乗算加算命令、加算項上書き
+vwmaccus.vx vd, rs1, vs2, vm  # vd[i] = +(unsigned(x[rs1]) * signed(vs2[i])) + vd[i]
+----
+
+// === Vector Integer Merge Instructions
+=== ベクトル整数マージ命令
+
+////
 The vector integer merge instructions combine two source operands
 based on a mask.  Unlike regular arithmetic instructions, the
 merge operates on all body elements (i.e., the set of elements from
 `vstart` up to the current vector length in `vl`).
+////
+ベクトル整数マージ命令は、2つのソースオペランドをマスクに基づいて結合します。
+通常の算術命令とは異なり、マージはすべてのボディ要素(すなわち、 `vstart` から `vl` の現在のベクター長までの要素の集合)に対して動作します。
 
+////
 The `vmerge` instructions are encoded as masked instructions (`vm=0`).
 The instructions combine two
 sources as follows.  At elements where the mask value is zero, the
@@ -5759,6 +5943,14 @@ operand is always a vector register group specified by `vs2`.  The
 second operand is a vector register group specified by `vs1` or a
 scalar `x` register specified by `rs1` or a 5-bit sign-extended
 immediate.
+////
+
+`vmerge`命令は、マスクされた命令(`vm=0`)としてエンコードされます。
+この命令は、次のように2つのソースを組み合わせます。
+マスク値がゼロの要素では、第1オペランドがデスティネーション要素にコピーされ、そうでない場合は第2オペランドがデスティネーション要素にコピーされます。
+第1オペランドは常に `vs2` で指定されるベクトルレジスタ群です。
+第2オペランドは、 `vs1` で指定されるベクトルレジスタ群、
+`rs1` で指定されるスカラ `x` レジスタ、または5ビットの符号拡張即値です。
 
 ----
 vmerge.vvm vd, vs2, vs1, v0  # vd[i] = v0.mask[i] ? vs1[i] : vs2[i]
@@ -5766,8 +5958,10 @@ vmerge.vxm vd, vs2, rs1, v0  # vd[i] = v0.mask[i] ? x[rs1] : vs2[i]
 vmerge.vim vd, vs2, imm, v0  # vd[i] = v0.mask[i] ? imm    : vs2[i]
 ----
 
-=== Vector Integer Move Instructions
+// === Vector Integer Move Instructions
+=== ベクトル整数移動命令
 
+////
 The vector integer move instructions copy a source operand to a vector
 register group.
 The `vmv.v.v` variant copies a vector register group, whereas the `vmv.v.x`
@@ -5776,6 +5970,12 @@ elements of the destination vector register group.
 These instructions are encoded as unmasked instructions (`vm=1`).
 The first operand specifier (`vs2`) must contain `v0`, and any other vector
 register number in `vs2` is _reserved_.
+////
+
+ベクトル整数移動命令は、ソース・オペランドをベクトル・レジスタ・グループにコピーします。
+`vmv.v.v` はベクトルレジスタ群をコピーしますが、 `vmv.v.x` と `vmv.v.i` はスカラレジスタまたは即値をコピー先のベクトルレジスタ群のすべてのアクティブな要素に __転送__します。
+これらの命令は、マスクされていない命令(`vm=1`)としてエンコードされます。
+第1オペランド指定子(`vs2`)には、 `v0` が含まれていなければならず、 `vs2` に含まれるその他のベクターレジスター番号は _予約されています_ 。
 
 ----
 vmv.v.v vd, vs1 # vd[i] = vs1[i]
@@ -5783,20 +5983,34 @@ vmv.v.x vd, rs1 # vd[i] = x[rs1]
 vmv.v.i vd, imm # vd[i] = imm
 ----
 
+////
 NOTE: Mask values can be widened into SEW-width elements using a
 sequence `vmv.v.i vd, 0; vmerge.vim vd, vd, 1, v0`.
+////
+NOTE: マスク値は、シーケンス `vmv.v.i vd, 0; vmerge.vim vd, vd, 1, v0` を使って、SEW幅の要素に広げることができます。
 
+////
 NOTE: The vector integer move instructions share the encoding with the vector
 merge instructions, but with `vm=1` and `vs2=v0`.
+////
+ベクトル整数移動命令は、ベクトルマージ命令とエンコーディングが同じですが、 `vm=1` 、 `vs2=v0` となっています。
 
+////
 The form `vmv.v.v vd, vd`, which leaves body elements unchanged,
 is used as a hint to indicate that the register will next be used
 with an EEW equal to SEW.
+////
+ボディ要素を変更しない `vmv.v.vd, vd` という形式は、そのレジスタが次に SEW と等しい EEW で使用されることを示すヒントとして使用されます。
 
+////
 NOTE: Implementations that internally reorganize data according to EEW
 can shuffle the internal representation according to SEW.
 Implementations that do not internally reorganize data can dynamically
 elide this instruction, and treat as a NOP.
+////
+NOTE: EEWに従ってデータを内部的に再編成する実装では、
+SEWに従って内部表現をシャッフルすることができます。
+データを内部的に再編成しない実装では，この命令を動的に省略し、NOP として扱うことができます。
 
 [[sec-vector-fixed-point]]
 == Vector Fixed-Point Arithmetic Instructions
