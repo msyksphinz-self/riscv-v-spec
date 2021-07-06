@@ -6013,11 +6013,16 @@ SEWに従って内部表現をシャッフルすることができます。
 データを内部的に再編成しない実装では，この命令を動的に省略し、NOP として扱うことができます。
 
 [[sec-vector-fixed-point]]
-== Vector Fixed-Point Arithmetic Instructions
+// == Vector Fixed-Point Arithmetic Instructions
+== ベクトル固定小数点算術演算命令
 
+////
 The preceding set of integer arithmetic instructions is extended to support
 fixed-point arithmetic.
+////
+前述の整数演算命令群を拡張し、固定小数点演算がサポートされています。
 
+////
 A fixed-point number is a two's-complement signed or unsigned integer
 interpreted as the numerator in a fraction with an implicit denominator.
 The fixed-point instructions are intended to be applied to the numerators;
@@ -6027,17 +6032,33 @@ range -2^N-1^...+2^N-1^-1, and unsigned integers in the range 0
 ... +2^N^-1.  The fixed-point instructions help preserve precision in
 narrow operands by supporting scaling and rounding, and can handle
 overflow by saturating results into the destination format range.
+////
 
+固定小数点数とは、暗黙の分母を持つ分数の分子として解釈される2の補数の符号付きまたは符号なしの整数です。
+固定小数点命令は分子に適用されることを意図しており、分母を管理するのはソフトウェアの責任です。
+Nビットの要素には、-2^N-1^...+2^N-1^-1の範囲の2の補数の符号付き整数と、0...+2^N-1^-1の範囲の符号なし整数を格納できます。
+固定小数点命令は、スケーリングと丸めをサポートすることで狭いオペランドの精度を維持し、
+結果を出力フォーマット範囲に飽和させることでオーバーフローを処理することができます。
+
+////
 NOTE: The widening integer operations described above can also be used
 to avoid overflow.
+////
+NOTE: 上述の幅拡張整数演算は、オーバーフローを回避するためにも使用できます。
 
-=== Vector Single-Width Saturating Add and Subtract
+// === Vector Single-Width Saturating Add and Subtract
+=== ベクトル単一幅飽和加算と飽和減算
 
+////
 Saturating forms of integer add and subtract are provided, for both
 signed and unsigned integers.  If the result would overflow the
 destination, the result is replaced with the closest representable
 value, and the `vxsat` bit is set.
+////
+符号付き整数と符号なし整数の両方に対して、飽和形式の整数の加算と減算が提供されます。
+結果が出力先をオーバーフローする場合、結果は最も近い表現可能な値で置き換えられ、 `vxsat` ビットが設定されます。
 
+////
 ----
 # Saturating adds of unsigned integers.
 vsaddu.vv vd, vs2, vs1, vm   # Vector-vector
@@ -6057,18 +6078,50 @@ vssubu.vx vd, vs2, rs1, vm   # vector-scalar
 vssub.vv vd, vs2, vs1, vm   # Vector-vector
 vssub.vx vd, vs2, rs1, vm   # vector-scalar
 ----
+////
 
-=== Vector Single-Width Averaging Add and Subtract
+----
+# 符号なし整数の飽和加算
+vsaddu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsaddu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vsaddu.vi vd, vs2, imm, vm   # ベクトル-即値
 
+# 符号付き整数の飽和加算
+vsadd.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vsadd.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+vsadd.vi vd, vs2, imm, vm   # ベクトル-即値
+
+# 符号付き整数の飽和減算
+vssubu.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vssubu.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+
+# 符号付き整数の飽和減算
+vssub.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+vssub.vx vd, vs2, rs1, vm   # ベクトル-スカラ
+----
+
+// === Vector Single-Width Averaging Add and Subtract
+=== ベクトル単一幅平均加算と平均減算命令
+
+////
 The averaging add and subtract instructions right shift the result by
 one bit and round off the result according to the setting in `vxrm`.
 Both unsigned and signed versions are provided.
 For `vaaddu` and `vaadd` there can be no overflow in the result.
 For `vasub` and `vasubu`, overflow is ignored and the result wraps around.
+////
+平均化された加算・減算命令は、結果を1ビット右シフトし、 `vxrm` の設定に従って結果を丸める。
+符号なしと符号ありのバージョンがあります。
+`vaaddu` と `vaadd` では、結果にオーバーフローがあってはなりません。
+`vasub` と `vasubu` では、オーバーフローは無視され、結果は折り返されます。
 
+////
 NOTE: For `vasub`, overflow occurs only when subtracting the smallest number
 from the largest number under `rnu` or `rne` rounding.
+////
+NOTE: `vasub` では、`rnu` や `rne` の丸め方で最大の数から最小の数を引くときにのみオーバーフローが発生します。
 
+////
 ----
 # Averaging add
 
@@ -6090,22 +6143,60 @@ vasubu.vx vd, vs2, rs1, vm   # roundoff_unsigned(vs2[i] - x[rs1], 1)
 vasub.vv vd, vs2, vs1, vm   # roundoff_signed(vs2[i] - vs1[i], 1)
 vasub.vx vd, vs2, rs1, vm   # roundoff_signed(vs2[i] - x[rs1], 1)
 ----
+////
 
-=== Vector Single-Width Fractional Multiply with Rounding and Saturation
+----
+# 平均加算
 
+# 符号なし整数の平均加算
+vaaddu.vv vd, vs2, vs1, vm   # roundoff_unsigned(vs2[i] + vs1[i], 1)
+vaaddu.vx vd, vs2, rs1, vm   # roundoff_unsigned(vs2[i] + x[rs1], 1)
+
+# 符号付き整数の整数加算
+vaadd.vv vd, vs2, vs1, vm   # roundoff_signed(vs2[i] + vs1[i], 1)
+vaadd.vx vd, vs2, rs1, vm   # roundoff_signed(vs2[i] + x[rs1], 1)
+
+# 平均減算
+
+# 符号なし整数の平均減算
+vasubu.vv vd, vs2, vs1, vm   # roundoff_unsigned(vs2[i] - vs1[i], 1)
+vasubu.vx vd, vs2, rs1, vm   # roundoff_unsigned(vs2[i] - x[rs1], 1)
+
+# 符号付き整数の平均減算
+vasub.vv vd, vs2, vs1, vm   # roundoff_signed(vs2[i] - vs1[i], 1)
+vasub.vx vd, vs2, rs1, vm   # roundoff_signed(vs2[i] - x[rs1], 1)
+----
+
+// === Vector Single-Width Fractional Multiply with Rounding and Saturation
+=== 丸めと飽和を用いたベクトル単一幅分数乗算
+
+////
 The signed fractional multiply instruction produces a 2*SEW product of
 the two SEW inputs, then shifts the result right by SEW-1 bits,
 rounding these bits according to `vxrm`, then saturates the result to
 fit into SEW bits.  If the result causes saturation, the `vxsat` bit
 is set.
+////
+符号付き分数乗算命令は、2つのSEW入力の2*SEW積を生成し、その結果をSEW-1ビットだけ右にシフトし、これらのビットを `vxrm` に従って丸めた後、SEWビットに収まるように結果を飽和させます。
+結果が飽和した場合は、 `vxsat` ビットがセットされます。
 
+////
 ----
 # Signed saturating and rounding fractional multiply
 # See vxrm  description for rounding calculation
 vsmul.vv vd, vs2, vs1, vm  # vd[i] = clip(roundoff_signed(vs2[i]*vs1[i], SEW-1))
 vsmul.vx vd, vs2, rs1, vm  # vd[i] = clip(roundoff_signed(vs2[i]*x[rs1], SEW-1))
 ----
+////
 
+----
+# 符号付き飽和丸め分数乗算
+# 丸め演算については、vxrmの説明を参照のこと
+vsmul.vv vd, vs2, vs1, vm  # vd[i] = clip(roundoff_signed(vs2[i]*vs1[i], SEW-1))
+vsmul.vx vd, vs2, rs1, vm  # vd[i] = clip(roundoff_signed(vs2[i]*x[rs1], SEW-1))
+----
+
+////
 NOTE: When multiplying two N-bit signed numbers, the largest magnitude
 is obtained for -2^N-1^ * -2^N-1^ producing a result +2^2N-2^, which
 has a single (zero) sign bit when held in 2N bits.  All other products
@@ -6113,21 +6204,38 @@ have two sign bits in 2N bits.  To retain greater precision in N
 result bits, the product is shifted right by one bit less than N,
 saturating the largest magnitude result but increasing result
 precision by one bit for all other products.
+////
 
+NOTE: 2つのNビット符号付き数値を乗算する場合、最大の大きさは-2^N-1^ * -2^N-1^で得られ、
+結果は+2^2N-2^となり、2Nビットで保持する場合、符号ビットは1つ(ゼロ)となります。
+他のすべての製品は、2Nビットで2つの符号ビットを持ちます。
+N個の結果ビットでより高い精度を維持するために、製品はNよりも1ビット少ない数だけ右にシフトされ、
+最大の大きさの結果は飽和しますが、他のすべての製品では結果の精度が1ビット増加します。
+
+////
 NOTE: We do not provide an equivalent fractional multiply where one
 input is unsigned, as these would retain all upper SEW bits and would
 not need to saturate.  This operation is partly covered by the
 `vmulhu` and `vmulhsu` instructions, for the case where rounding is
 simply truncation (`rdn`).
+////
+NOTE: 一方の入力が符号なしの場合には、SEWの上位ビットをすべて保持し、飽和させる必要がないため、同等の分数乗算は提供していません。
+この操作は、丸めが単なる切り捨て(`rdn`)である場合には、 `vmulhu` および `vmulhsu` 命令によって部分的にカバーされます。
 
-=== Vector Single-Width Scaling Shift Instructions
-
+// === Vector Single-Width Scaling Shift Instructions
+==== ベクトル単一幅スケーリングシフト命令
+////
 These instructions shift the input value right, and round off the
 shifted out bits according to `vxrm`.  The scaling right shifts have
 both zero-extending (`vssrl`) and sign-extending (`vssra`) forms.
 The low lg2(SEW) bits of the vector or scalar shift-amount value are used;
 shift-amount immediates are zero-extended.
+////
+これらの命令は、入力値を右にシフトし、シフトしたビットを `vxrm` に従って丸めます。
+スケーリングの右シフトには、ゼロ拡張型 (`vssrl`) と符号拡張型 (`vssra`) があります。
+ベクトルまたはスカラのシフト量の値の下位lg2(SEW)ビットが使用され、シフト量の即値はゼロ拡張されます。
 
+////
 ----
  # Scaling shift right logical
  vssrl.vv vd, vs2, vs1, vm   # vd[i] = roundoff_unsigned(vs2[i], vs1[i])
@@ -6139,20 +6247,43 @@ shift-amount immediates are zero-extended.
  vssra.vx vd, vs2, rs1, vm   # vd[i] = roundoff_signed(vs2[i], x[rs1])
  vssra.vi vd, vs2, uimm, vm  # vd[i] = roundoff_signed(vs2[i], uimm)
 ----
+////
+----
+ # 論理スケーリング右シフト
+ vssrl.vv vd, vs2, vs1, vm   # vd[i] = roundoff_unsigned(vs2[i], vs1[i])
+ vssrl.vx vd, vs2, rs1, vm   # vd[i] = roundoff_unsigned(vs2[i], x[rs1])
+ vssrl.vi vd, vs2, uimm, vm  # vd[i] = roundoff_unsigned(vs2[i], uimm)
 
-=== Vector Narrowing Fixed-Point Clip Instructions
+ # 算術スケーリング右シフト
+ vssra.vv vd, vs2, vs1, vm   # vd[i] = roundoff_signed(vs2[i],vs1[i])
+ vssra.vx vd, vs2, rs1, vm   # vd[i] = roundoff_signed(vs2[i], x[rs1])
+ vssra.vi vd, vs2, uimm, vm  # vd[i] = roundoff_signed(vs2[i], uimm)
+----
 
+// === Vector Narrowing Fixed-Point Clip Instructions
+=== ベクトル固定小数点幅縮小クリップ命令
+
+////
 The `vnclip` instructions are used to pack a fixed-point value into a
 narrower destination.  The instructions support rounding, scaling, and
 saturation into the final destination format.
+////
+`vnclip` 命令は、固定小数点の値をより狭い出力先に詰めるために使用されます。
+この命令は、最終的な出力形式への丸め、スケーリング、および飽和をサポートします。
 
+////
 The second argument (vector element, scalar value, immediate value)
 gives the amount to right shift the source as in the narrowing shift
 instructions, which provides the scaling.  The low lg2(2*SEW) bits of
 the vector or scalar shift-amount value are used (e.g., the low 6 bits
 for a SEW=64-bit to SEW=32-bit narrowing operation).  The immediate
 forms zero-extend their shift-amount immediate operand.
+////
+2番目の引数(ベクトル要素、スカラー値、即値)は、狭義のシフト命令のようにソースを右シフトする量を与え、スケーリングを行います。
+ベクトルまたはスカラのシフト量の値の下位lg2(2*SEW)ビットが使用されます(例：SEW=64ビットからSEW=32ビットへの狭帯域化操作の場合は下位6ビット)。
+即値形式は、シフト量の即値オペランドをゼロ拡張します。
 
+////
 ----
 # Narrowing unsigned clip
 #                                SEW                            2*SEW   SEW
@@ -6165,15 +6296,38 @@ forms zero-extend their shift-amount immediate operand.
  vnclip.wx vd, vs2, rs1, vm   # vd[i] = clip(roundoff_signed(vs2[i], x[rs1]))
  vnclip.wi vd, vs2, uimm, vm  # vd[i] = clip(roundoff_signed(vs2[i], uimm))
 ----
+////
 
+----
+# 符号なし幅縮小クリップ命令
+#                                SEW                            2*SEW   SEW
+ vnclipu.wv vd, vs2, vs1, vm  # vd[i] = clip(roundoff_unsigned(vs2[i], vs1[i]))
+ vnclipu.wx vd, vs2, rs1, vm  # vd[i] = clip(roundoff_unsigned(vs2[i], x[rs1]))
+ vnclipu.wi vd, vs2, uimm, vm # vd[i] = clip(roundoff_unsigned(vs2[i], uimm))
+
+# 符号付き幅縮小クリップ
+ vnclip.wv vd, vs2, vs1, vm   # vd[i] = clip(roundoff_signed(vs2[i], vs1[i]))
+ vnclip.wx vd, vs2, rs1, vm   # vd[i] = clip(roundoff_signed(vs2[i], x[rs1]))
+ vnclip.wi vd, vs2, uimm, vm  # vd[i] = clip(roundoff_signed(vs2[i], uimm))
+----
+
+////
 For `vnclipu`/`vnclip`, the rounding mode is specified in the `vxrm`
 CSR.  Rounding occurs around the least-significant bit of the
 destination and before saturation.
+////
+`vnclipu`/`vnclip` では、丸め方は `vxrm` CSR で指定します。
+丸めは、書き込みレジスタの最下位ビットを中心に、飽和演算の前に行われます。
 
+////
 For `vnclipu`, the shifted rounded source value is treated as an
 unsigned integer and saturates if the result would overflow the
 destination viewed as an unsigned integer.
+////
+`vnclipu` では、シフトされた丸められたソース値は符号なし整数として扱われ、
+その結果が符号なし整数として見た書き込みレジスタをオーバーフローする場合は飽和します。
 
+////
 NOTE: There is no single instruction that can saturate a signed value
 into an unsigned destination.  A sequence of two vector instructions
 that first removes negative numbers by performing a max against 0
@@ -6181,13 +6335,25 @@ using `vmax`, then clips the resulting unsigned value into the
 destination using `vnclipu`, can be used if setting `vxsat` value is
 not required.  A `vsetvli` is required inbetween these two
 instructions to change SEW.
+////
+NOTE: 符号付きの値を符号なしの出力先に飽和させることができる単一の命令はありません。
+`vxsat` の値を設定する必要がない場合は、まず `vmax` を使って0に対する最大値を実行して負の数を取り除き、
+次に `vnclipu` を使って結果の符号なしの値を出力先にクリップする、2つのベクトル命令列を使用できます。
+SEWを変更するには、この2つの命令の間に、 `vsetvli` が必要です。
 
+////
 For `vnclip`, the shifted rounded source value is treated as a signed
 integer and saturates if the result would overflow the destination viewed
 as a signed integer.
+////
+`vnclip` では、丸められたシフト元の値を符号付き整数として扱い、その結果が符号付き整数として見たときに
+書き込みレジスタをオーバーフローさせるようであれば飽和を行います。
 
+////
 If any destination element is saturated, the `vxsat` bit is set in the
 `vxsat` register.
+////
+いずれかの書き込みレジスタの要素が飽和した場合、 `vxsat` レジスタに `vxsat` ビットが設定されます。
 
 [[sec-vector-float]]
 == Vector Floating-Point Instructions
