@@ -6356,46 +6356,82 @@ If any destination element is saturated, the `vxsat` bit is set in the
 いずれかの書き込みレジスタの要素が飽和した場合、 `vxsat` レジスタに `vxsat` ビットが設定されます。
 
 [[sec-vector-float]]
-== Vector Floating-Point Instructions
+// == Vector Floating-Point Instructions
+== ベクトル浮動小数点命令
 
+////
 The standard vector floating-point instructions treat 16-bit, 32-bit,
 64-bit, and 128-bit elements as IEEE-754/2008-compatible values.  If
 the EEW of a vector floating-point operand does not correspond to a
 supported IEEE floating-point type, the instruction encoding is
 reserved.
+////
+標準のベクトル浮動小数点命令では、16ビット、32ビット、64ビット、128ビットの要素をIEEE-754/2008互換の値として扱います。
+ベクトル浮動小数点演算子のEEWが、サポートされているIEEE浮動小数点型に対応していない場合、
+その命令のエンコーディングは予約されています。
 
+////
 NOTE: The floating-point element widths that are supported depend on
 the profile.
+////
+NOTE: サポートされる浮動小数点要素の幅は、プロファイルによって異なります。
 
+////
 Vector floating-point instructions require the presence of base scalar
 floating-point extensions corresponding to the supported vector
 floating-point element widths.
+////
+ベクトル浮動小数点命令では、サポートされているベクトル浮動小数点の要素幅に対応する
+スカラー浮動小数点拡張が有効であることが必要です。
 
+////
 NOTE: In particular, vector profiles supporting 16-bit half-precision
 floating-point values will also have to implement scalar
 half-precision floating-point support in the `f` registers.
+////
+NOTE: 特に16ビット半精度浮動小数点値をサポートするベクトルプロファイルでは、
+`f` レジスタでのスカラ半精度浮動小数点サポートも実装する必要があります。
 
+////
 If the floating-point unit status field `mstatus.FS` is `Off` then any
 attempt to execute a vector floating-point instruction will raise an
 illegal instruction exception.  Any vector floating-point instruction
 that modifies any floating-point extension state (i.e., floating-point
 CSRs or `f` registers) must set `mstatus.FS` to `Dirty`.
+////
+浮動小数点ユニット状態フィールド `mstatus.FS` が `Off` の場合、
+ベクトル浮動小数点命令を実行しようとすると、不正な命令例外が発生します。
+浮動小数点拡張状態(浮動小数点CSRや `f` レジスタなど)を変更するベクトル浮動小数点命令は、
+`mstatus.FS` を `Dirty` に設定しなければなりません。
 
+////
 The vector floating-point instructions have the same behavior as the
 scalar floating-point instructions with regard to NaNs.
+////
+ベクトル浮動小数点命令は、NaNに関してはスカラ浮動小数点命令と同じ動作をします。
 
+////
 Scalar values for vector-scalar operations can be sourced from the
 standard scalar `f` registers, as described in Section
 <<sec-arithmetic-encoding>>.
+////
+ベクトルスカラー演算のスカラ値は、 <<sec-arithmetic-encoding>> で説明したように、
+標準的なスカラ `f` レジスタから供給することができます。
 
-=== Vector Floating-Point Exception Flags
+// === Vector Floating-Point Exception Flags
+=== ベクトル浮動小数点例外フラグ
 
+////
 A vector floating-point exception at any active floating-point element
 sets the standard FP exception flags in the `fflags` register.  Inactive
 elements do not set FP exception flags.
+////
+アクティブな浮動小数点要素でのベクトル浮動小数点例外は、 `fflags` レジスタの標準FP例外フラグを設定します。
+非アクティブな要素はFP例外フラグを設定しません。
 
-=== Vector Single-Width Floating-Point Add/Subtract Instructions
-
+// === Vector Single-Width Floating-Point Add/Subtract Instructions
+=== ベクトル単一幅浮動小数点加減算命令
+////
 ----
     # Floating-point add
     vfadd.vv vd, vs2, vs1, vm   # Vector-vector
@@ -6406,9 +6442,23 @@ elements do not set FP exception flags.
     vfsub.vf vd, vs2, rs1, vm   # Vector-scalar vd[i] = vs2[i] - f[rs1]
     vfrsub.vf vd, vs2, rs1, vm  # Scalar-vector vd[i] = f[rs1] - vs2[i]
 ----
+////
 
-=== Vector Widening Floating-Point Add/Subtract Instructions
+----
+    # 浮動小数点加算
+    vfadd.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfadd.vf vd, vs2, rs1, vm   # ベクトル-スカラ
 
+    # 浮動小数点減算
+    vfsub.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfsub.vf vd, vs2, rs1, vm   # ベクトル-スカラ vd[i] = vs2[i] - f[rs1]
+    vfrsub.vf vd, vs2, rs1, vm  # スカラ-ベクトル vd[i] = f[rs1] - vs2[i]
+----
+
+// === Vector Widening Floating-Point Add/Subtract Instructions
+=== ベクトル幅拡張浮動小数点加減算命令
+
+////
 ----
 # Widening FP add/subtract, 2*SEW = SEW +/- SEW
 vfwadd.vv vd, vs2, vs1, vm  # vector-vector
@@ -6422,9 +6472,26 @@ vfwadd.wf  vd, vs2, rs1, vm  # vector-scalar
 vfwsub.wv  vd, vs2, vs1, vm  # vector-vector
 vfwsub.wf  vd, vs2, rs1, vm  # vector-scalar
 ----
+////
 
-=== Vector Single-Width Floating-Point Multiply/Divide Instructions
+----
+# 浮動小数点幅拡張加減算命令, 2*SEW = SEW +/- SEW
+vfwadd.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vfwadd.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+vfwsub.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+vfwsub.vf vd, vs2, rs1, vm  # ベクトル-スカラ
 
+# 浮動小数点幅拡張加減算命令, 2*SEW = 2*SEW +/- SEW
+vfwadd.wv  vd, vs2, vs1, vm  # ベクトル-ベクトル
+vfwadd.wf  vd, vs2, rs1, vm  # ベクトル-スカラ
+vfwsub.wv  vd, vs2, vs1, vm  # ベクトル-ベクトル
+vfwsub.wf  vd, vs2, rs1, vm  # ベクトル-スカラ
+----
+
+// === Vector Single-Width Floating-Point Multiply/Divide Instructions
+=== ベクトル単一幅浮動小数点乗算除算命令
+
+////
 ----
     # Floating-point multiply
     vfmul.vv vd, vs2, vs1, vm   # Vector-vector
@@ -6437,20 +6504,46 @@ vfwsub.wf  vd, vs2, rs1, vm  # vector-scalar
     # Reverse floating-point divide vector = scalar / vector
     vfrdiv.vf vd, vs2, rs1, vm  # scalar-vector, vd[i] = f[rs1]/vs2[i]
 ----
+////
 
-=== Vector Widening Floating-Point Multiply
+----
+    # 浮動小数点乗算
+    vfmul.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfmul.vf vd, vs2, rs1, vm   # ベクトル-スカラ
 
+    # 浮動小数点除算
+    vfdiv.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfdiv.vf vd, vs2, rs1, vm   # ベクトル-スカラ
+
+    # 浮動小数点逆除算 ベクトル = スカラ / ベクトル
+    vfrdiv.vf vd, vs2, rs1, vm  # scalar-vector, vd[i] = f[rs1]/vs2[i]
+----
+
+// === Vector Widening Floating-Point Multiply
+=== ベクトル幅拡張浮動小数点乗算命令
+
+////
 ----
 # Widening floating-point multiply
 vfwmul.vv    vd, vs2, vs1, vm # vector-vector
 vfwmul.vf    vd, vs2, rs1, vm # vector-scalar
 ----
+////
+----
+# 幅拡張浮動小数点乗算
+vfwmul.vv    vd, vs2, vs1, vm # ベクトル-ベクトル
+vfwmul.vf    vd, vs2, rs1, vm # ベクトル-スカラ
+----
 
-=== Vector Single-Width Floating-Point Fused Multiply-Add Instructions
+// === Vector Single-Width Floating-Point Fused Multiply-Add Instructions
+=== ベクトル単一幅浮動小数点複合乗算加算命令
 
+////
 All four varieties of fused multiply-add are provided, and in two
 destructive forms that overwrite one of the operands, either the
 addend or the first multiplicand.
+////
+複合乗算加算の4種類すべてが提供されており、加算値または最初の乗算値のいずれかのオペランドを上書きする2つの破壊的な形式があります。
 
 ----
 # FP multiply-accumulate, overwrites addend
@@ -6486,10 +6579,15 @@ vfnmsub.vv vd, vs1, vs2, vm   # vd[i] = -(vs1[i] * vd[i]) + vs2[i]
 vfnmsub.vf vd, rs1, vs2, vm   # vd[i] = -(f[rs1] * vd[i]) + vs2[i]
 ----
 
+////
 NOTE: It would be possible to use the two unused rounding modes in the
 scalar FP FMA encoding to provide a few non-destructive FMAs.
 However, this would be the only maskable operation with three inputs
 and separate output.
+////
+NOTE: スカラーFPのFMAエンコーディングで使用されていない2つの丸めモードを使用して、
+いくつかの非破壊的なFMAを提供することは可能でしょう。
+しかし、これは3つの入力と別々の出力を持つ唯一のマスク可能な演算となります。
 
 === Vector Widening Floating-Point Fused Multiply-Add Instructions
 
