@@ -60,7 +60,7 @@ Once ratified, the spec will be given version 2.0.
 
 NOTE: 最終的に承認され、リリース候補のタグが外されたバージョン1.0は、RISC-Vインターナショナルの批准プロセスの一環として、
 パブリックレビューのために送り出されることを意図しています。
-また、バージョン1.0は、上流のソフトウェアプロジェクトを含め、ツールチェーン、機能シミュレータ、
+また、バージョン1.0は、上流のソフトウェアプロジェクトを含め、ツールチェイン、機能シミュレータ、
 初期実装の開発を開始するのに十分な安定性があると考えられており、
 批准中に重大な問題が発見された場合を除き、
 大きな機能変更はないと予想されています。批准されると、仕様書のバージョンは2.0になります。
@@ -6589,11 +6589,17 @@ NOTE: スカラーFPのFMAエンコーディングで使用されていない2�
 いくつかの非破壊的なFMAを提供することは可能でしょう。
 しかし、これは3つの入力と別々の出力を持つ唯一のマスク可能な演算となります。
 
-=== Vector Widening Floating-Point Fused Multiply-Add Instructions
+// === Vector Widening Floating-Point Fused Multiply-Add Instructions
+=== ベクトル幅拡張浮動小数点複合乗算加算命令
 
+////
 The widening floating-point fused multiply-add instructions all
 overwrite the wide addend with the result.  The multiplier inputs are
 all SEW wide, while the addend and destination is 2*SEW bits wide.
+////
+
+幅拡張された浮動小数点複合乗算加算命令は、すべて幅拡張された加算先を結果で上書きします。
+乗算器の入力はすべてSEW幅で、加算器と出力は2*SEWビット幅です。
 
 ----
 # FP widening multiply-accumulate, overwrites addend
@@ -6613,32 +6619,59 @@ vfwnmsac.vv vd, vs1, vs2, vm   # vd[i] = -(vs1[i] * vs2[i]) + vd[i]
 vfwnmsac.vf vd, rs1, vs2, vm   # vd[i] = -(f[rs1] * vs2[i]) + vd[i]
 ----
 
-=== Vector Floating-Point Square-Root Instruction
+// === Vector Floating-Point Square-Root Instruction
+=== ベクトル浮動小数点平方根命令
 
+////
 This is a unary vector-vector instruction.
+////
+これは単精度ベクトル-ベクトル命令です。
 
+////
 ----
     # Floating-point square root
     vfsqrt.v vd, vs2, vm   # Vector-vector square root
 ----
+////
+----
+    # 浮動小数点平方根命令
+    vfsqrt.v vd, vs2, vm   # ベクトル-ベクトル 平方根
+----
 
-=== Vector Floating-Point Reciprocal Square-Root Estimate Instruction
+// === Vector Floating-Point Reciprocal Square-Root Estimate Instruction
+=== ベクトル浮動小数点逆平方根推定命令
 
+////
 ----
     # Floating-point reciprocal square-root estimate to 7 bits.
     vfrsqrt7.v vd, vs2, vm
 ----
+////
+----
+    # 7ビットの浮動小数点逆平方根推定命令
+    vfrsqrt7.v vd, vs2, vm
+----
 
+////
 This is a unary vector-vector instruction that returns an estimate of
 1/sqrt(x) accurate to 7 bits.
+////
+これは，7ビットの精度で1/sqrt(x)の推定値を返す、単項のベクトル-ベクトル命令です。
 
+////
 NOTE: An earlier draft version had used the assembler name `vfrsqrte7`
 but this was deemed to cause confusion with the ``e``__x__ notation for element
 width.  The earlier name can be retained as alias in tool chains for
 backward compatibility.
+////
+NOTE: 以前のドラフト版では、アセンブラ名として `vfrsqrte7` を使用していましたが、要素幅の ``e`__x__' 表記との混同を招くと判断されました。
+後方互換性のために、ツールチェインのエイリアスとして以前の名前を残すことができます。
 
+////
 The following table describes the instruction's behavior for all
 classes of floating-point inputs:
+////
+次の表は、すべてのクラスの浮動小数点入力に対するこの命令の動作を示しています。
 
 [cols="1,1,1"]
 [%autowidth]
@@ -6654,10 +6687,17 @@ classes of floating-point inputs:
 | sNaN                       | canonical NaN           | NV
 |===
 
+////
 NOTE: All positive normal and subnormal inputs produce normal outputs.
+////
+NOTE: すべての正のノーマルおよびサブノーマル入力は、ノーマル出力を生成します。
 
+////
 NOTE: The output value is independent of the dynamic rounding mode.
+////
+NOTE: 出力値は、動的丸め込みモードに依存しません。
 
+////
 For the non-exceptional cases, the low bit of the exponent and the six high
 bits of significand (after the leading one) are concatenated and used to
 address the following table.
@@ -6667,7 +6707,13 @@ Subnormal inputs are normalized and the exponent adjusted appropriately before
 the lookup.
 The output exponent is chosen to make the result approximate the reciprocal of
 the square root of the argument.
+////
+例外的なケースでは、指数の下位ビットと合数の上位6ビット(先頭の1ビットの後)が連結され、以下のテーブルのアドレスに使用されます。
+このテーブルの出力は、結果として得られる信号の上位7ビット(先頭の1ビットの後)となり、結果として得られる信号の残りの部分はゼロとなります。
+正常でない入力は、ルックアップの前に正規化され、指数が適切に調整されます。
+出力の指数は、結果が引数の平方根の逆数に近似するように選択されます。
 
+////
 More precisely, the result is computed as follows.
 Let the normalized input exponent be equal to the input exponent if the input
 is normal, or 0 minus the number of leading zeros in the significand
@@ -6677,39 +6723,74 @@ shifting the input significand left by 1 minus the normalized input exponent,
 discarding the leading 1 bit.
 The output exponent equals floor((3*B - 1 - the normalized input exponent) / 2).
 The output sign equals the input sign.
+////
+より正確には、結果は以下のように計算されます。
+正規化された入力指数を、入力が正常な場合は入力指数と等しく、そうでない場合は0から符号の先頭のゼロの数を引いた値とします。
+入力が非正規の場合、正規化された入力指数は、先頭の1ビットを捨てて、入力指数を1から正規化された入力指数を引いて左にシフトすることで与えられます。
+出力指数は floor((3*B - 1 - 正規化された入力指数) / 2) に等しくなります。
+出力符号は入力符号に等しくなります。
 
+////
 The following table gives the seven MSBs of the output significand as a
 function of the LSB of the normalized input exponent and the six MSBs of the
 normalized input significand; the other bits of the output significand are zero.
+////
+次の表は、正規化された入力指数のLSBと正規化された入力記号の6つのMSBの関数として、出力記号の7つのMSBを示したもので、出力記号の他のビットはゼロです。
 
 include::vfrsqrt7.adoc[]
 
+////
 NOTE: For example, when SEW=32, vfrsqrt7(0x00718abc ({approx} 1.043e-38))
 = 0x5f080000 ({approx} 9.800e18), and vfrsqrt7(0x7f765432 ({approx} 3.274e38))
 = 0x1f820000 ({approx} 5.506e-20).
+////
+NOTE: 例えば，SEW=32の場合，vfrsqrt7(0x00718abc ({approx} 1.043e-38)) = 0x5f080000 ({approx} 9.800e18)、
+および vfrsqrt7(0x7f765432 ({approx} 3.274e38)) = 0x1f820000 ({approx} 5.506e-20)となります。
 
+////
 NOTE: The 7 bit accuracy was chosen as it requires 0,1,2,3
 Newton-Raphson iterations to converge to close to bfloat16, FP16,
 FP32, FP64 accuracy respectively.   Future instructions can be defined
 with greater estimate accuracy.
+////
+NOTE: 7ビットの精度は、0,1,2,3回のニュートンラフソン反復を必要とし、それぞれbfloat16, FP16, FP32, FP64に近い精度に収束するために選ばれました。
+将来的には、より高い推定精度の命令を定義することができます。
 
-=== Vector Floating-Point Reciprocal Estimate Instruction
+// === Vector Floating-Point Reciprocal Estimate Instruction
+=== ベクトル浮動小数点逆数推定命令
 
+////
 ----
     # Floating-point reciprocal estimate to 7 bits.
     vfrec7.v vd, vs2, vm
 ----
+////
+----
+    # 7ビットの浮動小数点逆数推定命令
+    vfrec7.v vd, vs2, vm
+----
 
+////
 NOTE: An earlier draft version had used the assembler name `vfrece7`
 but this was deemed to cause confusion with ``e``__x__ notation for element
 width.  The earlier name can be retained as alias in tool chains for
 backward compatibility.
+////
+NOTE: 以前のドラフト版では、アセンブラ名として `vfrece7` を使用していましたが、
+要素の幅を表す ``e``__x__ 記法との混同を招くと判断されました。
+以前の名前は後方互換性のためにツールチェインのエイリアスとして保持することができます。
 
+////
 This is a unary vector-vector instruction that returns an estimate of
 1/x accurate to 7 bits.
+////
+これは単項のベクトル・ベクトル命令で、7ビットの精度で1/xの推定値を返します。
 
+////
 The following table describes the instruction's behavior for all
 classes of floating-point inputs, where _B_ is the exponent bias:
+////
+次の表は、すべてのクラスの浮動小数点入力に対するこの命令の動作を示しています(_B_は指数バイアスです)。
 
 [cols="1,1,1,1"]
 [%autowidth]
@@ -6738,14 +6819,22 @@ classes of floating-point inputs, where _B_ is the exponent bias:
 | sNaN                                                | _any_         | canonical NaN             | NV
 |===
 
+////
 NOTE: Subnormal inputs with magnitude at least 2^-(B+1)^ produce normal outputs;
 other subnormal inputs produce infinite outputs.
 Normal inputs with magnitude at least 2^B-1^ produce subnormal outputs;
 other normal inputs produce normal outputs.
+////
+NOTE: 大きさが少なくとも2^-(B+1)^のサブノーマル入力は通常の出力を生成し、他のサブノーマル入力は無限の出力を生成します。
+少なくとも2^B-1^の大きさを持つ通常の入力は、サブノーマルの出力を生成し、他の通常の入力は通常の出力を生成します。
 
+////
 NOTE: The output value depends on the dynamic rounding mode when
 the overflow exception is raised.
+////
+NOTE: 出力値は、オーバーフロー例外が発生したときの動的丸めモードに依存します。
 
+////
 For the non-exceptional cases, the seven high bits of significand (after the
 leading one) are used to address the following table.
 The output of the table becomes the seven high bits of the result significand
@@ -6754,7 +6843,13 @@ Subnormal inputs are normalized and the exponent adjusted appropriately before
 the lookup.
 The output exponent is chosen to make the result approximate the reciprocal of
 the argument, and subnormal outputs are denormalized accordingly.
+////
+例外が発生しないケースでは、上位7ビットの仮数部(先頭の1ビットの後)が次の表のアドレスに使用されます。
+このテーブルの出力は、結果として得られる信号の上位7ビット(先頭の1ビットの後)となり、結果として得られる信号の残りの部分はゼロとなります。
+正常でない入力は、ルックアップの前に正規化され、指数が適切に調整されます。
+出力の指数は、結果が引数の逆数に近似するように選択され、サブノーマル出力はそれに応じて非正規化されます。
 
+////
 More precisely, the result is computed as follows.
 Let the normalized input exponent be equal to the input exponent if the input
 is normal, or 0 minus the number of leading zeros in the significand
@@ -6762,7 +6857,13 @@ otherwise.
 The normalized output exponent equals (2*B - 1 - the normalized input exponent).
 If the normalized output exponent is outside the range [-1, 2*B], the result
 corresponds to one of the exceptional cases in the table above.
+////
+より正確には、結果は以下のように計算されます。
+正規化された入力指数を、入力が正常な場合は入力指数と等しく、そうでない場合は0から符号の先頭のゼロの数を引いたものとします。
+正規化された出力指数は、(2*B - 1 - 正規化された入力指数)に等しくなります。
+正規化された出力指数が[-1, 2*B]の範囲外である場合、その結果は上の表の例外的なケースの1つに対応します。
 
+////
 If the input is subnormal, the normalized input significand is given by
 shifting the input significand left by 1 minus the normalized input exponent,
 discarding the leading 1 bit.
@@ -6770,9 +6871,14 @@ Otherwise, the normalized input significand equals the input significand.
 The following table gives the seven MSBs of the normalized output significand
 as a function of the seven MSBs of the normalized input significand; the other
 bits of the normalized output significand are zero.
+////
+入力が非正規の場合、正規化された入力多項式は、入力多項式を1から正規化された入力指数を引いて左にシフトし、先頭の1ビットを捨てて与えられます。
+それ以外の場合は、正規化された入力信号は入力信号と同じです。
+次の表は、正規化された入力信号の7つのMSBの関数として、正規化された出力信号の7つのMSBを示したもので、正規化された出力信号の他のビットはゼロです。
 
 include::vfrec7.adoc[]
 
+////
 If the normalized output exponent is 0 or -1, the result is subnormal: the
 output exponent is 0, and the output significand is given by concatenating
 a 1 bit to the left of the normalized output significand, then shifting that
@@ -6780,15 +6886,29 @@ quantity right by 1 minus the normalized output exponent.
 Otherwise, the output exponent equals the normalized output exponent, and the
 output significand equals the normalized output significand.
 The output sign equals the input sign.
+////
+正規化された出力指数が0または-1の場合、結果はサブノーマル数となります。
+出力指数は0で、出力の仮数部は正規化された出力仮数部の左にある1ビットを連結し、
+その量を正規化された出力指数から1を引いて右にシフトしたものになります。
+それ以外の場合は、出力指数は正規化された出力指数に等しく、出力合言葉は正規化された出力仮数部に等しくなります。
+出力符号は入力符号に等しくなります。
 
+////
 NOTE: For example, when SEW=32, vfrec7(0x00718abc ({approx} 1.043e-38))
 = 0x7e900000 ({approx} 9.570e37), and vfrec7(0x7f765432 ({approx} 3.274e38))
 = 0x00214000 ({approx} 3.053e-39).
+////
+NOTE: 例えば、SEW=32の場合、vfrec7(0x00718abc ({approx} 1.043e-38)) = 0x7e900000 ({approx} 9.570e37)、
+およびvfrec7(0x7f765432 ({approx} 3.274e38)) = 0x00214000 ({approx} 3.053e-39)となります。
 
+////
 NOTE: The 7 bit accuracy was chosen as it requires 0,1,2,3
 Newton-Raphson iterations to converge to close to bfloat16, FP16,
 FP32, FP64 accuracy respectively.   Future instructions can be defined
 with greater estimate accuracy.
+////
+NOTE: 7ビットの精度は、bfloat16, FP16, FP32, FP64に近い精度に収束するために、0,1,2,3回のNewton-Raphson反復を必要とすることから選ばれました。
+将来的には、より高い推定精度の命令を定義することができます。
 
 === Vector Floating-Point MIN/MAX Instructions
 
