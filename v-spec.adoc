@@ -5252,7 +5252,7 @@ may be the same as the source vector mask register (`v0`).
 
 以下の整数比較命令は、比較の結果が真であれば書き込みマスクレジスタの要素に1を、そうでなければ0を書き込みます。
 書き込みマスクベクトルは常に単一のベクトルレジスタに保持され，その要素のレイアウトはセクション <<sec-mask-register-layout>> で説明されています。
-書き込みマスクレジスタは、ソースベクタのマスクレジスタ(`v0`)と同じものでも構いません。
+書き込みマスクレジスタは、ソースベクトルのマスクレジスタ(`v0`)と同じものでも構いません。
 
 ////
 ----
@@ -6664,7 +6664,7 @@ but this was deemed to cause confusion with the ``e``__x__ notation for element
 width.  The earlier name can be retained as alias in tool chains for
 backward compatibility.
 ////
-NOTE: 以前のドラフト版では、アセンブラ名として `vfrsqrte7` を使用していましたが、要素幅の ``e`__x__' 表記との混同を招くと判断されました。
+NOTE: 以前のドラフト版では、アセンブラ名として `vfrsqrte7` を使用していましたが、要素幅の ``e``__x__' 表記との混同を招くと判断されました。
 後方互換性のために、ツールチェインのエイリアスとして以前の名前を残すことができます。
 
 ////
@@ -6910,12 +6910,18 @@ with greater estimate accuracy.
 NOTE: 7ビットの精度は、bfloat16, FP16, FP32, FP64に近い精度に収束するために、0,1,2,3回のNewton-Raphson反復を必要とすることから選ばれました。
 将来的には、より高い推定精度の命令を定義することができます。
 
-=== Vector Floating-Point MIN/MAX Instructions
+// === Vector Floating-Point MIN/MAX Instructions
+=== ベクトル浮動小数点MIN/MAX命令
 
+////
 The vector floating-point `vfmin` and `vfmax` instructions have the
 same behavior as the corresponding scalar floating-point instructions
 in version 2.2 of the RISC-V F/D/Q extension.
+////
+ベクトル浮動小数点 `vfmin` および `vfmax` 命令は、RISC-V F/D/Q 拡張のバージョン 2.2 における対応するスカラ浮動小数点命令と同じ動作をします。
 
+
+////
 ----
     # Floating-point minimum
     vfmin.vv vd, vs2, vs1, vm   # Vector-vector
@@ -6925,12 +6931,28 @@ in version 2.2 of the RISC-V F/D/Q extension.
     vfmax.vv vd, vs2, vs1, vm   # Vector-vector
     vfmax.vf vd, vs2, rs1, vm   # vector-scalar
 ----
+////
 
-=== Vector Floating-Point Sign-Injection Instructions
+----
+    # 浮動小数点最小値
+    vfmin.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfmin.vf vd, vs2, rs1, vm   # ベクトル-スカラ
+
+    # 浮動小数点最大値
+    vfmax.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfmax.vf vd, vs2, rs1, vm   # ベクトル-スカラ
+----
+
+
+// === Vector Floating-Point Sign-Injection Instructions
+=== ベクトル浮動小数点符号挿入命令
 
 Vector versions of the scalar sign-injection instructions.  The result
 takes all bits except the sign bit from the vector `vs2` operands.
+スカラの符号挿入命令のベクトル版です。 
+結果は符号ビットを除くすべてのビットを、ベクトルの`vs2`オペランドから取得します。
 
+////
 ----
     vfsgnj.vv vd, vs2, vs1, vm   # Vector-vector
     vfsgnj.vf vd, vs2, rs1, vm   # vector-scalar
@@ -6941,19 +6963,42 @@ takes all bits except the sign bit from the vector `vs2` operands.
     vfsgnjx.vv vd, vs2, vs1, vm  # Vector-vector
     vfsgnjx.vf vd, vs2, rs1, vm  # vector-scalar
 ----
+////
+----
+    vfsgnj.vv vd, vs2, vs1, vm   # ベクトル-ベクトル
+    vfsgnj.vf vd, vs2, rs1, vm   # ベクトル-スカラ
 
+    vfsgnjn.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vfsgnjn.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    vfsgnjx.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vfsgnjx.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+----
+
+////
 NOTE: A vector of floating-point values can be negated using a
 sign-injection instruction with both source operands set to the same
 vector operand.  Can define assembly pseudoinstruction `vfneg.v vd,vs`
 = `vfsgnjn.vv vd,vs,vs`.
+////
 
+NOTE: 浮動小数点値のベクトルは、両方のソースオペランドを同じベクトルオペランドに設定したサインインジェクション命令を使用して否定演算をすることができます。 
+アセンブリ疑似命令 `vfneg.vd,vs` = `vfsgnjn.vv vd,vs,vs` を定義することができます。
+
+////
 NOTE: The absolute value of a vector of floating-point elements can be
 calculated using a sign-injection instruction with both source
 operands set to the same vector operand.  Can define assembly
 pseudoinstruction `vfabs.v vd,vs` = `vfsgnjx.vv vd,vs,vs`.
+////
 
-=== Vector Floating-Point Compare Instructions
+NOTE: 浮動小数点要素のベクトルの絶対値は、両方のソースオペランドが同じベクトルオペランドに設定された符号挿入命令を使用して計算することができます。 
+アセンブリ疑似命令 `vfabs.vd,vs` = `vfsgnjx.vv vd,vs,vs` を定義できます。
 
+// === Vector Floating-Point Compare Instructions
+=== ベクトル浮動小数点比較命令
+
+////
 These vector FP compare instructions compare two source operands and
 write the comparison result to a mask register.  The destination mask
 vector is always held in a single vector register, with a layout of
@@ -6961,7 +7006,14 @@ elements as described in Section <<sec-mask-register-layout>>.  The
 destination mask vector register may be the same as the source vector
 mask register (`v0`).  Comparisons write mask registers, and so always
 operate under a tail-agnostic policy.
+////
 
+これらのベクトルFP比較命令は、2つのソースオペランドを比較し、比較結果をマスクレジスタに書き込みます。 
+書き込みマスクベクトルは常に単一のベクトルレジスタに保持され、その要素のレイアウトは <<sec-mask-register-layout>> 節で説明されています。 
+書き込みマスクレジスタはソースベクトルマスクレジスタ(`v0`)と同じであってもかまいません。 
+比較はマスクレジスタを書き込むため、常にTail-agnosticポリシーで動作します。
+
+////
 The compare instructions follow the semantics of the scalar
 floating-point compare instructions.  `vmfeq` and `vmfne` raise the invalid
 operation exception only on signaling NaN inputs.  `vmflt`, `vmfle`, `vmfgt`,
@@ -6970,7 +7022,14 @@ quiet NaN inputs.
 `vmfne` writes 1 to the destination element when either
 operand is NaN, whereas the other comparisons write 0 when either operand
 is NaN.
+////
+比較命令は、スカラ浮動小数点比較命令の文法に従います。 
+`vmfeq` と `vmfne` は NaN 入力の信号に対してのみ無効な操作という例外を発生させます。 
+`vmflt`、 `vmfle`、 `vmfgt`、 `vmfge` は、シグナリング NaN 入力とサイレント NaN 入力の両方で無効な操作に関する例外を発生させます。
+`vmfne` は、どちらかのオペランドが NaN のときに出力要素に 1 を書き込みますが、
+他の比較ではどちらかのオペランドが NaN のときに 0 を書き込みます。
 
+////
 ----
     # Compare equal
     vmfeq.vv vd, vs2, vs1, vm  # Vector-vector
@@ -6994,7 +7053,33 @@ is NaN.
     # Compare greater than or equal
     vmfge.vf vd, vs2, rs1, vm  # vector-scalar
 ----
+////
 
+----
+    # 等価比較
+    vmfeq.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vmfeq.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    # 非等価比較
+    vmfne.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vmfne.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    # 小なり比較
+    vmflt.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vmflt.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    # 以下比較
+    vmfle.vv vd, vs2, vs1, vm  # ベクトル-ベクトル
+    vmfle.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    # 大なり比較
+    vmfgt.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+
+    # 以上比較
+    vmfge.vf vd, vs2, rs1, vm  # ベクトル-スカラ
+----
+
+////
 ----
 Comparison      Assembler Mapping             Assembler pseudoinstruction
 
@@ -7011,15 +7096,43 @@ va >= f         vmfge.vf vd, va, f, vm
 va, vb vector register groups
 f      scalar floating-point register
 ----
+////
 
+----
+比較            アセンブリ言語マッピング   アセンブリ言語疑似命令
+
+va < vb         vmflt.vv vd, va, vb, vm
+va <= vb        vmfle.vv vd, va, vb, vm
+va > vb         vmflt.vv vd, vb, va, vm    vmfgt.vv vd, va, vb, vm
+va >= vb        vmfle.vv vd, vb, va, vm    vmfge.vv vd, va, vb, vm
+
+va < f          vmflt.vf vd, va, f, vm
+va <= f         vmfle.vf vd, va, f, vm
+va > f          vmfgt.vf vd, va, f, vm
+va >= f         vmfge.vf vd, va, f, vm
+
+va, vb ベクトルレジスタグループ
+f      スカラ浮動小数点レジスタ
+----
+
+////
 NOTE: Providing all forms is necessary to correctly handle unordered
 comparisons for NaNs.
+////
 
+NOTE: すべての形式を提供することとは、NaNに対する順序付けられていない比較を正しく処理するために必要です。
+
+////
 NOTE: C99 floating-point quiet comparisons can be implemented by masking
 the signaling comparisons when either input is NaN, as follows.  When
 the comparand is a non-NaN constant, the middle two instructions can be
 omitted.
+////
 
+NOTE: C99浮動小数点のquiet比較は、以下のように、どちらかの入力がNaNの場合に信号の比較をマスクすることで実装できます。 
+比較対象が非 NaN 定数の場合は、中間の2つの命令を省略できます。
+
+////
 ----
     # Example of implementing isgreater()
     vmfeq.vv v0, va, va        # Only set where A is not NaN.
@@ -7027,65 +7140,119 @@ omitted.
     vmand.mm v0, v0, v1        # Only set where A and B are ordered,
     vmfgt.vv v0, va, vb, v0.t  #  so only set flags on ordered values.
 ----
+////
 
+----
+    # isgreater() の実装例
+    vmfeq.vv v0, va, va        # AがNaNでない場合にのみセットされる
+    vmfeq.vv v1, vb, vb        # BがNaNでない場合にのみセットされる
+    vmand.mm v0, v0, v1        # AとBに順序関係があるときのみセットされる
+    vmfgt.vv v0, va, vb, v0.t  #  従って、順序関係がある値の場合にのみフラグが設定される
+----
+
+////
 NOTE: In the above sequence, it is tempting to mask the second `vmfeq`
 instruction and remove the `vmand` instruction, but this more efficient
 sequence incorrectly fails to raise the invalid exception when an
 element of `va` contains a quiet NaN and the corresponding element in
 `vb` contains a signaling NaN.
+////
+NOTE: 上記のシーケンスでは、2つ目の `vmfeq` 命令をマスクして `vmand` 命令を削除したくなりますが、
+より効率的なシーケンスでは、`va` の要素に quiet NaN が含まれ、`vb` の対応する要素に signaling NaN が含まれている場合に、
+不正な例外を発生させることができません。
 
-=== Vector Floating-Point Classify Instruction
+// === Vector Floating-Point Classify Instruction
+=== ベクトル浮動小数点分類命令
 
+////
 This is a unary vector-vector instruction that operates in the same
 way as the scalar classify instruction.
+////
+スカラ分類命令と同様に動作する単項のベクトル-ベクトル命令です。
 
+////
 ----
     vfclass.v vd, vs2, vm   # Vector-vector
 ----
+////
 
+----
+    vfclass.v vd, vs2, vm   # ベクトル-ベクトル
+----
+
+////
 The 10-bit mask produced by this instruction is placed in the
 least-significant bits of the result elements.  The upper (SEW-10)
 bits of the result are filled with zeros. The instruction is only
 defined for SEW=16b and above, so the result will always fit in the
 destination elements.
+////
+この命令で生成された10ビットのマスクは、結果要素の最下位ビットに配置されます。 
+結果の上位(SEW-10)ビットには0が入ります。
+この命令はSEW=16b以上でのみ定義されているため、結果は常に書き込み要素に収まります。
 
-=== Vector Floating-Point Merge Instruction
 
+// === Vector Floating-Point Merge Instruction
+=== ベクトル浮動小数点マージ命令
+
+////
 A vector-scalar floating-point merge instruction is provided, which
 operates on all body elements, from `vstart` up to the current vector
 length in `vl` regardless of mask value.
+////
+ベクトルスカラ浮動小数点マージ命令が提供されています。
+この命令は、マスク値に関係なく、`vstart`から`vl`の現在のベクトル長までのすべてのボディ要素で動作します。
 
+////
 The `vfmerge.vfm` instruction is encoded as a masked instruction (`vm=0`).
 At elements where the mask value is zero, the first vector operand is
 copied to the destination element, otherwise a scalar floating-point
 register value is copied to the destination element.
+////
+`vfmerge.vfm` 命令は、マスクされた命令 (`vm=0`) としてエンコードされます。
+マスク値がゼロの要素では、最初のベクトルオペランドが書き込み要素にコピーされ、そうでない場合は、スカラ浮動小数点レジスタ値が書き込み要素にコピーされます。
 
 ----
 vfmerge.vfm vd, vs2, rs1, v0  # vd[i] = v0.mask[i] ? f[rs1] : vs2[i]
 ----
 
-=== Vector Floating-Point Move Instruction
+// === Vector Floating-Point Move Instruction
+=== ベクトル浮動小数点移動命令
 
+////
 The vector floating-point move instruction __splats__ a floating-point
 scalar operand to a vector register group.  The instruction copies a
 scalar `f` register value to all active elements of a vector register
 group.  This instruction is encoded as a masked instruction (`vm=1`).
 The instruction must have the `vs2` field set to `v0`, with all other
 values for `vs2` reserved.
+////
+ベクトル浮動小数点移動命令は、浮動小数点のスカラオペランドをベクトルレジスタグループに __転送__ します。 
+この命令は、スカラ `f` レジスタ値をベクトルレジスタグループのすべてのアクティブな要素にコピーします。 
+この命令はマスクされた命令(`vm=1`)としてエンコードされます。
+この命令は、`vs2` フィールドが `v0` に設定されていなければならず、`vs2` の他の値はすべて予約されています。
 
 ----
 vfmv.v.f vd, rs1  # vd[i] = f[rs1]
 ----
 
+////
 NOTE: The `vfmv.v.f` instruction shares the encoding with the `vfmerge.vfm`
 instruction, but with `vm=1` and `vs2=v0`.
+////
+NOTE: `vfmv.v.f` 命令は、`vfmerge.vfm` 命令とエンコーディングを共有しますが、`vm=1` および `vs2=v0` となります。
 
-=== Single-Width Floating-Point/Integer Type-Convert Instructions
+// === Single-Width Floating-Point/Integer Type-Convert Instructions
+=== 単一幅浮動所数点/整数型変換命令
 
+////
 Conversion operations are provided to convert to and from
 floating-point values and unsigned and signed integers, where both
 source and destination are SEW wide.
+////
+浮動小数点値、符号なし整数、符号あり整数との間の変換操作が用意されており、変換元と変換先の両方がSEW幅である。
 
+////
 ----
 vfcvt.xu.f.v vd, vs2, vm       # Convert float to unsigned integer.
 vfcvt.x.f.v  vd, vs2, vm       # Convert float to signed integer.
@@ -7096,21 +7263,46 @@ vfcvt.rtz.x.f.v  vd, vs2, vm   # Convert float to signed integer, truncating.
 vfcvt.f.xu.v vd, vs2, vm       # Convert unsigned integer to float.
 vfcvt.f.x.v  vd, vs2, vm       # Convert signed integer to float.
 ----
+////
+----
+vfcvt.xu.f.v vd, vs2, vm       # 浮動小数点から符号なし整数への変換.
+vfcvt.x.f.v  vd, vs2, vm       # 浮動小数点から符号付き整数への変換.
 
+vfcvt.rtz.xu.f.v vd, vs2, vm   # 浮動小数点からtruncateを使用した符号なし整数への変換.
+vfcvt.rtz.x.f.v  vd, vs2, vm   # 浮動小数点からtruncateを使用した符号付き整数への変換.
+
+vfcvt.f.xu.v vd, vs2, vm       # 符号なし整数から浮動小数点への変換.
+vfcvt.f.x.v  vd, vs2, vm       # 符号付き整数から浮動小数点への変換.
+----
+
+////
 The conversions follow the same rules on exceptional conditions as the
 scalar conversion instructions.
 The conversions use the dynamic rounding mode in `frm`, except for the `rtz`
 variants, which round towards zero.
+////
+変換命令は、スカラ変換命令と同じ例外的な条件に関するルールに従います。
+これらの変換は，ゼロに向かって丸める`rtz`の変種を除いて，`frm`の動的丸めモードを使用します。
 
+////
 NOTE: The `rtz` variants are provided to accelerate truncating conversions
 from floating-point to integer, as is common in languages like C and Java.
+////
+NOTE: `rtz` バリエーションは、C や Java などの言語で一般的な、
+浮動小数点から整数への切り捨て変換を高速化するために提供されています。
 
-=== Widening Floating-Point/Integer Type-Convert Instructions
+// === Widening Floating-Point/Integer Type-Convert Instructions
+=== 幅拡張浮動小数点/整数型変換命令
 
+////
 A set of conversion instructions is provided to convert between
 narrower integer and floating-point datatypes to a type of twice the
 width.
+////
+より小さな整数型や浮動小数点型のデータタイプを2倍の幅の型に変換する変換命令群が用意されています。
 
+
+////
 ----
 vfwcvt.xu.f.v vd, vs2, vm       # Convert float to double-width unsigned integer.
 vfwcvt.x.f.v  vd, vs2, vm       # Convert float to double-width signed integer.
@@ -7123,26 +7315,56 @@ vfwcvt.f.x.v  vd, vs2, vm       # Convert signed integer to double-width float.
 
 vfwcvt.f.f.v vd, vs2, vm        # Convert single-width float to double-width float.
 ----
+////
+----
+vfwcvt.xu.f.v vd, vs2, vm       # 浮動小数点を倍幅の符号なし整数に変換.
+vfwcvt.x.f.v  vd, vs2, vm       # 浮動小数点を倍幅の符号付き整数に変換.
 
+vfwcvt.rtz.xu.f.v vd, vs2, vm   # 浮動小数点をtruncateを使用した倍幅の符号なし整数に変換.
+vfwcvt.rtz.x.f.v  vd, vs2, vm   # 浮動小数点をtruncateを使用した倍幅の符号付き整数に変換.
+
+vfwcvt.f.xu.v vd, vs2, vm       # 符号なし整数を倍幅の浮動小数点に変換.
+vfwcvt.f.x.v  vd, vs2, vm       # 符号付き整数を倍幅の浮動小数点に変換.
+
+vfwcvt.f.f.v vd, vs2, vm        # 単一幅浮動小数点を倍幅の浮動小数点に変換.
+----
+
+////
 These instructions have the same constraints on vector register overlap
 as other widening instructions (see <<sec-widening>>).
+////
+これらの命令は、他の幅拡張命令(<<sec-widening>>参照)と同様に、ベクトルレジスタのオーバーラップに対する制約があります。
 
+////
 NOTE: A double-width IEEE floating-point value can always represent a
 single-width integer exactly.
+////
+NOTE: 倍幅のIEEE浮動小数点値は、常に単一幅の整数を正確に表すことができます。
 
+////
 NOTE: A double-width IEEE floating-point value can always represent a
 single-width IEEE floating-point value exactly.
+////
+NOTE: 倍幅のIEEE浮動小数点値は、常に単一幅のIEEE浮動小数点値を正確に表すことができます。
 
+////
 NOTE: A full set of floating-point widening conversions is not
 supported as single instructions, but any widening conversion can be
 implemented as several doubling steps with equivalent results and no
 additional exception flags raised.
+////
+NOTE: 浮動小数点の幅拡張変換のフルセットは、単一の命令としてはサポートされていませんが、任意の幅拡張変換は、
+同等の結果と追加の例外フラグを発生させずに、いくつかの倍のステップとして実装することができます。
 
-=== Narrowing Floating-Point/Integer Type-Convert Instructions
+// === Narrowing Floating-Point/Integer Type-Convert Instructions
+=== 浮動小数点/整数 幅縮小型変換命令
 
+////
 A set of conversion instructions is provided to convert wider integer
 and floating-point datatypes to a type of half the width.
+////
 
+////
 ----
 vfncvt.xu.f.w vd, vs2, vm       # Convert double-width float to unsigned integer.
 vfncvt.x.f.w  vd, vs2, vm       # Convert double-width float to signed integer.
@@ -7157,16 +7379,40 @@ vfncvt.f.f.w vd, vs2, vm        # Convert double-width float to single-width flo
 vfncvt.rod.f.f.w vd, vs2, vm    # Convert double-width float to single-width float,
                                 #  rounding towards odd.
 ----
+////
 
+----
+vfncvt.xu.f.w vd, vs2, vm       # 倍幅の浮動小数点を符号付き整数に変換.
+vfncvt.x.f.w  vd, vs2, vm       # 倍幅の浮動小数点を符号なし整数に変換.
+
+vfncvt.rtz.xu.f.w vd, vs2, vm   # 倍幅の浮動小数点をtruncateを使用した符号なし整数に変換.
+vfncvt.rtz.x.f.w  vd, vs2, vm   # 倍幅の浮動小数点をtruncateを使用した符号付き整数に変換.
+
+vfncvt.f.xu.w vd, vs2, vm       # 倍幅の符号なし整数を浮動小数点に変換.
+vfncvt.f.x.w  vd, vs2, vm       # 倍幅の符号付き整数を浮動小数点に変換.
+
+vfncvt.f.f.w vd, vs2, vm        # 倍幅浮動小数点を単一幅の浮動小数点に変換.
+vfncvt.rod.f.f.w vd, vs2, vm    # 倍幅浮動小数点をodd方向の丸めに使用して単一幅の浮動小数点に変換.
+----
+
+////
 These instructions have the same constraints on vector register overlap
 as other narrowing instructions (see <<sec-narrowing>>).
+////
+これらの命令は、他の幅縮小命令(<<sec-narrowing>>参照)と同様に、ベクトルレジスタのオーバーラップに制約があります。
 
+////
 NOTE: A full set of floating-point widening conversions is not
 supported as single instructions. Conversions can be implemented in
 a sequence of halving steps.  Results are equivalently rounded and
 the same exception flags are raised if all but the last halving step
 use round-towards-odd (`vfncvt.rod.f.f.w`).  Only the final step
 should use the desired rounding mode.
+////
+NOTE: 浮動小数点型幅拡張変換のフルセットは、単一の命令としてはサポートされていません。
+変換は半減ステップのシーケンスで実装できます。 
+最後の半減ステップ以外が round-towards-odd (`vfncvt.rod.f.f.w`) を使用した場合、結果は同等に丸められ、同じ例外フラグが立てられます。 
+最後のステップだけは、希望する丸め方向を使用する必要があります。
 
 == Vector Reduction Operations
 
