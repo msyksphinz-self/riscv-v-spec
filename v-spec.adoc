@@ -7679,7 +7679,7 @@ is allowed to add an additional additive identity to the final result.
 The additive identity is +0.0 when rounding down (towards -{inf}) or
 -0.0 for all other rounding modes.
 ////
-加算恒等式は，切り捨て(-{inf}方向)の場合は+0.0、その他の丸め方の場合は-0.0である。
+加法単位元は，切り捨て(-{inf}方向)の場合は+0.0、その他の丸め方の場合は-0.0です。
 
 ////
 The reduction tree structure must be deterministic for a given value
