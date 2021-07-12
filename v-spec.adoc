@@ -5763,7 +5763,7 @@ NOTE: There is no instruction to perform a "scalar divide by vector"
 operation.
 ////
 
-注："ベクトルによるスカラ除算"を実行する命令はありません。
+NOTE: "ベクトルによるスカラ除算"を実行する命令はありません。
 
 // === Vector Widening Integer Multiply Instructions
 === ベクトル幅拡張乗算命令
@@ -7614,7 +7614,7 @@ propagating special values.
 NOTE: The ordered reduction supports compiler autovectorization, while
 the unordered FP sum allows for faster implementations.
 ////
-注：順序付きリダクションはコンパイラの自動ベクトル化に対応していますが、順序のないFP加算はより高速な実装を可能にします。
+NOTE: 順序付きリダクションはコンパイラの自動ベクトル化に対応していますが、順序のないFP加算はより高速な実装を可能にします。
 
 ////
 When the operation is masked (`vm=0`), the masked-off elements do not
