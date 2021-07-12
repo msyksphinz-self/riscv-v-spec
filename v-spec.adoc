@@ -1700,7 +1700,7 @@ vector instruction encoding, with bit 25 holding the standard vector
 mask bit (see <<sec-vector-mask-encoding>>).
 ////
 
-ベクトルのロードとストアは、スカラー浮動小数点のロードとストアのメジャーオペコード(LOAD-FP/STORE-FP)の中にエンコードされます。
+ベクトルのロードとストアは、スカラ浮動小数点のロードとストアのメジャーオペコード(LOAD-FP/STORE-FP)の中にエンコードされます。
 ベクトルロード/ストアのエンコーディングは、標準的なスカラ浮動小数点ロード/ストアの12ビット即値フィールドの一部を再利用して、
 さらにベクトル命令のエンコーディングを行い、ビット25には標準的なベクトルマスクビット ( <<sec-vector-mask-encoding>> を参照)を格納します。
 
@@ -1716,7 +1716,7 @@ produce scalar or vector results, and most vector instructions can be
 performed either unconditionally or conditionally under a mask.
 ////
 
-ベクトル命令は、スカラーまたはベクトルのソースオペランドを持ち、
+ベクトル命令は、スカラまたはベクトルのソースオペランドを持ち、
 スカラまたはベクトルの結果を生成することができ、
 ほとんどのベクトル命令は、無条件またはマスクの下で条件付きで実行することができます。
 
@@ -1743,7 +1743,7 @@ of the current LMUL setting.
 
 スカラオペランドは即値、または `x` レジスタ、`f` レジスタ、またはベクトルレジスタの要素 0 から取得することができます。
 スカラの結果は `x` または `f` レジスタ、またはベクトルレジスタの要素 0 に書き込まれます。
-現在の LMUL の設定に関わらず、どのベクトルレジスタもスカラーを保持するために使用できます。
+現在の LMUL の設定に関わらず、どのベクトルレジスタもスカラを保持するために使用できます。
 
 ////
 NOTE: In a change from v0.6, the floating-point registers no longer
@@ -1758,9 +1758,9 @@ high-performance designs and would prevent compatibility with the
 Zfinx ISA option.
 ////
 
-NOTE: v0.6 からの変更点として、浮動小数点レジスタがベクトルレジスタをオーバーレイしなくなり、スカラーは整数または浮動小数点レジスタから得られるようになりました。
+NOTE: v0.6 からの変更点として、浮動小数点レジスタがベクトルレジスタをオーバーレイしなくなり、スカラは整数または浮動小数点レジスタから得られるようになりました。
 `f` レジスタをオーバーレイしないことで、ベクトルレジスタが圧迫させないようにし、
-標準的な呼び出し規則との相互作用を避け、高性能なスカラー浮動小数点の設計を簡素化し、Zfinx ISA オプションとの互換性を実現します。
+標準的な呼び出し規則との相互作用を避け、高性能なスカラ浮動小数点の設計を簡素化し、Zfinx ISA オプションとの互換性を実現します。
 `f` と `v` を重ねると、実装によってはステート・ビット数を減らせるというメリットがありますが、
 高性能な設計が複雑になり、Zfinx ISAオプションとの互換性もなくなります。
 
@@ -1911,7 +1911,7 @@ or the scalar result of a reduction.  These instruction encodings are
 reserved.
 ////
 
-マスクド・ベクトル命令の書き込みベクトルレジスタグループは、書き込みベクトルレジスタにマスク値(比較など)やリダクションのスカラー結果が書き込まれていない限り、
+マスクド・ベクトル命令の書き込みベクトルレジスタグループは、書き込みベクトルレジスタにマスク値(比較など)やリダクションのスカラ結果が書き込まれていない限り、
 ソースマスクレジスタ(`v0`)とオーバーラップすることはできません。
 これらの命令エンコーディングは予約済みです。
 
@@ -2083,9 +2083,9 @@ overwritten with 1s.
 ////
 
 ** _非アクティブ_ 要素は、ボディ内の要素で、その要素の位置で現在のマスクが無効になっている要素です。
-非アクティブな要素は， masked agnostic が指定されていない限り (`vtype.vma`=1)，
+非アクティブな要素は、 masked agnostic が指定されていない限り (`vtype.vma`=1)、
 例外を発生させず、書き込みベクトルレジスタグループを更新しません。
-この場合，非アクティブな要素は 1 で上書きされる可能性があります。
+この場合、非アクティブな要素は 1 で上書きされる可能性があります。
 
 ////
 * The _tail_ elements during a vector instruction's execution are the
@@ -2337,7 +2337,7 @@ register specified by `rs1`, and the new `vl` value is also written to
 the `x` register specified by `rd`.
 ////
 
-`rs1` が `x0` でない場合，AVL は `rs1` で指定された `x` レジスタに保持される符号なし整数となり、
+`rs1` が `x0` でない場合、AVL は `rs1` で指定された `x` レジスタに保持される符号なし整数となり、
 新しい `vl` 値も `rd` で指定された `x` レジスタに書き込まれます。
 
 ////
@@ -2696,7 +2696,7 @@ EEW.
 ////
 
 NOTE: インデックス付き演算は、オブジェクトのベクトル内のフィールドをアクセスするためにも使用できます。
-この場合，`vs2` ベクトルはオブジェクトのベースへのポインタを保持し、スカラ `x` レジスタは各オブジェクト内のメンバ・フィールドのオフセットを保持します。
+この場合、`vs2` ベクトルはオブジェクトのベースへのポインタを保持し、スカラ `x` レジスタは各オブジェクト内のメンバ・フィールドのオフセットを保持します。
 このケースをサポートすることが、要素のインデックスをデータEEWでスケーリングするインデックス付き演算が定義されなかった理由です。
 
 ////
@@ -2868,7 +2868,7 @@ add more powerful primitives to move items to and from memory.
 NOTE: セグメントロード/ストアのための `nf` フィールドは、
 アドレスオフセットフィールドのための同じビットの使用に取って代わりました。
 セグメントロード/ストアは、メモリとの間でアイテムを移動するためのより強力なプリミティブを追加する一方で、
-オフセットは単一のスカラー整数の計算で置き換えることができます。
+オフセットは単一のスカラ整数の計算で置き換えることができます。
 
 ////
 The `nf[2:0]` field also encodes the number of whole vector registers
@@ -2913,7 +2913,7 @@ Vector loads and stores are encoded using width values that are not
 claimed by the standard scalar floating-point loads and stores.
 ////
 
-ベクトルのロード・ストアは、標準的なスカラー浮動小数点の
+ベクトルのロード・ストアは、標準的なスカラ浮動小数点の
 ロード・ストアが明示していない幅の値を使ってエンコードされます。
 
 ////
@@ -2975,7 +2975,7 @@ Data reg bits は、レジスタにアクセスされる各データ要素のサ
 Index bits is the size of each index accessed in register.
 ////
 
-Index bits は，レジスタにアクセスされる各インデックスのサイズです。
+Index bits は、レジスタにアクセスされる各インデックスのサイズです。
 
 ////
 Data and index bit EEW encodings larger than 64b are currently reserved.
@@ -3521,7 +3521,7 @@ but does not have to start at a multiple of 8 vector register number).
 EMUL>1の場合、各フィールドは複数の連続した番号のベクトルレジスタで保持されるベクトルレジスタグループを占有し、
 各フィールドのベクトルレジスタグループは通常のベクトルレジスタアライメント制約に従わなければなりません
 (例えば、EMUL=2、NFIELDS=4の場合、各フィールドのベクトルレジスタグループは偶数のベクトルレジスタで開始しなければなりませんが、
-8の倍数のベクトルレジスタ番号で開始する必要はありません）。
+8の倍数のベクトルレジスタ番号で開始する必要はありません)。
 
 ////
 If the vector register numbers accessed by the segment load or store
@@ -3944,7 +3944,7 @@ with this EEW, which aids implementations that rearrange data internally.
 
 NOTE: レジスタ内ののバイトレイアウトはメモリ内のバイトレイアウトと同じなので、
 EEWに関係なく同じデータが出力先のレジスタ群に書き込まれます。
-そのため，EEW=8 のバリエーションだけを用意すれば十分でした。
+そのため、EEW=8 のバリエーションだけを用意すれば十分でした。
 EEWのバリエーションをすべて用意したのは、エンコードされたEEWをヒントにして、
 次にこのEEWでアクセスされる書き込みレジスタグループを示すことができるようにするためで、
 これは内部的にデータを再配置する実装の助けになります。
@@ -3976,7 +3976,7 @@ numbers are placed contiguously in memory.
 そうでなければ命令の符号化は予約されます。
 `nf` フィールドは、転送するベクトルレジスタの数をエンコードするもので、
 ベースの後に連続して番号が付けられます。
-`nf` の値は1，2，4，8のみがサポートされており、その他の値は予約されています。
+`nf` の値は1、2、4、8のみがサポートされており、その他の値は予約されています。
 複数のレジスタを転送する場合、最も低い番号のベクトルレジスタは最も低い番号のメモリアドレスに保持され、
 連続したベクトルレジスタ番号はメモリに連続して配置されます。
 
@@ -4011,7 +4011,7 @@ or the implementation's smallest supported SEW size in bytes
 (SEW~MIN~/8).
 ////
 
-実装では，ベースアドレスが、エンコードされたEEWのサイズ(バイト)(EEW/8)と実装でサポートされている
+実装では、ベースアドレスが、エンコードされたEEWのサイズ(バイト)(EEW/8)と実装でサポートされている
 SEWの最小サイズ(バイト)(SEW~MIN~/8)のいずれか大きい方に自然にアラインされていない場合、
 レジスタ全体のロードとストアでアドレスのずれの例外を発生させることができます。
 
@@ -4254,7 +4254,7 @@ memory before the mask value is known, without the need for
 a misspeculation-recovery mechanism.
 ////
 
-NOTE: ベクトル長とマスクをデータではなく制御として扱うことは、通常、対応するスカラーコードのセマンティクスと一致し、
+NOTE: ベクトル長とマスクをデータではなく制御として扱うことは、通常、対応するスカラコードのセマンティクスと一致し、
 ここでは通常、分岐命令が使用されていました。
 マスクを制御として扱うことで、マスクされたベクトルロード命令は、
 マスク値が判明する前にメモリにアクセスすることができ、
@@ -4354,9 +4354,9 @@ specified by `vs2` and a second scalar source operand from one of
 three alternative sources.
 ////
 
-ベクトル・スカラー演算には3つの形式がありますが、いずれの場合も、
+ベクトル・スカラ演算には3つの形式がありますが、いずれの場合も、
 `vs2` で指定されたベクトルレジスタ群から1つのベクトルのオペランドを取り、
-3つの代替ソースのうちの1つから2つ目のスカラーソースのオペランドを取ります。
+3つの代替ソースのうちの1つから2つ目のスカラソースのオペランドを取ります。
 
 ////
 . For integer operations, the scalar can be a 5-bit immediate encoded
@@ -4375,9 +4375,9 @@ floating-point type width (which includes when FLEN < SEW) are
 reserved.
 ////
 
-. 整数演算の場合、スカラーは `rs1` フィールドでエンコードされた5ビットの即値になります。
+. 整数演算の場合、スカラは `rs1` フィールドでエンコードされた5ビットの即値になります。
 この値は、特に指定がない限り、SEWビットに符号拡張されます。
-. 整数演算では、スカラーは `rs1` で指定されたスカラー `x` レジスタから取ることができます。
+. 整数演算では、スカラは `rs1` で指定されたスカラ `x` レジスタから取ることができます。
 XLEN>SEWの場合、特に指定がない限り、`x` レジスタの最下位SEWビットが使用されます。
 XLEN<SEWの場合、`x` レジスタからの値はSEWビットに符号拡張されます。
 浮動小数点演算の場合、スカラはスカラ `f` レジスタから取得できます。
@@ -4397,7 +4397,7 @@ NOTE: The proposed Zfinx variants will take the floating-point scalar
 argument from the `x` registers.
 ////
 
-NOTE: 提案されているZfinxのバリエーションは、`x` レジスタから浮動小数点のスカラー引数を取ります。
+NOTE: 提案されているZfinxのバリエーションは、`x` レジスタから浮動小数点のスカラ引数を取ります。
 
 ////
 Vector arithmetic instructions are masked under control of the `vm`
@@ -4602,7 +4602,7 @@ NOTE: This constraint is necessary to support restart with non-zero
 `vstart`.
 ////
 
-NOTE: この制約は，非ゼロの `vstart` による再起動をサポートするために必要です。
+NOTE: この制約は、非ゼロの `vstart` による再起動をサポートするために必要です。
 
 ////
 NOTE: For the `vw<op>.wv vd, vs2, vs1` format instructions, it is legal
@@ -4902,8 +4902,8 @@ respects the source/destination overlap restrictions.
 ////
 
 キャリー入出力は、 <sec-mask-register-layout> 節で説明したマスクレジスタのレイアウトを用いて表現されます。
-エンコーディングの制約により，キャリー入力は暗黙の `v0` レジスタから出力されなければなりませんが、
-キャリー出力はソース/書き込みのオーバーラップの制約を満たす任意のベクトルレジスタに書き込むことができます．
+エンコーディングの制約により、キャリー入力は暗黙の `v0` レジスタから出力されなければなりませんが、
+キャリー出力はソース/書き込みのオーバーラップの制約を満たす任意のベクトルレジスタに書き込むことができます。
 
 ////
 `vadc` and `vsbc` add or subtract the source operands and the carry-in or
@@ -5065,7 +5065,7 @@ For `vmsbc`, the borrow is defined to be 1 iff the difference, prior to
 truncation, is negative.
 ////
 
-`vmsbc` では，切り捨て前の差が負であるときに限りボローは1と定義される。
+`vmsbc` では、切り捨て前の差が負であるときに限りボローは1と定義される。
 
 ////
 For `vadc` and `vsbc`, the instruction encoding is reserved if the
@@ -5251,7 +5251,7 @@ may be the same as the source vector mask register (`v0`).
 ////
 
 以下の整数比較命令は、比較の結果が真であれば書き込みマスクレジスタの要素に1を、そうでなければ0を書き込みます。
-書き込みマスクベクトルは常に単一のベクトルレジスタに保持され，その要素のレイアウトはセクション <<sec-mask-register-layout>> で説明されています。
+書き込みマスクベクトルは常に単一のベクトルレジスタに保持され、その要素のレイアウトはセクション <<sec-mask-register-layout>> で説明されています。
 書き込みマスクレジスタは、ソースベクトルのマスクレジスタ(`v0`)と同じものでも構いません。
 
 ////
@@ -5461,10 +5461,10 @@ needed as described below.
 ////
 
 NOTE: `vmsge{u}.vx` は、使用されていない OPIVI の変形である `vmslt{u}` の下で、非直交的な方法でエンコードされる可能性があります。
-しかし、OPIVIでスカラーの `x` レジスタを使用する命令はこれらだけです。
+しかし、OPIVIでスカラの `x` レジスタを使用する命令はこれらだけです。
 別の方法として、さらに2つのfunct6エンコーディングを使用することもできますが、
 これらは同じ8つのfunct6エンコーディングのグループの他のものとは異なるオペランドフォーマット(マスクレジスタへの書き込み)になります。
-現在のPoRでは，これらの命令を省略し、必要に応じて以下のように合成しています。
+現在のPoRでは、これらの命令を省略し、必要に応じて以下のように合成しています。
 
 ////
 The `vmsge{u}.vx` operation can be synthesized by reducing the
@@ -5947,7 +5947,7 @@ immediate.
 
 `vmerge` 命令は、マスクされた命令(`vm=0`)としてエンコードされます。
 この命令は、次のように2つのソースを組み合わせます。
-マスク値がゼロの要素では、第1オペランドがデスティネーション要素にコピーされ、そうでない場合は第2オペランドがデスティネーション要素にコピーされます。
+マスク値がゼロの要素では、第1オペランドが書き込み要素にコピーされ、そうでない場合は第2オペランドが書き込み要素にコピーされます。
 第1オペランドは常に `vs2` で指定されるベクトルレジスタ群です。
 第2オペランドは、 `vs1` で指定されるベクトルレジスタ群、
 `rs1` で指定されるスカラ `x` レジスタ、または5ビットの符号拡張即値です。
@@ -6010,7 +6010,7 @@ elide this instruction, and treat as a NOP.
 ////
 NOTE: EEWに従ってデータを内部的に再編成する実装では、
 SEWに従って内部表現をシャッフルすることができます。
-データを内部的に再編成しない実装では，この命令を動的に省略し、NOP として扱うことができます。
+データを内部的に再編成しない実装では、この命令を動的に省略し、NOP として扱うことができます。
 
 [[sec-vector-fixed-point]]
 // == Vector Fixed-Point Arithmetic Instructions
@@ -6279,7 +6279,7 @@ the vector or scalar shift-amount value are used (e.g., the low 6 bits
 for a SEW=64-bit to SEW=32-bit narrowing operation).  The immediate
 forms zero-extend their shift-amount immediate operand.
 ////
-2番目の引数(ベクトル要素、スカラー値、即値)は、狭義のシフト命令のようにソースを右シフトする量を与え、スケーリングを行います。
+2番目の引数(ベクトル要素、スカラ値、即値)は、狭義のシフト命令のようにソースを右シフトする量を与え、スケーリングを行います。
 ベクトルまたはスカラのシフト量の値の下位lg2(2*SEW)ビットが使用されます(例：SEW=64ビットからSEW=32ビットへの狭帯域化操作の場合は下位6ビット)。
 即値形式は、シフト量の即値オペランドをゼロ拡張します。
 
@@ -6382,7 +6382,7 @@ floating-point extensions corresponding to the supported vector
 floating-point element widths.
 ////
 ベクトル浮動小数点命令では、サポートされているベクトル浮動小数点の要素幅に対応する
-スカラー浮動小数点拡張が有効であることが必要です。
+スカラ浮動小数点拡張が有効であることが必要です。
 
 ////
 NOTE: In particular, vector profiles supporting 16-bit half-precision
@@ -6415,7 +6415,7 @@ Scalar values for vector-scalar operations can be sourced from the
 standard scalar `f` registers, as described in Section
 <<sec-arithmetic-encoding>>.
 ////
-ベクトルスカラー演算のスカラ値は、 <<sec-arithmetic-encoding>> で説明したように、
+ベクトルスカラ演算のスカラ値は、 <<sec-arithmetic-encoding>> で説明したように、
 標準的なスカラ `f` レジスタから供給することができます。
 
 // === Vector Floating-Point Exception Flags
@@ -6585,7 +6585,7 @@ scalar FP FMA encoding to provide a few non-destructive FMAs.
 However, this would be the only maskable operation with three inputs
 and separate output.
 ////
-NOTE: スカラーFPのFMAエンコーディングで使用されていない2つの丸めモードを使用して、
+NOTE: スカラFPのFMAエンコーディングで使用されていない2つの丸めモードを使用して、
 いくつかの非破壊的なFMAを提供することは可能でしょう。
 しかし、これは3つの入力と別々の出力を持つ唯一のマスク可能な演算となります。
 
@@ -6656,7 +6656,7 @@ This is a unary vector-vector instruction.
 This is a unary vector-vector instruction that returns an estimate of
 1/sqrt(x) accurate to 7 bits.
 ////
-これは，7ビットの精度で1/sqrt(x)の推定値を返す、単項のベクトル-ベクトル命令です。
+これは、7ビットの精度で1/sqrt(x)の推定値を返す、単項のベクトル-ベクトル命令です。
 
 ////
 NOTE: An earlier draft version had used the assembler name `vfrsqrte7`
@@ -6744,7 +6744,7 @@ NOTE: For example, when SEW=32, vfrsqrt7(0x00718abc ({approx} 1.043e-38))
 = 0x5f080000 ({approx} 9.800e18), and vfrsqrt7(0x7f765432 ({approx} 3.274e38))
 = 0x1f820000 ({approx} 5.506e-20).
 ////
-NOTE: 例えば，SEW=32の場合，vfrsqrt7(0x00718abc ({approx} 1.043e-38)) = 0x5f080000 ({approx} 9.800e18)、
+NOTE: 例えば、SEW=32の場合、vfrsqrt7(0x00718abc ({approx} 1.043e-38)) = 0x5f080000 ({approx} 9.800e18)、
 および vfrsqrt7(0x7f765432 ({approx} 3.274e38)) = 0x1f820000 ({approx} 5.506e-20)となります。
 
 ////
@@ -7282,7 +7282,7 @@ The conversions use the dynamic rounding mode in `frm`, except for the `rtz`
 variants, which round towards zero.
 ////
 変換命令は、スカラ変換命令と同じ例外的な条件に関するルールに従います。
-これらの変換は，ゼロに向かって丸める`rtz`の変種を除いて，`frm`の動的丸めモードを使用します。
+これらの変換は、ゼロに向かって丸める`rtz`の変種を除いて、`frm`の動的丸めモードを使用します。
 
 ////
 NOTE: The `rtz` variants are provided to accelerate truncating conversions
@@ -7414,8 +7414,10 @@ NOTE: 浮動小数点型幅拡張変換のフルセットは、単一の命令�
 最後の半減ステップ以外が round-towards-odd (`vfncvt.rod.f.f.w`) を使用した場合、結果は同等に丸められ、同じ例外フラグが立てられます。 
 最後のステップだけは、希望する丸め方向を使用する必要があります。
 
-== Vector Reduction Operations
+// == Vector Reduction Operations
+== ベクトルリダクション操作
 
+////
 Vector reduction operations take a vector register group of elements
 and a scalar held in element 0 of a vector register, and perform a
 reduction using some binary operator, to produce a scalar result in
@@ -7423,41 +7425,80 @@ element 0 of a vector register.  The scalar input and output operands
 are held in element 0 of a single vector register, not a vector
 register group, so any vector register can be the scalar source or
 destination of a vector reduction regardless of LMUL setting.
+////
+ベクトルリダクションは、ベクトルレジスタ群の要素と、ベクトルレジスタの要素0に保持されているスカラを受け取り、
+何らかの二項演算子を用いてリダクションを行い、ベクトルレジスタの要素0にスカラの結果を出力するものです。 
+スカラの入出力オペランドは、ベクトルレジスタ群ではなく、単一のベクトルレジスタの要素0に保持されるため、LMULの設定に関わらず、
+どのベクトルレジスタもベクトルリダクションのスカラのソースまたは書き込みレジスタとなります。
 
+////
 The destination vector register can overlap the source operands,
 including the mask register.
+////
+書き込みのベクターレジスタは、マスクレジスタを含むソースオペランドとオーバーラップすることができます。
 
+////
 NOTE: Reductions read and write the scalar operand and result into
 element 0 of a vector register to avoid a loss of decoupling with the
 scalar processor, and to support future polymorphic use with future
 types not supported in the scalar unit.
+////
+NOTE: リダクションは、スカラプロセッサとのデカップリングの損失を回避し、
+スカラユニットでサポートされていない将来の型で将来のポリモーフィックな使用をサポートするために、
+スカラオペランドと結果をベクトルレジスタの要素0に読み書きします。
 
+////
 Inactive elements from the source vector register group are excluded
 from the reduction, but the scalar operand is always included
 regardless of the mask values.
+////
+ソースベクトルレジスタグループの非アクティブな要素はリダクションから除外されますが、
+スカラオペランドはマスク値にかかわらず常に含まれます。
 
+////
 The other elements in the destination vector register ( 0 < index <
 VLEN/SEW) are considered the tail and are managed with the current
 tail agnostic/undisturbed policy.
+////
+書き込みベクトルレジスタ内の他の要素(0 < index < VLEN/SEW)は末尾とみなされ、
+現在のtail agnostic/undisturbedポリシで管理されます。
 
+////
 If `vl`=0, no operation is performed and the destination register is
 not updated.
+////
+`vl`=0の場合は、操作は行われず、書き込みレジスタは更新されません。
 
+
+////
 Traps on vector reduction instructions are always reported with a
 `vstart` of 0.  Vector reduction operations raise an illegal
 instruction exception if `vstart` is non-zero.
+////
+ベクトルリダクション命令のトラップは、常に `vstart` が0で報告されます。 
+ベクトルリダクション操作は、`vstart` が 0 でない場合、不正な命令の例外を発生させます。
 
+////
 The assembler syntax for a reduction operation is `vredop.vs`, where
 the `.vs` suffix denotes the first operand is a vector register group
 and the second operand is a scalar stored in element 0 of a vector
 register.
+////
+縮小演算のアセンブラ構文は、`vredop.vs` です。`.vs` は、第1オペランドがベクトルレジスタグループで、
+第 2 オペランドがベクトルレジスタの要素 0 に格納されたスカラであることを表します。
 
 [[sec-vector-integer-reduce]]
-=== Vector Single-Width Integer Reduction Instructions
+// === Vector Single-Width Integer Reduction Instructions
+=== ベクトル単一幅整数リダクション命令
 
+////
 All operands and results of single-width reduction instructions have
 the same SEW width.  Overflows wrap around on arithmetic sums.
+////
+単一幅のリダクション命令のオペランドと結果は、すべて同じSEW幅になります。 
+算術加算ではオーバーフローは丸められます。
 
+////
 ----
     # Simple reductions, where [*] denotes all active elements:
     vredsum.vs  vd, vs2, vs1, vm   # vd[0] =  sum( vs1[0] , vs2[*] )
@@ -7469,17 +7510,40 @@ the same SEW width.  Overflows wrap around on arithmetic sums.
     vredor.vs   vd, vs2, vs1, vm   # vd[0] =   or( vs1[0] , vs2[*] )
     vredxor.vs  vd, vs2, vs1, vm   # vd[0] =  xor( vs1[0] , vs2[*] )
 ----
+////
+
+----
+	# 単純なリダクション命令. [*]は全てのアクティブな要素を意味する:
+    vredsum.vs  vd, vs2, vs1, vm   # vd[0] =  sum( vs1[0] , vs2[*] )
+    vredmaxu.vs vd, vs2, vs1, vm   # vd[0] = maxu( vs1[0] , vs2[*] )
+    vredmax.vs  vd, vs2, vs1, vm   # vd[0] =  max( vs1[0] , vs2[*] )
+    vredminu.vs vd, vs2, vs1, vm   # vd[0] = minu( vs1[0] , vs2[*] )
+    vredmin.vs  vd, vs2, vs1, vm   # vd[0] =  min( vs1[0] , vs2[*] )
+    vredand.vs  vd, vs2, vs1, vm   # vd[0] =  and( vs1[0] , vs2[*] )
+    vredor.vs   vd, vs2, vs1, vm   # vd[0] =   or( vs1[0] , vs2[*] )
+    vredxor.vs  vd, vs2, vs1, vm   # vd[0] =  xor( vs1[0] , vs2[*] )
+----
+
 
 [[sec-vector-integer-reduce-widen]]
-=== Vector Widening Integer Reduction Instructions
+// === Vector Widening Integer Reduction Instructions
+=== ベクトル幅拡張整数リダクション命令
 
+////
 The unsigned `vwredsumu.vs` instruction zero-extends the SEW-wide
 vector elements before summing them, then adds the 2*SEW-width scalar
 element, and stores the result in a 2*SEW-width scalar element.
+////
+符号なしの `vwredsumu.vs` 命令は、SEW幅のベクトル要素をゼロ拡張してから合計し、
+次に2*SEW幅のスカラー要素を加え、その結果を2*SEW幅のスカラー要素に格納します。
 
-The `vwredsum.vs` instruction sign-extends the SEW-wide vector
+////
+The `vwredsum.vs`  instruction sign-extends the SEW-wide vector
 elements before summing them.
+////
+`vwredsum.vs` 命令は、SEW幅のベクトル要素を符号拡張してから加算します。
 
+////
 ----
     # Unsigned sum reduction into double-width accumulator
     vwredsumu.vs vd, vs2, vs1, vm   # 2*SEW = 2*SEW + sum(zero-extend(SEW))
@@ -7487,10 +7551,20 @@ elements before summing them.
     # Signed sum reduction into double-width accumulator
     vwredsum.vs  vd, vs2, vs1, vm   # 2*SEW = 2*SEW + sum(sign-extend(SEW))
 ----
+////
+----
+	# 2倍幅での符号なしリダクション加算を倍幅でアキュムレートする
+    vwredsumu.vs vd, vs2, vs1, vm   # 2*SEW = 2*SEW + sum(zero-extend(SEW))
+
+	# 符号付きリダクション加算を倍幅でアキュムレートする
+    vwredsum.vs  vd, vs2, vs1, vm   # 2*SEW = 2*SEW + sum(sign-extend(SEW))
+----
 
 [[sec-vector-float-reduce]]
-=== Vector Single-Width Floating-Point Reduction Instructions
+// === Vector Single-Width Floating-Point Reduction Instructions
+=== ベクトル単一幅浮動小数点リダクション命令
 
+////
 ----
     # Simple reductions.
     vfredosum.vs vd, vs2, vs1, vm # Ordered sum
@@ -7499,39 +7573,75 @@ elements before summing them.
     vfredmin.vs  vd, vs2, vs1, vm # Minimum value
 
 ----
+////
 
+----
+    # 単純なリダクション
+    vfredosum.vs vd, vs2, vs1, vm # 順序付き加算
+    vfredusum.vs vd, vs2, vs1, vm # 順序無し加算
+    vfredmax.vs  vd, vs2, vs1, vm # 最大値
+    vfredmin.vs  vd, vs2, vs1, vm # 最小値
+
+----
+
+////
 NOTE: Older assembler mnemonic `vfredsum` is retained as alias for `vfredusum`.
+////
+NOTE: 過去のアセンブラニーモニックである `vfredsum` は `vfredsum` へのエイリアスとして残されています。
 
-==== Vector Ordered Single-Width Floating-Point Sum Reduction
+// ==== Vector Ordered Single-Width Floating-Point Sum Reduction
+==== ベクトル順序付き単一幅浮動小数点リダクション加算命令
 
+////
 The `vfredosum` instruction must sum the floating-point values in
 element order, starting with the scalar in `vs1[0]`--that is, it
 performs the computation:
+////
+`vfredosum`命令は、`vs1[0]`のスカラーから順に、
+浮動小数点値を要素順に合計しなければなりません--つまり、以下のように計算を行います。
 
 ----
  vd[0] = `(((vs1[0] + vs2[0]) + vs2[1]) + ...) + vs2[vl-1]`
 ----
+////
 where each addition operates identically to the scalar floating-point
 instructions in terms of raising exception flags and generating or
 propagating special values.
+////
+ここで各加算は、例外フラグの発生や特別な値の生成・伝搬という点で、スカラ浮動小数点演算命令と同じ動作をします。
 
+////
 NOTE: The ordered reduction supports compiler autovectorization, while
 the unordered FP sum allows for faster implementations.
+////
+注：順序付きリダクションはコンパイラの自動ベクトル化に対応していますが、順序のないFP加算はより高速な実装を可能にします。
 
+////
 When the operation is masked (`vm=0`), the masked-off elements do not
 affect the result or the exception flags.
+////
+演算がマスクされている場合(`vm=0`)、マスクされていない要素は結果や例外フラグに影響を与えません。
 
+////
 NOTE: If no elements are active, no additions are performed, so the scalar in
 `vs1[0]` is simply copied to the destination register, without canonicalizing
 NaN values and without setting any exception flags.  This behavior preserves
 the handling of NaNs, exceptions, and rounding when autovectorizing a scalar
 summation loop.
+////
+NOTE: アクティブな要素がない場合、加算は行われず、`vs1[0]` のスカラは、NaN値の正規化や例外フラグの設定を行うことなく、単に書き込みレジスタにコピーされます。 
+この動作は、スカラの加算ループを自動ベクトル化する際のNaN、例外、丸めの処理と同一です。
 
-==== Vector Unordered Single-Width Floating-Point Sum Reduction
+// ==== Vector Unordered Single-Width Floating-Point Sum Reduction
+==== ベクトル順序無し単一幅浮動小数点リダクション加算命令
 
+////
 The unordered sum reduction instruction, `vfredusum`, provides an
 implementation more freedom in performing the reduction.
+////
+順序無しリダクション命令である `vfredusum` は、リダクションを実行する際の実装の自由度を高めます。
 
+////
 The implementation must produce a result equivalent to a reduction tree
 composed of binary operator nodes, with the inputs being elements from
 the source vector register group (`vs2`) and the source scalar value
@@ -7552,23 +7662,49 @@ using the dynamic rounding mode) to the standard floating-point format
 indicated by SEW.
 An implementation
 is allowed to add an additional additive identity to the final result.
+////
+実装では、ソースのベクトルレジスタ群(`vs2`)とソースのスカラー値(`vs1[0]`)の要素を入力とし
+バイナリ演算子ノードで構成されるリダクションツリーと同等の結果を生成する必要があります。
+ツリー内の各演算子は、2つの入力を受け入れ、1つの結果を生成します。
+各演算子は、まず、RISC-Vのスカラ浮動小数点加算として、指数の範囲と精度が無限大の正確な和を計算し、
+次に、この正確な和を、SEWで示される要素浮動小数点フォーマットと少なくとも同じ範囲と精度を持つ浮動小数点フォーマットに変換し、
+現在アクティブな浮動小数点ダイナミック丸めモードを用いて丸めます。
+各演算子の結果には、異なる浮動小数点の範囲と精度を選択することができます。
+一方の入力が、マスクされた要素やアクティブなベクトル長を超えた要素からのみ得られるノードは、
+その入力を適切なEEWの加法単位元として扱うか、あるいは単に他方の入力をその出力にコピーすることができます。
+ツリーのルートノードからの丸められた結果は、SEW で示される標準的な浮動小数点フォーマットに変換されます(動的丸めモードを使用して再度丸められます)。
+実装では、最終結果に加法単位元を加えることができます。
 
+////
 The additive identity is +0.0 when rounding down (towards -{inf}) or
 -0.0 for all other rounding modes.
+////
+加算恒等式は，切り捨て(-{inf}方向)の場合は+0.0、その他の丸め方の場合は-0.0である。
 
+////
 The reduction tree structure must be deterministic for a given value
 in `vtype` and `vl`.
+////
+リダクションツリーの構造は、`vtype` と `vl` に与えられた値に対して決定的でなければなりません。
 
+////
 NOTE: As a consequence of this definition, implementations need not propagate
 NaN payloads through the reduction tree when no elements are active. In
 particular, if no elements are active and the scalar input is NaN,
 implementations are permitted to canonicalize the NaN and, if the NaN is
 signaling, set the invalid exception flag.  Implementations are alternatively
 permitted to pass through the original NaN and set no exception flags, as with
-`vfredosum`.
+`vfredosum` .
+////
+NOTE: この定義の結果として、要素がアクティブでない場合、実装はNaNペイロードをリダクションツリーに伝搬させる必要はありません。
+特に、アクティブな要素がなく、スカラー入力がNaNの場合、実装はNaNを正規化し、NaNがシグナリングの場合は、無効な例外フラグを設定することが許可されています。 
+また、`vfredosum` のように、元のNaNを通過させ、例外フラグを設定しないことも可能です。
 
+////
 NOTE: The `vfredosum` instruction is a valid implementation of the
 `vfredusum` instruction.
+////
+NOTE: `vfredosum` 命令は、 `vfredusum` としても有効です。
 
 ==== Vector Single-Width Floating-Point Max and Min Reductions
 
