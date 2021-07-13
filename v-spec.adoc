@@ -7706,59 +7706,104 @@ NOTE: The `vfredosum` instruction is a valid implementation of the
 ////
 NOTE: `vfredosum` 命令は、 `vfredusum` としても有効です。
 
-==== Vector Single-Width Floating-Point Max and Min Reductions
+// ==== Vector Single-Width Floating-Point Max and Min Reductions
+==== ベクトル単一幅浮動小数点最大・最小リダクション
 
+////
 NOTE: Floating-point max and min reductions should return the same
 final value and raise the same exception flags regardless of operation
 order.
+////
+NOTE: 浮動小数点最大・最小リダクション命令は、演算の順序に関係なく常に同じ結果と同じ例外フラグを設定しなければなりません。
 
+////
 NOTE: If no elements are active, the scalar in `vs1[0]` is simply copied to
 the destination register, without canonicalizing NaN values and without
 setting any exception flags.
+////
+NOTE: アクティブな要素が一つもない場合、`vs1[0]`のスカラ値が単純に書き込みレジスタにコピーされます。
+その際、例外フラグは設定されず、NaNの処理も行われません。
 
 [[sec-vector-float-reduce-widen]]
-=== Vector Widening Floating-Point Reduction Instructions
+// === Vector Widening Floating-Point Reduction Instructions
+=== ベクトル幅拡張浮動小数点リダクション命令
 
+////
 Widening forms of the sum reductions are provided that
 read and write a double-width reduction result.
+////
+リダクション加算命令における幅拡張の形式は、倍幅のデータの読み書きを行います。。
 
+////
 ----
  # Simple reductions.
  vfwredosum.vs vd, vs2, vs1, vm # Ordered sum
  vfwredusum.vs vd, vs2, vs1, vm # Unordered sum
 ----
+////
+----
+ # 単純なリダクション
+ vfwredosum.vs vd, vs2, vs1, vm # 順序付きリダクション加算
+ vfwredusum.vs vd, vs2, vs1, vm # 順序なしリダクション加算命令
+----
 
+////
 NOTE: Older assembler mnemonic `vfwredsum` is retained as alias for `vfwredusum`.
+////
+NOTE: 古いアセンブリニーモニックである `vfwredsum` は `vfwredusum` のエイリアスとして残されています。
 
+////
 The reduction of the SEW-width elements is performed as in the
 single-width reduction case, with the elements in `vs2` promoted
 to 2*SEW bits before adding to the 2*SEW-bit accumulator.
+////
+SEW幅の要素のリダクション操作は単一幅で行われ、`vs2`の要素は2*SEWに拡張されて2*SEWビットのアキュムレータに加算されます。
 
+////
 NOTE: `vfwredosum.vs` handles inactive elements and NaN payloads analogously
 to `vfredosum.vs`; `vfwredusum.vs` does so analogously to `vfredusum.vs`.
+////
+NOTE: `vfwredosum.vs` 命令は非アクティブな要素とNaNのペイロードについては、`vfredosum.vs`と同様に扱います;
+`vfwredusum.vs` は `vfredusum.vs` と同様に動作します。
 
 [[sec-vector-mask]]
-== Vector Mask Instructions
+// == Vector Mask Instructions
+== ベクトルマスク命令
 
+////
 Several instructions are provided to help operate on mask values held in
 a vector register.
+////
+ベクトルレジスタに格納されているマスクを操作するための命令がいくつか提供されています。
 
 [[sec-mask-register-logical]]
-=== Vector Mask-Register Logical Instructions
+// === Vector Mask-Register Logical Instructions
+=== ベクトルマスクレジスタ論理命令
 
+////
 Vector mask-register logical operations operate on mask registers.
 Each element in a mask register is a single bit, so these instructions
 all operate on single vector registers regardless of the setting of
 the `vlmul` field in `vtype`.  They do not change the value of
 `vlmul`.  The destination vector register may be the same as either
 source vector register.
+////
+ベクトルマスクレジスタ論理命令は、マスクレジスタに対して演算を実行します。
+マスクレジスタの各要素は1ビットであり、従ってこれらの命令は`vtype`フィールド内の`vlmul`の設定に関係なく単一のベクトルレジスタを操作します。
+これらの命令は`vlmul`の設定を変更しません。
+書き込みベクトルレジスタはソースベクトルレジスタと同一である可能性があります。
 
+////
 As with other vector instructions, the elements with indices less than
 `vstart` are unchanged, and `vstart` is reset to zero after execution.
 Vector mask logical instructions are always unmasked, so there are no
 inactive elements, and the encodings with `vm=0` are reserved.
 Mask elements past `vl`, the tail elements, are
 always updated with a tail-agnostic policy.
+////
+他のベクトル命令と同様に、`vstart`インデックスよりも小さな要素は変更されず、命令実行後には`vstart`の値は0にリセットされます。
+ベクトルマスク論理命令は常にマスクは適用されず、従って非アクティブ要素はありませんん。`vm=0`に相当するエンコーディングは予約されています。
+`vl`以降のマスク要素、つまり末尾エレメントは常にtail-agnosticポリシに基づいて更新されます。
 
 ----
     vmand.mm vd, vs2, vs1     # vd.mask[i] =   vs2.mask[i] &&  vs1.mask[i]
@@ -7771,8 +7816,12 @@ always updated with a tail-agnostic policy.
     vmxnor.mm vd, vs2, vs1    # vd.mask[i] = !(vs2.mask[i] ^^  vs1.mask[i])
 ----
 
+////
 Several assembler pseudoinstructions are defined as shorthand for
 common uses of mask logical operations:
+////
+一般的に使用されるマスク論理操作のために、いくつかのアセンブラ疑似命令が定義されています。
+
 ----
     vmmv.m vd, vs  => vmand.mm vd, vs, vs  # Copy mask register
     vmclr.m vd     => vmxor.mm vd, vd, vd   # Clear mask register
@@ -7780,13 +7829,21 @@ common uses of mask logical operations:
     vmnot.m vd, vs => vmnand.mm vd, vs, vs  # Invert bits
 ----
 
+////
 NOTE: The vmmv.m instruction was previously called vmcpy.m, but with
 new layout it is more consistent to name as a "mv" because bits are
 copied without interpretation.  The vmcpy.m assembler
 pseudoinstruction can be retained for compatibility.
+////
+NOTE: vmmv.m は以前は vmcpy.m と呼ばれていましたが、新しいレイアウトでは、
+ビットが解釈無しにコピーされるため "mv"と読んだ方が整合性があります。
+vmcpy.m アセンブラ疑似命令は互換性のために残されています。
 
+////
 The set of eight mask logical instructions can generate any of the 16
 possibly binary logical functions of the two input masks:
+////
+8つのマスク論理命令は2つの入力マスクに対する任意の16個のバイナリ論理演算を実行することができます。
 
 [cols="1,1,1,1,12"]
 |===
@@ -7817,53 +7874,87 @@ possibly binary logical functions of the two input masks:
 | 1 | 1 | 1 | 1 | vmxnor.mm vd, vd, vd        | vmset.m vd
 |===
 
+////
 NOTE: The vector mask logical instructions are designed to be easily
 fused with a following masked vector operation to effectively expand
 the number of predicate registers by moving values into `v0` before
 use.
+////
+NOTE: ベクトルマスク論理命令は、使用前に値を`v0`に移すことで、プレディケートレジスタの数を効果的に拡張するために、
+次のマスクされたベクトル演算と簡単に融合できるように設計されています。
 
-=== Vector mask population count `vpopc`
+
+// === Vector mask population count `vpopc`
+=== ベクトルマスクポピュレーションカウント `vpopc`
 
 ----
     vpopc.m rd, vs2, vm
 ----
 
+////
 The source operand is a single vector register holding mask register
 values as described in Section <<sec-mask-register-layout>>.
+////
+ソースオペランドは、 <<sec-mask-register-layout>> 節で説明されているように、マスクレジスタの値を保持する単一のベクトルレジスタです。
 
+////
 The `vpopc.m` instruction counts the number of mask elements of the
 active elements of the vector source mask register that have the value
 1 and writes the result to a scalar `x` register.
+////
+`vpopc.m`命令は，ベクトルソースマスクレジスタのアクティブ要素のうち、値が1であるマスク要素の数を数え、その結果をスカラの`x`レジスタに書き込む。
 
+////
 The operation can be performed under a mask, in which case only the
 masked elements are counted.
+////
+この操作はマスク下で行うことができ、その場合はマスクされた要素のみがカウントされます。
 
 ----
- vpopc.m rd, vs2, v0.t # x[rd] = sum_i ( vs2.mask[i] && v0.mask[i] )
+ vpopc.m rd, vs2, v0.t # x[rd] = sum__i ( vs2.mask[i] && v0.mask[i] )
 ----
 
+////
 Traps on `vpopc.m` are always reported with a `vstart` of 0.  The
 `vpopc` instruction will raise an illegal instruction exception if
 `vstart` is non-zero.
+////
 
-=== `vfirst` find-first-set mask bit
+`vpopc.m` 上の例外は、常に `vstart` が 0 で通知されます。
+`vpopc` 命令は、`vstart` が0でない場合、不正命令例外を発生させます。
+
+
+// === `vfirst` find-first-set mask bit
+=== `vfirst` find-first-set マスクビット名れい
 
 ----
     vfirst.m rd, vs2, vm
 ----
 
+////
 The `vfirst` instruction finds the lowest-numbered active element of
 the source mask vector that has the value 1 and writes that element's
 index to a GPR.  If no active element has the value 1, -1 is written
 to the GPR.
+////
+`vfirst` 命令は，ソースマスクベクトルの中から、値1を持つ最も低い番号のアクティブな要素を見つけ、その要素のインデックスをGPRに書き込みます。 
+値が1のアクティブな要素がない場合は，-1が書き込まれます。
 
+////
 NOTE: Software can assume that any negative value (highest bit set)
 corresponds to no element found, as vector lengths will never exceed
 2^(XLEN-1)^ on any implementation.
+////
+ベクトルの長さはどのような実装でも2^(XLEN-1)^ を超えることはありませんので、ソフトウェアは負の値(最上位ビットの設定)があれば、
+要素が見つからないと仮定することができます。
 
+////
 Traps on `vfirst` are always reported with a `vstart` of 0.  The
 `vfirst` instruction will raise an illegal instruction exception if
 `vstart` is non-zero.
+////
+`vfirst` の例外は常に 0 の `vstart` で報告されます。`
+vstart` が 0 でない場合、`vfirst` 命令は不正命令例外を発生させます。
 
 === `vmsbf.m` set-before-first mask bit
 
