@@ -7885,7 +7885,7 @@ NOTE: ベクトルマスク論理命令は、使用前に値を`v0`に移すこ�
 
 
 // === Vector mask population count `vpopc`
-=== ベクトルマスクポピュレーションカウント `vpopc`
+=== ベクトルマスクPopカウント `vpopc`
 
 ----
     vpopc.m rd, vs2, vm
@@ -7925,7 +7925,7 @@ Traps on `vpopc.m` are always reported with a `vstart` of 0.  The
 
 
 // === `vfirst` find-first-set mask bit
-=== `vfirst` find-first-set マスクビット名れい
+=== `vfirst` find-first-set マスクビット命令
 
 ----
     vfirst.m rd, vs2, vm
